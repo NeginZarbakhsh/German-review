@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>German Daily Review</title>
+<link rel="manifest" href="manifest.json"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Vazirmatn:wght@400;500&display=swap">
+<style>
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)} body{margin:0} [hidden]{display:none!important}
+/* Layout: single reading column; sticky bar holds section chips and the three controls; each phrase is a card with a play button on the thumb side */
+:root{
+  --bg:#f2f4f8; --surface:#ffffff; --fg:#141b27; --muted:#5a6578; --line:#dde2eb;
+  --accent:#2347c5; --accent-ink:#ffffff; --accent-soft:#e6ecfb; --stress:#c2410c; --star:#d97706; --bad:#b42318;
+  --display:"Bricolage Grotesque",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,sans-serif;
+  --fa:"Vazirmatn",Tahoma,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e131b; --surface:#161d28; --fg:#e7ecf4; --muted:#9aa6ba; --line:#263142;
+  --accent:#86a5ff; --accent-ink:#0e131b; --accent-soft:#1c2945; --stress:#fb923c; --star:#fbbf24; --bad:#f97066; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e131b; --surface:#161d28; --fg:#e7ecf4; --muted:#9aa6ba; --line:#263142;
+  --accent:#86a5ff; --accent-ink:#0e131b; --accent-soft:#1c2945; --stress:#fb923c; --star:#fbbf24; --bad:#f97066; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:20;background:var(--bg)}
+.wrap{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{padding-block:24px 8px}
+h1{font-family:var(--display);font-weight:700;font-size:2.1rem;line-height:1.05;margin:0;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:6px 0 0}
+
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar .wrap{display:flex;flex-direction:column;gap:10px;padding-block:10px}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -4px;padding:0 4px}
+.chips::-webkit-scrollbar{display:none}
+.chips a{flex:none;text-decoration:none;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:.88rem;font-weight:700;white-space:nowrap}
+.chips a.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.controls{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{border:0;background:transparent;color:var(--muted);font:700 .85rem var(--body);padding:6px 11px;border-radius:7px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.toggle{border:1px solid var(--line);background:var(--surface);color:var(--muted);font:700 .85rem var(--body);padding:8px 10px;border-radius:10px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.toggle[aria-pressed="true"]{border-color:var(--star);color:var(--star)}
+.toggle svg{width:14px;height:14px}
+
+main{padding-block:8px 64px}
+section{scroll-margin-top:150px;padding-top:28px}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h2{font-family:var(--display);font-weight:700;font-size:1.55rem;margin:0;letter-spacing:-.01em}
+.lead{color:var(--muted);margin:4px 0 14px;max-width:60ch}
+h3{font-family:var(--display);font-weight:500;font-size:1.05rem;margin:22px 0 4px;color:var(--fg)}
+.note{color:var(--muted);font-size:.92rem;margin:0 0 10px;max-width:60ch}
+.playall{border:0;background:transparent;color:var(--accent);font:700 .9rem var(--body);cursor:pointer;padding:4px 0;display:inline-flex;gap:6px;align-items:center}
+.playall svg{width:14px;height:14px}
+
+.list{display:flex;flex-direction:column;gap:8px}
+.card{display:grid;grid-template-columns:1fr auto;gap:4px 12px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 14px 14px 16px;transition:border-color .15s,background .15s}
+.card.playing{border-color:var(--accent);background:var(--accent-soft)}
+.body{min-width:0;display:flex;flex-direction:column;gap:3px}
+.de{font-family:var(--display);font-weight:700;font-size:1.3rem;line-height:1.2}
+.say{font-size:.98rem;letter-spacing:.02em;color:var(--fg)}
+.say b{color:var(--stress);font-weight:700}
+.en{color:var(--muted)}
+.fa{font-family:var(--fa);color:var(--muted);font-size:.98rem}
+.words{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.w{font-size:.85rem;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:2px 8px}
+.w b{font-weight:700}
+.w span{color:var(--muted)}
+.tip{font-size:.88rem;color:var(--muted);font-style:italic;margin-top:4px}
+.side{display:flex;flex-direction:column;align-items:center;gap:6px}
+.play{width:46px;height:46px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;cursor:pointer}
+.play svg{width:18px;height:18px;margin-left:2px}
+.star{width:34px;height:34px;border:0;background:transparent;color:var(--line);display:grid;place-items:center;cursor:pointer;border-radius:8px}
+.star svg{width:20px;height:20px}
+.star[aria-pressed="true"]{color:var(--star)}
+.reveal{display:none;border:1px dashed var(--line);background:var(--bg);color:var(--muted);font:700 .9rem var(--body);border-radius:10px;padding:10px;cursor:pointer;text-align:left}
+.sound .de{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:1.2rem}
+
+/* practice mode: meaning first, German hidden until revealed */
+.practice .card:not(.shown) .hide{display:none}
+.practice .card:not(.shown) .reveal{display:block}
+.practice .card .en{order:-1;color:var(--fg);font-weight:700}
+.practice .card.shown .en{font-weight:400;color:var(--muted)}
+.hardonly .card:not(.hard), .hardonly .tile:not(.hard), .hardonly .crow:not(.hard){display:none}
+.hardonly .group-empty{display:block}
+.group-empty{display:none;color:var(--muted);font-size:.9rem}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
+.tile{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 10px 10px;cursor:pointer;text-align:left;color:var(--fg);font:inherit;display:flex;flex-direction:column;gap:2px}
+.tile.playing{border-color:var(--accent);background:var(--accent-soft)}
+.tile .n{font-family:var(--display);font-weight:700;font-size:1.8rem;line-height:1;font-variant-numeric:tabular-nums}
+.tile .tw{font-weight:700;font-size:1.05rem}
+.tile .ts{font-size:.82rem}
+.tile .ts b{color:var(--stress)}
+.tile .star{position:absolute;top:4px;right:4px;width:28px;height:28px}
+.tile .star svg{width:16px;height:16px}
+.practice .tile:not(.shown) .hide{visibility:hidden}
+
+.conj{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.crow{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:10px 12px 10px 16px;border-top:1px solid var(--line)}
+.crow:first-child{border-top:0}
+.crow.playing{background:var(--accent-soft)}
+.crow .de{font-size:1.1rem}
+.crow .meta{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.92rem}
+.crow .play{width:38px;height:38px}
+.crow .play svg{width:15px;height:15px}
+.practice .crow:not(.shown) .hide{display:none}
+.practice .crow:not(.shown) .reveal{display:block;padding:6px 10px}
+.crow .side{flex-direction:row}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px;margin-top:22px}
+.info{background:var(--accent-soft);border-radius:14px;padding:14px 16px}
+.info h4{font-family:var(--display);font-size:1.05rem;margin:0 0 6px}
+.info p{margin:0;font-size:.95rem;line-height:1.6}
+
+.mist{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.mrow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:4px 16px;padding:10px 16px;border-top:1px solid var(--line)}
+.mrow:first-child{border-top:0}
+.mrow s{color:var(--bad);text-decoration-thickness:2px}
+.mrow .ok{font-weight:700}
+.mrow .why{grid-column:1/-1;color:var(--muted);font-size:.88rem}
+.mhead{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:8px 16px;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);background:var(--bg);border-bottom:1px solid var(--line)}
+
+.how{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:16px}
+.how div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:.9rem}
+.how b{display:block;font-family:var(--display);font-size:.95rem}
+.legend{font-size:.88rem;color:var(--muted);margin-top:10px}
+.legend b{color:var(--stress)}
+
+button:focus-visible,a:focus-visible{outline:3px solid var(--stress);outline-offset:2px}
+@media (max-width:480px){h1{font-size:1.75rem}.de{font-size:1.18rem}.card{padding:12px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+
+</head><body>
+<header class="top"><div class="wrap">
+  <h1>German Daily Review</h1>
+  <p class="sub">Your notes in one place. Read, listen, then test yourself.</p>
+  <div class="how">
+    <div><b>1 · Learn</b>Read each line and tap ▶ to hear it.</div>
+    <div><b>2 · Practice</b>See the meaning, say the German out loud, then tap to check.</div>
+    <div><b>3 · Star</b>Star what you forget. Review “Starred” first tomorrow.</div>
+  </div>
+  <p class="legend">Orange <b>CAPITALS</b> show the stressed part of the word.</p>
+</div></header>
+
+<div class="bar"><div class="wrap">
+  <nav class="chips" id="chips" aria-label="Sections"></nav>
+  <div class="controls">
+    <div class="seg" role="group" aria-label="Mode">
+      <button id="m-learn" data-mode="learn" aria-pressed="true">Learn</button>
+      <button id="m-practice" data-mode="practice" aria-pressed="false">Practice</button>
+    </div>
+    <div class="seg" role="group" aria-label="Speed">
+      <button id="s-slow" data-speed="s" aria-pressed="true">Slow</button>
+      <button id="s-normal" data-speed="n" aria-pressed="false">Normal</button>
+    </div>
+    <button class="toggle" id="hard" aria-pressed="false"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/></svg>Starred</button>
+  </div>
+</div></div>
+
+<main class="wrap" id="main"></main>
+
+<script>
+const DATA = __DATA__;
+const PLAY = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>';
+const STAR = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/></svg>';
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const stress = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+const store = {get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}}, set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+let speed = store.get('speed','s'), mode = store.get('mode','learn'), hardOnly = false;
+let starred = new Set(store.get('starred', []));
+const main = document.getElementById('main'), chips = document.getElementById('chips');
+
+function starBtn(id){ return `<button class="star" data-star="${id}" aria-pressed="${starred.has(id)}" aria-label="Star to review">${STAR}</button>`; }
+function rowCard(it, id, sound){
+  const words = it.words.length ? `<div class="words hide">${it.words.map(([d,e])=>`<span class="w"><b>${esc(d)}</b> <span>= ${esc(e)}</span></span>`).join('')}</div>` : '';
+  return `<div class="card${sound?' sound':''}${starred.has(id)?' hard':''}" id="${id}" data-a="${it.a}">
+    <div class="body">
+      <div class="de hide">${esc(it.de)}</div>
+      <div class="say hide">${stress(it.say)}</div>
+      <div class="en">${esc(it.en)}</div>
+      <div class="fa hide" dir="rtl" lang="fa">${esc(it.fa)}</div>
+      ${words}
+      ${it.tip?`<div class="tip hide">${esc(it.tip)}</div>`:''}
+      <button class="reveal" data-reveal="${id}">Say it out loud, then tap to check</button>
+    </div>
+    <div class="side"><button class="play" data-play="${id}" aria-label="Play ${esc(it.de)}">${PLAY}</button>${starBtn(id)}</div>
+  </div>`;
+}
+function tile(it, id){
+  return `<div class="tile${starred.has(id)?' hard':''}" id="${id}" data-a="${it.a}" data-play="${id}" role="button" tabindex="0" aria-label="Play ${esc(it.de)}">
+    <span class="n">${esc(it.en)}</span><span class="tw hide">${esc(it.de)}</span><span class="ts hide">${stress(it.say)}</span>${starBtn(id)}</div>`;
+}
+function crow(it, id){
+  return `<div class="crow${starred.has(id)?' hard':''}" id="${id}" data-a="${it.a}">
+    <div class="body"><div class="de hide">${esc(it.de)}</div>
+      <div class="meta"><span class="say hide">${stress(it.say)}</span><span class="en">${esc(it.en)}</span></div>
+      <button class="reveal" data-reveal="${id}">Tap to check</button></div>
+    <div class="side">${starBtn(id)}<button class="play" data-play="${id}" aria-label="Play ${esc(it.de)}">${PLAY}</button></div></div>`;
+}
+
+const sequences = {};
+DATA.sections.forEach((s, si) => {
+  chips.insertAdjacentHTML('beforeend', `<a href="#${s.id}" data-sec="${s.id}">${esc(s.title)}</a>`);
+  let html = `<section id="${s.id}"><div class="sec-head"><h2>${esc(s.title)}</h2><button class="playall" data-seq="${s.id}">${PLAY}Play all</button></div><p class="lead">${esc(s.lead)}</p>`;
+  const ids = [];
+  s.groups.forEach((g, gi) => {
+    if (g.title && g.kind !== 'conj') html += `<h3>${esc(g.title)}</h3>`;
+    if (g.note) html += `<p class="note">${esc(g.note)}</p>`;
+    const idOf = i => `${s.id}-${gi}-${i}`;
+    if (g.kind === 'rows') html += `<div class="list">${g.items.map((it,i)=>{ids.push(idOf(i));return rowCard(it, idOf(i), s.id==='sounds')}).join('')}</div>`;
+    if (g.kind === 'numbers') html += `<div class="grid">${g.items.map((it,i)=>{ids.push(idOf(i));return tile(it, idOf(i))}).join('')}</div>`;
+    if (g.kind === 'conj') html += `<h3>${esc(g.title)}</h3><div class="conj">${g.items.map((it,i)=>{ids.push(idOf(i));return crow(it, idOf(i))}).join('')}</div>`;
+    if (g.kind === 'cards') html += `<div class="cards">${g.items.map(c=>`<div class="info"><h4>${esc(c.title)}</h4><p>${c.body}</p></div>`).join('')}</div>`;
+  });
+  html += `<p class="group-empty">Nothing starred here yet.</p></section>`;
+  sequences[s.id] = ids;
+  main.insertAdjacentHTML('beforeend', html);
+});
+main.insertAdjacentHTML('beforeend', `<section id="mistakes"><div class="sec-head"><h2>Watch out</h2></div><p class="lead">Mistakes from your handwritten pages. Read these before you write.</p>
+  <div class="mist"><div class="mhead"><span>Not this</span><span>Write this</span></div>${DATA.mistakes.map(([a,b,c])=>`<div class="mrow"><s>${esc(a)}</s><span class="ok">${esc(b)}</span><span class="why">${esc(c)}</span></div>`).join('')}</div></section>`);
+chips.insertAdjacentHTML('beforeend', `<a href="#mistakes" data-sec="mistakes">Watch out</a>`);
+
+// audio
+const player = new Audio(); let queue = [], current = null;
+function clearPlaying(){ document.querySelectorAll('.playing').forEach(e=>e.classList.remove('playing')); }
+function playNext(){
+  clearPlaying();
+  const id = queue.shift(); if (!id) { current = null; return; }
+  const el = document.getElementById(id);
+  if (!el || el.offsetParent === null) return playNext();
+  current = el; el.classList.add('playing');
+  player.src = `audio/${el.dataset.a}_${speed}.mp3`; player.play().catch(()=>{ clearPlaying(); });
+}
+player.addEventListener('ended', () => setTimeout(playNext, queue.length ? 350 : 0));
+function play(ids){ player.pause(); queue = ids.slice(); playNext(); }
+
+function reveal(el){ el.classList.add('shown'); }
+document.addEventListener('click', e => {
+  const st = e.target.closest('[data-star]');
+  if (st) { e.stopPropagation(); const id = st.dataset.star; const on = !starred.has(id);
+    on ? starred.add(id) : starred.delete(id); st.setAttribute('aria-pressed', on);
+    document.getElementById(id).classList.toggle('hard', on); store.set('starred', [...starred]); return; }
+  const rv = e.target.closest('[data-reveal]');
+  if (rv) { const el = document.getElementById(rv.dataset.reveal); reveal(el); play([el.id]); return; }
+  const p = e.target.closest('[data-play]');
+  if (p) { const el = document.getElementById(p.dataset.play); if (mode==='practice') reveal(el); play([el.id]); return; }
+  const sq = e.target.closest('[data-seq]');
+  if (sq) { play(sequences[sq.dataset.seq]); return; }
+});
+document.addEventListener('keydown', e => { if ((e.key==='Enter'||e.key===' ') && e.target.classList.contains('tile')) { e.preventDefault(); e.target.click(); } });
+
+function setMode(m){ mode = m; store.set('mode', m);
+  document.body.classList.toggle('practice', m==='practice');
+  document.querySelectorAll('.shown').forEach(e=>e.classList.remove('shown'));
+  document.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-pressed', b.dataset.mode===m)); }
+function setSpeed(s){ speed = s; store.set('speed', s);
+  document.querySelectorAll('[data-speed]').forEach(b=>b.setAttribute('aria-pressed', b.dataset.speed===s)); }
+document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
+document.querySelectorAll('[data-speed]').forEach(b=>b.onclick=()=>setSpeed(b.dataset.speed));
+document.getElementById('hard').onclick = function(){ hardOnly = !hardOnly; this.setAttribute('aria-pressed', hardOnly); document.body.classList.toggle('hardonly', hardOnly);
+  document.querySelectorAll('section').forEach(sec => { const empty = sec.querySelector('.group-empty'); if (empty) empty.hidden = !!sec.querySelector('.hard'); }); };
+setMode(mode); setSpeed(speed);
+
+// highlight current section chip
+const obs = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) {
+  chips.querySelectorAll('a').forEach(a => a.classList.toggle('on', a.dataset.sec === en.target.id));
+  const on = chips.querySelector('a.on'); if (on) chips.scrollTo({left: on.offsetLeft - 16, behavior: 'smooth'}); } }), {rootMargin:'-40% 0px -55% 0px'});
+document.querySelectorAll('section').forEach(s => obs.observe(s));
+</script>
+</body></html>

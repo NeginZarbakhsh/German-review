@@ -1,0 +1,446 @@
+sections:
+- id: greetings
+  title: Greetings
+  lead: Hello and goodbye for every time of day.
+  groups:
+  - kind: rows
+    items:
+    - de: Hallo
+      say: '**HAH**-loh'
+      fa: هالو
+      en: Hi
+    - de: Guten Morgen
+      say: '**GOO**-ten **MOR**-gen'
+      fa: گوتن مورگن
+      en: Good morning
+      words:
+      - [guten, good]
+      - [Morgen, morning]
+    - de: Guten Tag
+      say: '**GOO**-ten **TAHK**'
+      fa: گوتن تاک
+      en: Good day
+      words:
+      - [Tag, day]
+      tip: A g at the end of a word sounds like k.
+    - de: Guten Abend
+      say: '**GOO**-ten **AH**-bent'
+      fa: گوتن آبنت
+      en: Good evening
+      words:
+      - [Abend, evening]
+      tip: A d at the end of a word sounds like t.
+    - de: Tschüss!
+      say: '**CHÜSS**'
+      fa: چوس
+      en: Bye
+      tip: Casual. Use with friends.
+      speak: Tschüss
+    - de: Auf Wiedersehen
+      say: owf **VEE**-der-zay-en
+      fa: آوف ویدِر زِیِن
+      en: Goodbye
+      words:
+      - [wieder, again]
+      - [sehen, to see]
+      tip: Polite. Literally “until we see again”.
+- id: numbers
+  title: Numbers 0–12
+  lead: Tap a number to hear it. Count up, then count back down.
+  groups:
+  - kind: numbers
+    items:
+    - de: 'null'
+      say: '**NOOL**'
+      fa: نول
+      en: '0'
+    - de: eins
+      say: '**AINS**'
+      fa: آینس
+      en: '1'
+    - de: zwei
+      say: '**TSVAI**'
+      fa: تسوای
+      en: '2'
+    - de: drei
+      say: '**DRAI**'
+      fa: درای
+      en: '3'
+    - de: vier
+      say: '**FEER**'
+      fa: فیر
+      en: '4'
+    - de: fünf
+      say: '**FÜNF**'
+      fa: فونف
+      en: '5'
+    - de: sechs
+      say: '**ZEKS**'
+      fa: زکس
+      en: '6'
+    - de: sieben
+      say: '**ZEE**-ben'
+      fa: زیبن
+      en: '7'
+    - de: acht
+      say: '**AHKHT**'
+      fa: آخت
+      en: '8'
+    - de: neun
+      say: '**NOYN**'
+      fa: نُین
+      en: '9'
+    - de: zehn
+      say: '**TSAYN**'
+      fa: تسِین
+      en: '10'
+    - de: elf
+      say: '**ELF**'
+      fa: اِلف
+      en: '11'
+    - de: zwölf
+      say: '**TSVÖLF**'
+      fa: تسوُلف
+      en: '12'
+- id: meeting
+  title: Meeting someone
+  lead: Say who you are and ask the other person. Use du with friends and Sie with people you should be polite to.
+  groups:
+  - kind: rows
+    items:
+    - de: Hallo, ich heiße Negin.
+      say: '**HAH**-loh, ish **HAI**-seh Negin'
+      fa: هالو، ایش هایسه نگین
+      en: Hi, I'm called Negin.
+      words:
+      - [ich, I]
+      - [heiße, am called]
+    - de: Mein Name ist Negin.
+      say: main **NAH**-meh ist Negin
+      fa: ماین نامه ایست نگین
+      en: My name is Negin.
+      words:
+      - [mein, my]
+      - [Name, name]
+      - [ist, is]
+    - de: Ich bin Negin.
+      say: ish **BIN** Negin
+      fa: ایش بین نگین
+      en: I am Negin.
+      words:
+      - [bin, am]
+    - de: Und wie heißt du?
+      say: oont vee **HAIST** doo
+      fa: اونت وی هایست دو
+      en: And what's your name? (friendly)
+      words:
+      - [und, and]
+      - [wie, how]
+      - [heißt, are called]
+      - [du, 'you, friendly']
+      tip: 'Word for word: “and how are you called?”'
+    - de: Und wie heißen Sie?
+      say: oont vee **HAI**-sen zee
+      fa: اونت وی هایسن زی
+      en: And what's your name? (polite)
+      words:
+      - [heißen, are called]
+      - [Sie, 'you, polite']
+    - de: Wie ist dein Name?
+      say: vee ist dain **NAH**-meh
+      fa: وی ایست داین نامه
+      en: What is your name? (friendly)
+      words:
+      - [dein, 'your, friendly']
+    - de: Wie ist Ihr Name?
+      say: vee ist eer **NAH**-meh
+      fa: وی ایست ایر نامه
+      en: What is your name? (polite)
+      words:
+      - [Ihr, 'your, polite']
+    - de: Wer bist du?
+      say: vair **BIST** doo
+      fa: وِر بیست دو
+      en: Who are you? (friendly)
+      words:
+      - [wer, who]
+      - [bist, are]
+    - de: Wer sind Sie?
+      say: vair **ZINT** zee
+      fa: وِر زینت زی
+      en: Who are you? (polite)
+      words:
+      - [sind, are]
+- id: others
+  title: Talking about others
+  lead: Ask who someone is and introduce them.
+  groups:
+  - kind: rows
+    items:
+    - de: Wer ist das?
+      say: vair ist **DAS**
+      fa: وِر ایست داس
+      en: Who is that?
+      words:
+      - [das, 'that, this']
+    - de: Das ist Frau Weiß.
+      say: das ist **FROW** **VAISS**
+      fa: داس ایست فراو وایس
+      en: That is Ms Weiß.
+      words:
+      - [Frau, 'Ms, Mrs']
+    - de: Das ist Herr Meier.
+      say: das ist **HAIR** **MAI**-a
+      fa: داس ایست هِر مایر
+      en: That is Mr Meier.
+      words:
+      - [Herr, Mr]
+    - de: Ich weiß nicht.
+      say: ish **VAISS** nisht
+      fa: ایش وایس نیشت
+      en: I don't know.
+      words:
+      - [weiß, know]
+      - [nicht, not]
+  - kind: rows
+    title: Words
+    note: Every German noun starts with a capital letter. der = masculine word, die = feminine word.
+    items:
+    - de: der Name
+      say: dair **NAH**-meh
+      fa: دِر نامه
+      en: the name
+    - de: der Vorname
+      say: dair **FOR**-nah-meh
+      fa: دِر فورنامه
+      en: the first name
+      tip: The v sounds like f.
+    - de: der Nachname
+      say: dair **NAKH**-nah-meh
+      fa: دِر ناخنامه
+      en: the last name
+      tip: ch after a is a throaty خ.
+    - de: der Herr
+      say: dair **HAIR**
+      fa: دِر هِر
+      en: Mr, gentleman
+    - de: die Frau
+      say: dee **FROW**
+      fa: دی فراو
+      en: Ms, Mrs, woman, wife
+    - de: der Mann
+      say: dair **MAN**
+      fa: دِر مان
+      en: man, husband
+- id: grammar
+  title: Grammar
+  lead: The small words that change. Tap any line to hear it.
+  groups:
+  - kind: conj
+    title: sein = to be
+    items:
+    - de: ich bin
+      say: ish **BIN**
+      fa: ایش بین
+      en: I am
+    - de: du bist
+      say: doo **BIST**
+      fa: دو بیست
+      en: you are (friendly)
+    - de: er / sie / das ist
+      say: air / zee / das **IST**
+      fa: اِر / زی / داس ایست
+      en: he / she / that is
+      speak: er ist. sie ist. das ist.
+    - de: Sie sind
+      say: zee **ZINT**
+      fa: زی زینت
+      en: you are (polite)
+  - kind: conj
+    title: heißen = to be called
+    items:
+    - de: ich heiße
+      say: ish **HAI**-seh
+      fa: ایش هایسه
+      en: I am called
+    - de: du heißt
+      say: doo **HAIST**
+      fa: دو هایست
+      en: you are called (friendly)
+    - de: er / sie heißt
+      say: air / zee **HAIST**
+      fa: اِر / زی هایست
+      en: he / she is called
+      speak: er heißt. sie heißt.
+    - de: Sie heißen
+      say: zee **HAI**-sen
+      fa: زی هایسن
+      en: you are called (polite)
+    - de: hieß · hat geheißen
+      say: '**HEESS** · hat geh-**HAI**-sen'
+      fa: هیس · هات گه‌هایسن
+      en: was called · has been called
+      speak: hieß. hat geheißen.
+  - kind: cards
+    items:
+    - title: du or Sie?
+      body: '<b>du</b>: friends, family, children, people your age.<br><b>Sie</b>: older people, strangers, at work, anyone you call Herr or Frau. Polite <b>Sie</b> always has a capital S.'
+    - title: der or die?
+      body: 'Every noun comes with its own word for “the”.<br><b>der</b>: der Mann, der Herr, der Name, der Tag<br><b>die</b>: die Frau<br>Learn the noun together with der or die.'
+- id: sounds
+  title: Sounds
+  lead: The rules behind the pronunciation. Each line plays real example words.
+  groups:
+  - kind: rows
+    title: Vowels
+    items:
+    - de: a
+      say: “ah” as in father
+      fa: آ
+      en: Abend, acht
+      speak: Abend. acht.
+    - de: e
+      say: “e” as in bed
+      fa: اِ
+      en: elf
+      speak: elf. Herr.
+    - de: i
+      say: “ee” as in see
+      fa: ای
+      en: ich, bin
+      speak: ich. bin.
+    - de: o
+      say: “o” as in go
+      fa: او
+      en: Morgen, schon
+      speak: Morgen. schon.
+    - de: u
+      say: “oo” as in you
+      fa: او کشیده
+      en: du, Guten
+      speak: du. Guten.
+    - de: ä
+      say: same as e, as in bed
+      fa: اِ
+      en: Käse (cheese)
+      speak: Käse.
+    - de: ö
+      say: say e, then round your lips
+      fa: اِ با لب گرد
+      en: schon → schön, zwölf
+      tip: schon = already, schön = beautiful. Listen for the difference.
+      speak: schon. schön. zwölf.
+    - de: ü
+      say: say ee, then round your lips
+      fa: ای با لب گرد
+      en: Mutter → Mütter, fünf
+      tip: Mutter = mother, Mütter = mothers.
+      speak: Mutter. Mütter. fünf.
+  - kind: rows
+    title: Vowel pairs
+    note: 'For ei and ie, say the English name of the second letter: ei → “eye”, ie → “ee”.'
+    items:
+    - de: ei
+      say: “eye” as in sky
+      fa: آی
+      en: eins, zwei, heiße
+      speak: eins. zwei. heiße.
+    - de: ie
+      say: long “ee” as in cheese
+      fa: ای کشیده
+      en: vier, sieben, Sie
+      speak: vier. sieben. Sie.
+    - de: eu / äu
+      say: “oy” as in boy
+      fa: اُی
+      en: neun, Deutsch
+      speak: neun. Deutsch.
+    - de: au
+      say: “ow” as in now
+      fa: آو
+      en: auf, Frau
+      speak: auf. Frau.
+  - kind: rows
+    title: Consonants
+    items:
+    - de: z
+      say: ts as in cats
+      fa: تس
+      en: zwei, zehn
+      speak: zwei. zehn.
+    - de: w
+      say: v as in very
+      fa: و
+      en: wer, wie
+      speak: wer. wie.
+    - de: v
+      say: f
+      fa: ف
+      en: vier, Vorname
+      speak: vier. Vorname.
+    - de: s + vowel
+      say: z, at the start of a word
+      fa: ز
+      en: sieben, sechs, Sie
+      speak: sieben. sechs. Sie.
+    - de: st · sp
+      say: sht · shp, at the start of a word
+      fa: اشت · اشپ
+      en: Straße, sprechen
+      speak: Straße. sprechen.
+    - de: ß · ss
+      say: ss
+      fa: س
+      en: heißen, Tschüss
+      tip: ß comes after a long vowel or ei, ss after a short vowel. No ß key? Type ss.
+      speak: heißen. Tschüss.
+    - de: ch after a, o, u
+      say: hard, from the throat
+      fa: خ
+      en: acht, Nachname
+      speak: acht. Nachname.
+    - de: ch after e, i
+      say: soft, like a hissing h
+      fa: ه نرم
+      en: ich, nicht
+      speak: ich. nicht.
+    - de: chs
+      say: ks
+      fa: کس
+      en: sechs
+      speak: sechs.
+    - de: sch · tsch
+      say: sh · ch as in church
+      fa: ش · چ
+      en: Tschüss, Deutsch
+      speak: Tschüss. Deutsch.
+    - de: h after a vowel
+      say: silent, makes the vowel long
+      fa: —
+      en: zehn
+      speak: zehn.
+    - de: r
+      say: rolled in the throat
+      fa: غ
+      en: drei, Frau
+      speak: drei. Frau.
+    - de: -er at the end
+      say: a soft “a”
+      fa: ا
+      en: Meier, wieder
+      speak: Meier. wieder.
+    - de: g · d at the end
+      say: k · t
+      fa: ک · ت
+      en: Tag, Abend
+      speak: Tag. Abend.
+mistakes:
+- [do, du, Say “doo” as you write it.]
+- [Gutten, Guten, One t.]
+- [Abbend, Abend, One b.]
+- [widersehen, Wiedersehen, ie makes the long “ee”.]
+- ['hißen, heiß Sie', heißen Sie, ei = “eye”. With Sie the verb ends in -en.]
+- [Heerr, Herr, 'One e, two r.']
+- ['mei, dei Name', 'mein, dein Name', The n at the end matters.]
+- ['de Name, vorname', 'der Name, Vorname', 'der, and a capital letter on every noun.']
+- [wer sind sie, wer sind Sie, Polite Sie always has a capital S.]
