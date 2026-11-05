@@ -129,9 +129,8 @@ async function checkToken() {
   const r = await gh('');
   if (r.status === 401) throw new Error('That code didn’t work. Check you copied all of it.');
   if (!r.ok) throw new Error('Could not reach GitHub. Check your internet and try again.');
-  const j = await r.json();
-  if (!j.permissions || !j.permissions.push) throw new Error('This code can read but not save. Ask Negin to give it “Contents: Read and write”.');
 }
+const NO_WRITE = 'GitHub accepted the code but won’t let it save. In GitHub, edit this token: Repository access must include German-review, and Contents must be “Read and write”.';
 async function upload(a, wavBytes, text) {
   const path = `/contents/${FOLDER}/${a}.wav`;
   let sha;
@@ -140,7 +139,12 @@ async function upload(a, wavBytes, text) {
   let bin = ''; const u8 = new Uint8Array(wavBytes);
   for (let i = 0; i < u8.length; i += 0x8000) bin += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
   const r = await gh(path, {method: 'PUT', body: JSON.stringify({message: `Chris recorded: ${text}`, content: btoa(bin), ...(sha ? {sha} : {})})});
-  if (!r.ok) throw new Error(r.status === 401 || r.status === 403 ? 'The code was refused. Ask Negin for a new one.' : 'Saving failed. Try again.');
+  if (!r.ok) {
+    let msg = ''; try { msg = (await r.json()).message || ''; } catch (e) {}
+    if (r.status === 401) throw new Error('GitHub says this code is wrong or has expired. Tap “Change code” and paste a new one.');
+    if (r.status === 403 || r.status === 404) throw new Error(NO_WRITE + (msg ? ` (GitHub: ${msg})` : ''));
+    throw new Error(`Saving failed (GitHub ${r.status}${msg ? ': ' + msg : ''}). Try again.`);
+  }
 }
 
 // --- Recording (raw audio, saved as WAV so it plays everywhere) ---
