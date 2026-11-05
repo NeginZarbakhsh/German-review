@@ -1,7 +1,7 @@
 # German Daily Review
 
 My German notes with a German voice for every phrase.
-Open it at **https://neginzarbakhsh.github.io/german-review/**
+Open it at **https://neginzarbakhsh.github.io/German-review/**
 
 ## Add or change a phrase
 
