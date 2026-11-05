@@ -154,6 +154,8 @@ h3{font-family:var(--display);font-weight:500;font-size:1.05rem;margin:22px 0 4p
 .rv-done{text-align:center;align-items:center}
 .rv-done .rv-en{font-size:2rem}
 .rv-done p{color:var(--muted);margin:0}
+.vnote{margin:0;font-size:.85rem;color:var(--muted)}
+.vnote b{color:var(--fg)}
 button:focus-visible,a:focus-visible{outline:3px solid var(--stress);outline-offset:2px}
 @media (max-width:480px){h1{font-size:1.75rem}.de{font-size:1.18rem}.card{padding:12px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
@@ -183,8 +185,14 @@ html{scroll-behavior:smooth}
       <button id="s-slow" data-speed="s" aria-pressed="true">Slow</button>
       <button id="s-normal" data-speed="n" aria-pressed="false">Normal</button>
     </div>
+    <div class="seg" role="group" aria-label="Voice">
+      <button id="v-chris" data-voice="chris" aria-pressed="false" hidden>Chris</button>
+      <button id="v-device" data-voice="device" aria-pressed="false">iPhone</button>
+      <button id="v-std" data-voice="std" aria-pressed="true">Standard</button>
+    </div>
     <button class="toggle" id="hard" aria-pressed="false"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/></svg>Starred</button>
   </div>
+  <p class="vnote" id="vnote" hidden></p>
 </div></div>
 
 <main class="wrap" id="main"></main>
@@ -207,6 +215,10 @@ const stress = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
 const store = {get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}}, set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 
 let speed = store.get('speed','s'), mode = store.get('mode','learn'), hardOnly = false;
+const CHRIS = DATA.chris || {}, HAS_CHRIS = Object.keys(CHRIS).length > 0;
+let voice = store.get('voice', HAS_CHRIS ? 'chris' : 'std');
+if (voice === 'chris' && !HAS_CHRIS) voice = 'std';
+const A2T = {}; DATA.sections.forEach(s => s.groups.forEach(g => { if (g.kind !== 'cards') g.items.forEach(it => A2T[it.a] = it.speak); }));
 let starred = new Set(store.get('starred', []));
 const main = document.getElementById('main'), chips = document.getElementById('chips');
 
@@ -269,15 +281,45 @@ function playNext(){
   const el = document.getElementById(id);
   if (!el || el.offsetParent === null) return playNext();
   current = el; el.classList.add('playing');
-  load(el.dataset.a).then(url => { player.src = url; return player.play(); }).catch(()=>{ clearPlaying(); });
+  sayA(el.dataset.a, () => setTimeout(playNext, queue.length ? 350 : 0), clearPlaying);
 }
 const blobs = new Map();
-function load(a){ const k = `audio/${a}_${speed}.mp3`;
+function srcFor(a){ return voice === 'chris' && CHRIS[a] ? `voices/chris/${CHRIS[a]}` : `audio/${a}_${speed}.mp3`; }
+function load(a){ const k = srcFor(a);
   if (!blobs.has(k)) blobs.set(k, fetch(k).then(r => { if (!r.ok) throw 0; return r.blob(); }).then(b => URL.createObjectURL(b)).catch(e => { blobs.delete(k); throw e; }));
   return blobs.get(k); }
-function playA(a){ player.pause(); queue = []; clearPlaying(); load(a).then(url => { player.src = url; return player.play(); }).catch(()=>{}); }
-player.addEventListener('ended', () => setTimeout(playNext, queue.length ? 350 : 0));
-function play(ids){ player.pause(); queue = ids.slice(); playNext(); }
+function stopAll(){ player.pause(); onEnd = null; if ('speechSynthesis' in window) speechSynthesis.cancel(); }
+let onEnd = null, deVoice = null;
+function sayA(a, end = () => {}, fail = () => {}){
+  if (voice === 'device' && deVoice) {
+    const u = new SpeechSynthesisUtterance(A2T[a]); u.lang = deVoice.lang; u.voice = deVoice; u.rate = speed === 's' ? 0.7 : 0.95;
+    u.onend = end; u.onerror = fail; speechSynthesis.cancel(); speechSynthesis.speak(u); return;
+  }
+  load(a).then(url => { player.src = url; const r = voice === 'chris' && CHRIS[a] && speed === 's' ? 0.8 : 1;
+    player.defaultPlaybackRate = r; player.playbackRate = r; player.preservesPitch = true; onEnd = end; return player.play(); }).catch(fail);
+}
+function playA(a){ stopAll(); queue = []; clearPlaying(); sayA(a); }
+function pickDe(){
+  if (!('speechSynthesis' in window)) return;
+  const tier = v => /premium/i.test(v.name + v.voiceURI) ? 3 : /enhanced/i.test(v.name + v.voiceURI) ? 2 : 0;
+  const vs = speechSynthesis.getVoices().filter(v => /^de([-_]|$)/i.test(v.lang));
+  deVoice = vs.sort((x, y) => (tier(y) + (/DE$/i.test(y.lang) ? 1 : 0)) - (tier(x) + (/DE$/i.test(x.lang) ? 1 : 0)))[0] || null;
+  voiceNote();
+}
+function voiceNote(){
+  const n = document.getElementById('vnote'); n.hidden = true;
+  if (voice === 'device') {
+    n.hidden = false;
+    if (!deVoice) n.innerHTML = 'No German voice on this device yet, so you hear the Standard voice. On iPhone: <b>Settings › Accessibility › Spoken Content › Voices › German › Anna</b>, then download <b>Anna (Premium)</b>.';
+    else if (!/premium|enhanced/i.test(deVoice.name + deVoice.voiceURI)) n.innerHTML = `Using <b>${esc(deVoice.name)}</b>. For a more natural voice, download <b>Anna (Premium)</b> in <b>Settings › Accessibility › Spoken Content › Voices › German</b>.`;
+    else n.innerHTML = `Using <b>${esc(deVoice.name)}</b>.`;
+  } else if (voice === 'chris') {
+    const total = Object.keys(A2T).length, have = Object.keys(A2T).filter(a => CHRIS[a]).length;
+    if (have < total) { n.hidden = false; n.textContent = `Chris has recorded ${have} of ${total} phrases. The rest use the Standard voice.`; }
+  }
+}
+player.addEventListener('ended', () => { const f = onEnd; onEnd = null; if (f) f(); });
+function play(ids){ stopAll(); queue = ids.slice(); playNext(); }
 
 function reveal(el){ el.classList.add('shown'); }
 document.addEventListener('click', e => {
@@ -305,7 +347,12 @@ document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>setMode(b.data
 document.querySelectorAll('[data-speed]').forEach(b=>b.onclick=()=>setSpeed(b.dataset.speed));
 document.getElementById('hard').onclick = function(){ hardOnly = !hardOnly; this.setAttribute('aria-pressed', hardOnly); document.body.classList.toggle('hardonly', hardOnly);
   document.querySelectorAll('section').forEach(sec => { const empty = sec.querySelector('.group-empty'); if (empty) empty.hidden = !!sec.querySelector('.hard'); }); };
-setMode(mode); setSpeed(speed);
+function setVoice(v){ voice = v; store.set('voice', v); stopAll(); clearPlaying();
+  document.querySelectorAll('[data-voice]').forEach(b=>b.setAttribute('aria-pressed', b.dataset.voice===v)); voiceNote(); }
+document.querySelectorAll('[data-voice]').forEach(b=>b.onclick=()=>setVoice(b.dataset.voice));
+document.getElementById('v-chris').hidden = !HAS_CHRIS;
+if ('speechSynthesis' in window) { pickDe(); speechSynthesis.onvoiceschanged = pickDe; } else document.getElementById('v-device').hidden = true;
+setMode(mode); setSpeed(speed); setVoice(voice);
 
 // highlight current section chip
 const obs = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) {
@@ -345,7 +392,7 @@ function openReview(){
   rq = q; ri = 0; total = q.length; stats = {good: 0, again: 0}; lapsed = new Set();
   rv.hidden = false; document.body.style.overflow = 'hidden'; showFront();
 }
-function closeReview(){ rv.hidden = true; document.body.style.overflow = ''; player.pause(); refreshToday(); }
+function closeReview(){ rv.hidden = true; document.body.style.overflow = ''; stopAll(); refreshToday(); }
 function progress(){ const done = stats.good; document.getElementById('rv-prog').textContent = `${Math.min(done + 1, total)} of ${total}`;
   document.getElementById('rv-fill').style.width = `${Math.round(100 * done / Math.max(total, 1))}%`; }
 function showFront(){

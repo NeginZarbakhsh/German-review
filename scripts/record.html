@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Record Phrases · German Daily Review</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="icon-192.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: one column; sticky progress bar; one card per phrase with Record / Listen / Save */
+:root{
+  --bg:#f2f4f8; --surface:#ffffff; --fg:#141b27; --muted:#5a6578; --line:#dde2eb;
+  --accent:#2347c5; --accent-ink:#ffffff; --accent-soft:#e6ecfb; --rec:#d92d20; --ok:#067647; --ok-soft:#dcfae6;
+  --display:"Bricolage Grotesque",system-ui,sans-serif; --body:"Atkinson Hyperlegible",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0e131b; --surface:#161d28; --fg:#e7ecf4; --muted:#9aa6ba; --line:#263142;
+  --accent:#86a5ff; --accent-ink:#0e131b; --accent-soft:#1c2945; --rec:#f97066; --ok:#47cd89; --ok-soft:#0d2a1c; color-scheme:dark}}
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.5}
+[hidden]{display:none!important}
+.wrap{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{padding-block:24px 12px}
+h1{font-family:var(--display);font-size:1.9rem;line-height:1.1;margin:0}
+.sub{color:var(--muted);margin:6px 0 0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:16px}
+.panel h2{font-family:var(--display);font-size:1.15rem;margin:0 0 6px}
+.panel p{margin:0 0 10px;color:var(--muted)}
+.panel ol{margin:0 0 4px;padding-left:20px;color:var(--muted)}
+input{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg)}
+.btn{font:700 .95rem var(--body);border-radius:10px;padding:10px 16px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:default}
+.row-btns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
+.msg{font-size:.9rem;color:var(--muted)}
+.msg.err{color:var(--rec)}
+.bar{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding-block:10px;margin-top:12px}
+.bar .wrap{display:flex;flex-direction:column;gap:8px}
+.prog{display:flex;justify-content:space-between;font-weight:700;font-size:.92rem}
+.track{height:6px;border-radius:99px;background:var(--line);overflow:hidden}
+.track i{display:block;height:100%;background:var(--ok);width:0;transition:width .3s}
+.filter{display:flex;gap:6px}
+.filter button{font:700 .85rem var(--body);border:1px solid var(--line);background:var(--surface);color:var(--muted);padding:6px 12px;border-radius:999px;cursor:pointer}
+.filter button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+main{padding-block:12px 64px}
+h3{font-family:var(--display);font-weight:500;font-size:1.05rem;margin:22px 0 8px;color:var(--muted)}
+.list{display:flex;flex-direction:column;gap:8px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.card.done{border-color:var(--ok)}
+.top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.de{font-family:var(--display);font-weight:700;font-size:1.35rem;line-height:1.2;min-width:0}
+.en{color:var(--muted);font-size:.92rem}
+.badge{flex:none;font-size:.78rem;font-weight:700;border-radius:999px;padding:3px 10px;background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+.done .badge{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.ctl{display:flex;gap:8px;margin-top:12px;align-items:center;flex-wrap:wrap}
+.rec{display:inline-flex;align-items:center;gap:8px;font:700 .95rem var(--body);border:0;border-radius:999px;padding:10px 16px;cursor:pointer;background:var(--rec);color:#fff}
+.rec .dot{width:10px;height:10px;border-radius:50%;background:#fff}
+.rec.on .dot{border-radius:2px;animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.4}}
+.status{font-size:.88rem;color:var(--muted)}
+.status.ok{color:var(--ok);font-weight:700}
+.status.err{color:var(--rec)}
+.hide-done .card.done{display:none}
+button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head><body>
+
+<header class="wrap">
+  <h1>Record phrases</h1>
+  <p class="sub">Thank you for helping Negin with her German! Read each phrase the way you'd normally say it, clearly and at a relaxed pace. Your recordings appear in her app about 2 minutes after you save.</p>
+
+  <div class="panel" id="setup">
+    <h2>Step 1 · Enter the access code</h2>
+    <p>Negin will send you a code that starts with <b>github_pat_</b>. Paste it here once. It stays saved on this phone.</p>
+    <input id="token" type="password" autocomplete="off" placeholder="github_pat_…" aria-label="Access code">
+    <div class="row-btns"><button class="btn primary" id="token-save">Continue</button><span class="msg" id="token-msg"></span></div>
+  </div>
+
+  <div class="panel" id="tips" hidden>
+    <h2>How to record</h2>
+    <ol>
+      <li>Tap <b>Record</b>, wait a moment, say the phrase, then tap <b>Stop</b>.</li>
+      <li>Tap <b>Listen</b>. Happy with it? Tap <b>Save</b>. If not, record again.</li>
+      <li>A quiet room helps. Hold the phone about 20 cm away.</li>
+    </ol>
+    <div class="row-btns"><span class="msg">Code saved on this phone.</span><button class="btn" id="token-reset">Change code</button></div>
+  </div>
+</header>
+
+<div class="bar" id="bar" hidden><div class="wrap">
+  <div class="prog"><span id="prog-text"></span><span id="prog-pct"></span></div>
+  <div class="track"><i id="prog-fill"></i></div>
+  <div class="filter" role="group" aria-label="Show">
+    <button id="f-todo" aria-pressed="true">Still to record</button>
+    <button id="f-all" aria-pressed="false">All phrases</button>
+  </div>
+</div></div>
+
+<main class="wrap" id="main" hidden></main>
+
+<script>
+const DATA = __DATA__;
+const REPO = __REPO__;
+const FOLDER = 'recordings/chris';
+const store = {get(k,d){try{const v=localStorage.getItem(k);return v===null?d:v}catch(e){return d}}, set(k,v){try{localStorage.setItem(k,v)}catch(e){}}, del(k){try{localStorage.removeItem(k)}catch(e){}}};
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const $ = id => document.getElementById(id);
+
+// Phrases to record, once each, grouped by section
+const seen = new Set(), groups = [];
+DATA.sections.forEach(s => {
+  const items = [];
+  s.groups.forEach(g => { if (g.kind === 'cards') return; g.items.forEach(it => {
+    if (seen.has(it.a)) return; seen.add(it.a);
+    items.push({a: it.a, text: it.speak.replace(/\. /g, ' · ').replace(/\.$/, ''), en: s.id === 'sounds' ? 'Read the words with a short pause between them.' : it.en});
+  }); });
+  if (items.length) groups.push({title: s.title, items});
+});
+const done = new Set(Object.keys(DATA.chris || {}));
+let token = store.get('ghToken', '');
+
+// --- GitHub ---
+async function gh(path, opts = {}) {
+  const r = await fetch(`https://api.github.com/repos/${REPO}${path}`, {...opts, headers: {
+    'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', ...(opts.headers || {})}});
+  return r;
+}
+async function checkToken() {
+  const r = await gh('');
+  if (r.status === 401) throw new Error('That code didn’t work. Check you copied all of it.');
+  if (!r.ok) throw new Error('Could not reach GitHub. Check your internet and try again.');
+  const j = await r.json();
+  if (!j.permissions || !j.permissions.push) throw new Error('This code can read but not save. Ask Negin to give it “Contents: Read and write”.');
+}
+async function upload(a, wavBytes, text) {
+  const path = `/contents/${FOLDER}/${a}.wav`;
+  let sha;
+  const existing = await gh(path);
+  if (existing.ok) sha = (await existing.json()).sha;
+  let bin = ''; const u8 = new Uint8Array(wavBytes);
+  for (let i = 0; i < u8.length; i += 0x8000) bin += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
+  const r = await gh(path, {method: 'PUT', body: JSON.stringify({message: `Chris recorded: ${text}`, content: btoa(bin), ...(sha ? {sha} : {})})});
+  if (!r.ok) throw new Error(r.status === 401 || r.status === 403 ? 'The code was refused. Ask Negin for a new one.' : 'Saving failed. Try again.');
+}
+
+// --- Recording (raw audio, saved as WAV so it plays everywhere) ---
+let ctx, stream, node, chunks = [], recording = null;
+async function startRec(card) {
+  if (!stream) stream = await navigator.mediaDevices.getUserMedia({audio: {echoCancellation: false, noiseSuppression: true, autoGainControl: true}});
+  if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+  await ctx.resume();
+  const src = ctx.createMediaStreamSource(stream);
+  node = ctx.createScriptProcessor(4096, 1, 1);
+  chunks = [];
+  node.onaudioprocess = e => { chunks.push(new Float32Array(e.inputBuffer.getChannelData(0))); e.outputBuffer.getChannelData(0).fill(0); };
+  src.connect(node); node.connect(ctx.destination);
+  node._src = src; recording = card;
+}
+function stopRec() {
+  node.disconnect(); node._src.disconnect();
+  const len = chunks.reduce((n, c) => n + c.length, 0), all = new Float32Array(len);
+  let o = 0; chunks.forEach(c => { all.set(c, o); o += c.length; });
+  recording = null;
+  return toWav(trim(downsample(all, ctx.sampleRate, 24000), 24000), 24000);
+}
+function downsample(buf, from, to) {
+  if (from === to) return buf;
+  const ratio = from / to, out = new Float32Array(Math.floor(buf.length / ratio));
+  for (let i = 0; i < out.length; i++) { const s = Math.floor(i * ratio), e = Math.floor((i + 1) * ratio); let sum = 0; for (let j = s; j < e; j++) sum += buf[j]; out[i] = sum / (e - s); }
+  return out;
+}
+function trim(buf, rate) {
+  let peak = 0; for (const v of buf) peak = Math.max(peak, Math.abs(v));
+  const th = Math.max(0.02, peak * 0.08), win = Math.floor(rate * 0.02);
+  const loud = i => { let m = 0; for (let j = i; j < Math.min(i + win, buf.length); j++) m = Math.max(m, Math.abs(buf[j])); return m > th; };
+  let s = 0; while (s < buf.length && !loud(s)) s += win;
+  let e = buf.length - win; while (e > s && !loud(e)) e -= win;
+  const pad = Math.floor(rate * 0.12);
+  const out = buf.slice(Math.max(0, s - pad), Math.min(buf.length, e + win + pad));
+  const gain = peak > 0 ? Math.min(4, 0.9 / peak) : 1;
+  for (let i = 0; i < out.length; i++) out[i] *= gain;
+  return out;
+}
+function toWav(f32, rate) {
+  const b = new ArrayBuffer(44 + f32.length * 2), v = new DataView(b);
+  const w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  w(0, 'RIFF'); v.setUint32(4, 36 + f32.length * 2, true); w(8, 'WAVE'); w(12, 'fmt ');
+  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, rate, true);
+  v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); w(36, 'data'); v.setUint32(40, f32.length * 2, true);
+  for (let i = 0; i < f32.length; i++) v.setInt16(44 + i * 2, Math.max(-1, Math.min(1, f32[i])) * 0x7fff, true);
+  return b;
+}
+
+// --- UI ---
+const main = $('main'), player = new Audio();
+function render() {
+  main.innerHTML = groups.map(g => `<h3>${esc(g.title)}</h3><div class="list">${g.items.map(it => `
+    <div class="card${done.has(it.a) ? ' done' : ''}" id="c-${it.a}" data-a="${it.a}">
+      <div class="top"><div><div class="de">${esc(it.text)}</div><div class="en">${esc(it.en)}</div></div>
+        <span class="badge">${done.has(it.a) ? 'Saved' : 'To record'}</span></div>
+      <div class="ctl">
+        <button class="rec" data-rec><span class="dot"></span><span>Record</span></button>
+        <button class="btn" data-listen disabled>Listen</button>
+        <button class="btn primary" data-save disabled>Save</button>
+        <span class="status" role="status"></span>
+      </div></div>`).join('')}</div>`).join('');
+  progress();
+}
+function progress() {
+  const total = seen.size, n = [...seen].filter(a => done.has(a)).length;
+  $('prog-text').textContent = `${n} of ${total} recorded`;
+  $('prog-pct').textContent = `${Math.round(n / total * 100)}%`;
+  $('prog-fill').style.width = `${n / total * 100}%`;
+}
+const takes = new Map();
+main.addEventListener('click', async e => {
+  const card = e.target.closest('.card'); if (!card) return;
+  const a = card.dataset.a, status = card.querySelector('.status'), rec = card.querySelector('[data-rec]');
+  const setStatus = (t, cls = '') => { status.textContent = t; status.className = 'status ' + cls; };
+  if (e.target.closest('[data-rec]')) {
+    if (recording === card) {
+      const wav = stopRec(); takes.set(a, wav);
+      rec.classList.remove('on'); rec.lastElementChild.textContent = 'Record again';
+      card.querySelector('[data-listen]').disabled = false; card.querySelector('[data-save]').disabled = false;
+      setStatus('Listen, then save.');
+      player.src = URL.createObjectURL(new Blob([wav], {type: 'audio/wav'})); player.play().catch(() => {});
+      return;
+    }
+    if (recording) return;
+    try { await startRec(card); rec.classList.add('on'); rec.lastElementChild.textContent = 'Stop'; setStatus('Recording… say the phrase, then tap Stop.'); }
+    catch (err) { setStatus('Microphone blocked. Allow microphone access for this site in your browser settings.', 'err'); }
+  }
+  if (e.target.closest('[data-listen]')) { const wav = takes.get(a); if (wav) { player.src = URL.createObjectURL(new Blob([wav], {type: 'audio/wav'})); player.play().catch(() => {}); } }
+  if (e.target.closest('[data-save]')) {
+    const btn = e.target.closest('[data-save]'); btn.disabled = true; setStatus('Saving…');
+    try {
+      await upload(a, takes.get(a), card.querySelector('.de').textContent);
+      done.add(a); card.classList.add('done'); card.querySelector('.badge').textContent = 'Saved';
+      setStatus('Saved ✓', 'ok'); progress();
+    } catch (err) { btn.disabled = false; setStatus(err.message, 'err'); }
+  }
+});
+function setFilter(todo) {
+  document.body.classList.toggle('hide-done', todo);
+  $('f-todo').setAttribute('aria-pressed', todo); $('f-all').setAttribute('aria-pressed', !todo);
+}
+$('f-todo').onclick = () => setFilter(true);
+$('f-all').onclick = () => setFilter(false);
+
+function showApp() {
+  $('setup').hidden = true; $('tips').hidden = false; $('bar').hidden = false; $('main').hidden = false;
+  render(); setFilter(true);
+}
+$('token-save').onclick = async () => {
+  token = $('token').value.trim(); const m = $('token-msg');
+  if (!token) { m.textContent = 'Paste the code first.'; m.className = 'msg err'; return; }
+  m.textContent = 'Checking…'; m.className = 'msg';
+  try { await checkToken(); store.set('ghToken', token); showApp(); }
+  catch (err) { m.textContent = err.message; m.className = 'msg err'; }
+};
+$('token-reset').onclick = () => { store.del('ghToken'); token = ''; location.reload(); };
+if (token) showApp();
+</script>
+</body></html>
