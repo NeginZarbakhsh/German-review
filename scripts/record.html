@@ -30,6 +30,8 @@ input{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);bor
 .btn{font:700 .95rem var(--body);border-radius:10px;padding:10px 16px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .btn:disabled{opacity:.45;cursor:default}
+.btn.danger{color:var(--rec);border-color:var(--rec)}
+.btn.danger.armed{background:var(--rec);color:#fff}
 .row-btns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
 .msg{font-size:.9rem;color:var(--muted)}
 .msg.err{color:var(--rec)}
@@ -82,6 +84,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
       <li>Tap <b>Record</b>, wait a moment, say the phrase, then tap <b>Stop</b>.</li>
       <li>Tap <b>Listen</b>. Happy with it? Tap <b>Save</b>. If not, record again.</li>
       <li>A quiet room helps. Hold the phone about 20 cm away.</li>
+      <li>To redo a saved phrase, just record and save again. The new take replaces the old one. <b>Delete</b> removes it completely.</li>
     </ol>
     <div class="row-btns"><span class="msg">Code saved on this phone.</span><button class="btn" id="token-reset">Change code</button></div>
   </div>
@@ -131,6 +134,14 @@ async function checkToken() {
   if (!r.ok) throw new Error('Could not reach GitHub. Check your internet and try again.');
 }
 const NO_WRITE = 'GitHub accepted the code but won’t let it save. In GitHub, edit this token: Repository access must include German-review, and Contents must be “Read and write”.';
+async function remove(a, text) {
+  const path = `/contents/${FOLDER}/${a}.wav`;
+  const existing = await gh(path);
+  if (existing.status === 404) return;
+  if (!existing.ok) throw new Error('Could not reach GitHub. Try again.');
+  const r = await gh(path, {method: 'DELETE', body: JSON.stringify({message: `Chris deleted: ${text}`, sha: (await existing.json()).sha})});
+  if (!r.ok) throw new Error(r.status === 401 ? 'GitHub says this code is wrong or has expired.' : 'Deleting failed. Try again.');
+}
 async function upload(a, wavBytes, text) {
   const path = `/contents/${FOLDER}/${a}.wav`;
   let sha;
@@ -204,8 +215,9 @@ function render() {
         <span class="badge">${done.has(it.a) ? 'Saved' : 'To record'}</span></div>
       <div class="ctl">
         <button class="rec" data-rec><span class="dot"></span><span>Record</span></button>
-        <button class="btn" data-listen disabled>Listen</button>
+        <button class="btn" data-listen${done.has(it.a) ? '' : ' disabled'}>Listen</button>
         <button class="btn primary" data-save disabled>Save</button>
+        <button class="btn danger" data-delete${done.has(it.a) ? '' : ' hidden'}>Delete</button>
         <span class="status" role="status"></span>
       </div></div>`).join('')}</div>`).join('');
   progress();
@@ -216,7 +228,7 @@ function progress() {
   $('prog-pct').textContent = `${Math.round(n / total * 100)}%`;
   $('prog-fill').style.width = `${n / total * 100}%`;
 }
-const takes = new Map();
+const takes = new Map(), deleted = new Set();
 main.addEventListener('click', async e => {
   const card = e.target.closest('.card'); if (!card) return;
   const a = card.dataset.a, status = card.querySelector('.status'), rec = card.querySelector('[data-rec]');
@@ -234,13 +246,39 @@ main.addEventListener('click', async e => {
     try { await startRec(card); rec.classList.add('on'); rec.lastElementChild.textContent = 'Stop'; setStatus('Recording… say the phrase, then tap Stop.'); }
     catch (err) { setStatus('Microphone blocked. Allow microphone access for this site in your browser settings.', 'err'); }
   }
-  if (e.target.closest('[data-listen]')) { const wav = takes.get(a); if (wav) { player.src = URL.createObjectURL(new Blob([wav], {type: 'audio/wav'})); player.play().catch(() => {}); } }
+  if (e.target.closest('[data-listen]')) {
+    const wav = takes.get(a);
+    if (wav) player.src = URL.createObjectURL(new Blob([wav], {type: 'audio/wav'}));
+    else if (DATA.chris && DATA.chris[a] && !deleted.has(a)) player.src = `voices/chris/${DATA.chris[a]}`;
+    else return;
+    player.play().catch(() => setStatus('This recording is still being published. Try again in a minute.'));
+  }
+  const del = e.target.closest('[data-delete]');
+  if (del) {
+    if (!del.classList.contains('armed')) {
+      del.classList.add('armed'); del.textContent = 'Tap again to delete';
+      setTimeout(() => { del.classList.remove('armed'); del.textContent = 'Delete'; }, 4000);
+      return;
+    }
+    del.disabled = true; setStatus('Deleting…');
+    try {
+      await remove(a, card.querySelector('.de').textContent);
+      done.delete(a); deleted.add(a); takes.delete(a);
+      card.classList.remove('done'); card.querySelector('.badge').textContent = 'To record';
+      del.hidden = true; del.disabled = false; del.classList.remove('armed'); del.textContent = 'Delete';
+      card.querySelector('[data-listen]').disabled = true; card.querySelector('[data-save]').disabled = true;
+      rec.lastElementChild.textContent = 'Record';
+      setStatus('Deleted. It disappears from the app in about 2 minutes.', 'ok'); progress();
+    } catch (err) { del.disabled = false; setStatus(err.message, 'err'); }
+  }
   if (e.target.closest('[data-save]')) {
     const btn = e.target.closest('[data-save]'); btn.disabled = true; setStatus('Saving…');
     try {
       await upload(a, takes.get(a), card.querySelector('.de').textContent);
-      done.add(a); card.classList.add('done'); card.querySelector('.badge').textContent = 'Saved';
-      setStatus('Saved ✓', 'ok'); progress();
+      const replaced = done.has(a);
+      done.add(a); deleted.delete(a); card.classList.add('done'); card.querySelector('.badge').textContent = 'Saved';
+      card.querySelector('[data-delete]').hidden = false;
+      setStatus(replaced ? 'Saved ✓ The new take replaces the old one in about 2 minutes.' : 'Saved ✓', 'ok'); progress();
     } catch (err) { btn.disabled = false; setStatus(err.message, 'err'); }
   }
 });

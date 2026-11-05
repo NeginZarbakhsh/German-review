@@ -80,8 +80,9 @@ if os.path.isdir(rec_dir):
                 rate, pcm = w.getframerate(), w.readframes(w.getnframes())
             enc = lameenc.Encoder()
             enc.set_bit_rate(64); enc.set_in_sample_rate(rate); enc.set_channels(1); enc.set_quality(2)
-            open(f"{OUT}/voices/chris/{a}.mp3", "wb").write(enc.encode(pcm + b"\x00\x00" * int(rate * 0.15)) + enc.flush())
-            chris[a] = f"{a}.mp3"
+            name = f"{a}-{hashlib.md5(pcm).hexdigest()[:8]}.mp3"  # new name for every new take, so phones never play an old copy
+            open(f"{OUT}/voices/chris/{name}", "wb").write(enc.encode(pcm + b"\x00\x00" * int(rate * 0.15)) + enc.flush())
+            chris[a] = name
         except Exception as e:
             print(f"Skipped recording {f}: {e}")
 print(f"Chris has recorded {len(chris)} phrases.")
