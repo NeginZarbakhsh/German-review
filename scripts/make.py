@@ -95,8 +95,11 @@ for person, recs in voices.items():
     print(f"{person} has recorded {len(recs)} phrases.")
 
 page_data = json.dumps({"sections": data["sections"], "mistakes": data["mistakes"], "voices": voices}, ensure_ascii=False)
-page = open(f"{HERE}/template.html", encoding="utf-8").read().replace("__DATA__", page_data)
 repo = os.environ.get("GITHUB_REPOSITORY", "NeginZarbakhsh/German-review")
+owner, name = repo.split("/")
+site = f"https://{owner.lower()}.github.io/{name}/"
+page = (open(f"{HERE}/template.html", encoding="utf-8").read()
+        .replace("__DATA__", page_data).replace("__REPO__", json.dumps(repo)).replace("__SITE__", site))
 rec_page = open(f"{HERE}/record.html", encoding="utf-8").read().replace("__DATA__", page_data).replace("__REPO__", json.dumps(repo))
 open(f"{OUT}/record.html", "w", encoding="utf-8").write(rec_page)
 open(f"{OUT}/index.html", "w", encoding="utf-8").write(page)

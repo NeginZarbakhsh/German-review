@@ -133,6 +133,9 @@ if (WHO === 'negin') {
   document.getElementById('code-help').innerHTML = 'Paste the same <b>github_pat_</b> code you gave Chris. It stays saved on this phone.';
 }
 let token = store.get('ghToken', '');
+// A link like record.html?who=chris#code=github_pat_… sets the code automatically, then hides it from the address bar
+const fromLink = (location.hash.match(/code=([A-Za-z0-9_]+)/) || [])[1];
+if (fromLink) { token = fromLink; store.set('ghToken', token); store.set('whoAmI', WHO); history.replaceState(null, '', location.pathname + location.search); }
 
 // --- GitHub ---
 async function gh(path, opts = {}) {
@@ -312,10 +315,10 @@ $('token-save').onclick = async () => {
   token = $('token').value.trim(); const m = $('token-msg');
   if (!token) { m.textContent = 'Paste the code first.'; m.className = 'msg err'; return; }
   m.textContent = 'Checking…'; m.className = 'msg';
-  try { await checkToken(); store.set('ghToken', token); showApp(); }
+  try { await checkToken(); store.set('ghToken', token); store.set('whoAmI', WHO); showApp(); }
   catch (err) { m.textContent = err.message; m.className = 'msg err'; }
 };
-$('token-reset').onclick = () => { store.del('ghToken'); token = ''; location.reload(); };
+$('token-reset').onclick = () => { store.del('ghToken'); store.del('whoAmI'); token = ''; location.reload(); };
 if (token) showApp();
 </script>
 </body></html>
