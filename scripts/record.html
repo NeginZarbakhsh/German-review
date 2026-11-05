@@ -101,7 +101,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px soli
 
 <header class="wrap">
   <h1 id="h1">Hi Chris 👋</h1>
-  <p class="sub" id="intro">Negin is learning German and learns best from your voice. Record each phrase the way you'd normally say it. Have a better way to say something? Tap <b>Suggest</b>.</p>
+  <p class="sub" id="intro">Negin is learning German and learns best from your voice. Tap <b>Record</b>, say the phrase the way you'd normally say it, then tap <b>Stop</b>. It saves by itself. Have a better way to say something? Tap <b>Suggest</b>.</p>
 
   <div class="panel" id="setup" hidden>
     <h2>One-time setup</h2>
@@ -114,6 +114,11 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px soli
     <div class="p-top"><div class="p-num"><span id="p-done">0</span> <small>of <span id="p-total">0</span> recorded</small></div><div class="p-pct" id="p-pct">0%</div></div>
     <div class="track"><i id="p-fill"></i></div>
     <div class="p-stats"><span><b id="p-left">0</b> to go</span><span><b id="p-today">0</b> today</span><span id="p-new-wrap"><b id="p-new">0</b> new from Negin</span><span><b id="p-tips">0</b> suggestions</span></div>
+  </div>
+  <div class="panel" id="found" hidden>
+    <h2 id="found-title">Recordings waiting to be sent</h2>
+    <p id="found-text"></p>
+    <div><button class="btn primary" id="found-send">Send them to Negin</button> <span class="msg" id="found-msg"></span></div>
   </div>
   <p class="hint" id="hint" hidden>Tip: in Safari tap <b>Share → Add to Home Screen</b> to open this list like an app.</p>
 </header>
@@ -274,10 +279,10 @@ let tab = 'todo';
 const pb = (cls, act, icon, label, extra = '') => `<button class="pb ${cls}" data-act="${act}" ${extra}>${icon}<span>${label}</span></button>`;
 function cardHtml(it){
   const k = it.a, saved = mine.has(k), d = draft.has(k), rec = recKey === k, tip = tips.get(k), other = theirs.has(k);
-  let badge = saved ? '<span class="badge done">Saved ✓</span>' : isNew.has(k) ? '<span class="badge new">New</span>' : '<span class="badge">To record</span>';
+  let badge = d && !saving.has(k) ? '<span class="badge new">Not sent yet</span>' : saved ? '<span class="badge done">Saved ✓</span>' : isNew.has(k) ? '<span class="badge new">New</span>' : '<span class="badge">To record</span>';
   let row;
   if (rec) row = pb('rec on', 'stop', I.stop, 'Stop') + pb('', '', '', '', 'disabled style="visibility:hidden"').repeat(3);
-  else if (d) row = pb('play', 'listen-draft', I.play, 'Listen') + pb('save', 'save', I.check, 'Save') + pb('rec', 'record', I.redo, 'Redo') + pb('sug', 'suggest', I.bulb, tip ? 'Edit tip' : 'Suggest');
+  else if (d) row = pb('play', 'listen-draft', I.play, 'Listen') + (saving.has(k) ? pb('save', '', I.check, 'Saving…', 'disabled') : pb('save', 'retry', I.redo, 'Try again')) + pb('rec', 'record', I.mic, 'Re-record') + pb('sug', 'suggest', I.bulb, tip ? 'Edit tip' : 'Suggest');
   else if (saved) row = pb('play', 'listen', I.play, 'Listen') + pb('rec', 'record', I.mic, 'Re-record') + pb('del', 'delete', I.trash, 'Delete') + pb('sug', 'suggest', I.bulb, tip ? 'Edit tip' : 'Suggest');
   else row = pb('rec', 'record', I.mic, 'Record') + pb('play', 'listen-other', I.person, NAMES[OTHER], other ? '' : 'disabled') + pb('sug', 'suggest', I.bulb, tip ? 'Edit tip' : 'Suggest') + pb('', '', '', '', 'disabled style="visibility:hidden"');
   const tipView = tip && (tip.text || tip.wav) ? `<div class="tipview"><span class="t"><b>💡 Your suggestion:</b> ${esc(tip.text || '(recording)')}</span>${tip.wav ? `<button class="tipplay" data-act="play-tip">▶ Play</button>` : ''}</div>` : '';
@@ -320,22 +325,12 @@ $('main').addEventListener('click', async e => {
     try { await startRec(k); rerender(k); status(k, 'Recording… say it, then tap Stop.'); }
     catch (err) { status(k, 'Microphone blocked. Allow the microphone for this site in Safari settings, then try again.', 'err'); }
   }
-  else if (act === 'stop') { const wav = stopRec(); draft.set(k, wav); rerender(k); status(k, 'Listen, then Save, or Redo.'); playFrom(async () => URL.createObjectURL(new Blob([wav], {type: 'audio/wav'})), document.querySelector(`.card[data-k="${k}"] [data-act="listen-draft"]`)); }
+  else if (act === 'stop') { const wav = stopRec(); saveTake(k, wav, true); }
+  else if (act === 'retry') saveTake(k, draft.get(k), false);
   else if (act === 'listen-draft') playFrom(async () => URL.createObjectURL(new Blob([draft.get(k)], {type: 'audio/wav'})), btn);
   else if (act === 'listen') playFrom(() => blobUrl(mine.get(k)), btn);
   else if (act === 'listen-other') playFrom(() => blobUrl(theirs.get(k)), btn);
   else if (act === 'play-tip') playFrom(() => blobUrl(tips.get(k).wav), btn);
-  else if (act === 'save') {
-    btn.disabled = true; status(k, 'Saving…');
-    try {
-      const wasSaved = mine.has(k);
-      const sha = await put(`recordings/${WHO}/${k}.wav`, draft.get(k), `${NAME} recorded: ${it.text}`, mine.get(k));
-      mine.set(k, sha); blobCache.set(sha, Promise.resolve(URL.createObjectURL(new Blob([draft.get(k)], {type: 'audio/wav'})))); draft.delete(k);
-      if (!wasSaved) bumpToday();
-      rerender(k); status(k, wasSaved ? 'Saved ✓ The new take replaced the old one.' : 'Saved ✓ Negin will see it in a minute or two.', 'ok');
-      if (tab === 'todo') setTimeout(() => { const el = document.querySelector(`.card[data-k="${k}"]`); if (el && !recKey && !draft.size) { el.style.opacity = .4; setTimeout(render, 500); } }, 1600);
-    } catch (err) { btn.disabled = false; status(k, err.message, 'err'); }
-  }
   else if (act === 'delete') {
     if (armed !== btn) { armed = btn; btn.classList.add('armed'); btn.lastElementChild.textContent = 'Tap again'; setTimeout(() => { if (armed === btn) { armed = null; btn.classList.remove('armed'); btn.lastElementChild.textContent = 'Delete'; } }, 3500); return; }
     armed = null; btn.disabled = true; status(k, 'Deleting…');
@@ -344,6 +339,56 @@ $('main').addEventListener('click', async e => {
   }
   else if (act === 'suggest') openTip(card, k);
 });
+
+// ---------- saving: Stop saves straight away; a take stays on this phone until GitHub has it ----------
+function makeIdb(name){
+  let dbp = null;
+  const open = () => dbp || (dbp = new Promise((res, rej) => { try { const r = indexedDB.open(name, 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('takes'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); } catch (e) { rej(e); } }));
+  const tx = (m, fn) => open().then(db => new Promise((res, rej) => { const t = db.transaction('takes', m); const q = fn(t.objectStore('takes')); t.oncomplete = () => res(q && q.result); t.onerror = () => rej(t.error); }));
+  return { get: k => tx('readonly', s => s.get(k)), set: (k, v) => tx('readwrite', s => s.put(v, k)), del: k => tx('readwrite', s => s.delete(k)), keys: () => tx('readonly', s => s.getAllKeys()) };
+}
+const pendingDb = makeIdb(`german-review-pending-${WHO}`);   // takes not uploaded yet
+const appDb = makeIdb('german-review');                        // takes made in the main app on this phone
+const saving = new Set();
+async function saveTake(k, wav, play){
+  const it = byKey.get(k), wasSaved = mine.has(k);
+  draft.set(k, wav); saving.add(k);
+  await pendingDb.set(k, wav).catch(() => {});
+  rerender(k); status(k, 'Saving…');
+  if (play) playFrom(async () => URL.createObjectURL(new Blob([wav], {type: 'audio/wav'})), document.querySelector(`.card[data-k="${k}"] [data-act="listen-draft"]`));
+  try {
+    const sha = await put(`recordings/${WHO}/${k}.wav`, wav, `${NAME} recorded: ${it.text}`, mine.get(k));
+    mine.set(k, sha); blobCache.set(sha, Promise.resolve(URL.createObjectURL(new Blob([wav], {type: 'audio/wav'}))));
+    draft.delete(k); saving.delete(k); pendingDb.del(k).catch(() => {});
+    if (!wasSaved) bumpToday();
+    rerender(k); status(k, wasSaved ? 'Saved ✓ The new take replaced the old one.' : 'Saved ✓ Negin can hear it now.', 'ok');
+    return true;
+  } catch (err) {
+    saving.delete(k); rerender(k);
+    status(k, `${err.message} Your take is kept on this phone. Tap “Try again”.`, 'err');
+    return false;
+  }
+}
+async function sendWaiting(){
+  // 1) takes recorded here that didn't upload last time   2) takes Chris made in the main app on this phone
+  const waiting = await pendingDb.keys().catch(() => []);
+  for (const k of waiting) if (byKey.has(k)) { const wav = await pendingDb.get(k).catch(() => null); if (wav) { draft.set(k, wav); } } else pendingDb.del(k).catch(() => {});
+  const fromApp = (await appDb.keys().catch(() => [])).filter(k => byKey.has(k) && !mine.has(k) && !draft.has(k));
+  const retry = [...draft.keys()];
+  if (retry.length) { render(); for (const k of retry) await saveTake(k, draft.get(k), false); }
+  if (fromApp.length) {
+    $('found').hidden = false;
+    $('found-text').textContent = `${fromApp.length} recording${fromApp.length === 1 ? ' was' : 's were'} made in the practice app on this phone but never sent to Negin.`;
+    $('found-send').onclick = async () => {
+      $('found-send').disabled = true; let okN = 0;
+      for (const k of fromApp) { $('found-msg').textContent = `Sending ${okN + 1} of ${fromApp.length}…`; const wav = await appDb.get(k).catch(() => null); if (wav && await saveTake(k, wav, false)) okN++; }
+      $('found-msg').textContent = okN === fromApp.length ? `All ${okN} sent ✓` : `${okN} of ${fromApp.length} sent. Try again later for the rest.`;
+      $('found-msg').className = 'msg'; if (okN === fromApp.length) setTimeout(() => $('found').hidden = true, 2500); else $('found-send').disabled = false;
+      render();
+    };
+  }
+}
 
 // ---------- suggestions ----------
 function openTip(card, k){
@@ -418,6 +463,7 @@ async function start(){
   }
   $('progress').hidden = false; $('tabs').hidden = false; $('hint').hidden = navigator.standalone === true;
   render();
+  sendWaiting();
 }
 $('token-save').onclick = () => {
   const v = $('token').value.trim();
