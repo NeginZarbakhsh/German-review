@@ -5,8 +5,8 @@ and writes the finished site to the output folder.
 
 Usage: python scripts/make.py <voice.onnx> <phrases.yml> <out-folder>
 """
-import sys, os, json, hashlib, subprocess, unicodedata, wave, shutil
-import yaml
+import sys, os, json, hashlib, unicodedata, wave, shutil
+import yaml, lameenc
 from piper.voice import PiperVoice
 from piper.config import SynthesisConfig
 
@@ -57,8 +57,12 @@ for sec in data["sections"]:
                 wav = f"{tmp}/{k}_{name}.wav"
                 with wave.open(wav, "wb") as w:
                     voice.synthesize_wav(text, w, syn_config=SynthesisConfig(length_scale=ls, noise_scale=0.5, noise_w_scale=0.6))
-                subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", wav, "-af", "apad=pad_dur=0.15",
-                                "-ac", "1", "-ar", "22050", "-b:a", "48k", mp3], check=True)
+                with wave.open(wav, "rb") as w:
+                    rate, pcm = w.getframerate(), w.readframes(w.getnframes())
+                pcm += b"\x00\x00" * int(rate * 0.15)  # short pause at the end
+                enc = lameenc.Encoder()
+                enc.set_bit_rate(48); enc.set_in_sample_rate(rate); enc.set_channels(1); enc.set_quality(2)
+                open(mp3, "wb").write(enc.encode(pcm) + enc.flush())
                 count += 1
 shutil.rmtree(tmp)
 

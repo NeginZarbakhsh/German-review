@@ -15,6 +15,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -24,8 +25,7 @@ jobs:
 
       - name: Install tools
         run: |
-          sudo apt-get update -q && sudo apt-get install -y -q ffmpeg
-          pip install piper-tts==1.8.0 pyyaml
+          pip install piper-tts==1.8.0 pyyaml lameenc==1.9.0
 
       - name: Get the German voice
         id: voice
