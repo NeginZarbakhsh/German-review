@@ -296,13 +296,18 @@ const $ = id => document.getElementById(id);
 function toast(t){ const el = $('toast'); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => el.hidden = true, 2800); }
 
 // ---------- who is using this phone ----------
-// An invite link like  …/#who=chris&code=github_pat_…  sets this phone up, then hides the code from the address bar.
-(() => { const h = location.hash, c = (h.match(/code=([A-Za-z0-9_]+)/) || [])[1];
-  if (c) { raw.set('ghToken', c); raw.set('whoAmI', (h.match(/who=([a-z]+)/) || [])[1] || 'negin'); history.replaceState(null, '', location.pathname + location.search); raw.set('justJoined', '1'); } })();
+// This app is Negin's. Chris records on his own page (record.html), which keeps its own code.
+// A link like …/#code=github_pat_… sets up Negin's phone to save her takes online, then hides the code.
+(() => { const c = (location.hash.match(/code=([A-Za-z0-9_]+)/) || [])[1];
+  if (c) { raw.set('ghToken', c); raw.set('appUser', 'negin'); raw.del('whoAmI'); history.replaceState(null, '', location.pathname + location.search); raw.set('justJoined', '1'); } })();
+// Older versions could mark a phone as Chris's. If so, ask once who is using this phone.
+let APPUSER = raw.get('appUser');
+const ASK_WHO = !APPUSER && raw.get('whoAmI') === 'chris';
+if (!APPUSER && !ASK_WHO && raw.get('ghToken')) { APPUSER = 'negin'; raw.set('appUser', 'negin'); }
 const NAMES = {chris: 'Chris', negin: 'Negin'};
-let token = raw.get('ghToken');
-let ME = token ? (raw.get('whoAmI') || 'negin') : null;   // only a phone with the access code saves online
-const PARTNER = ME === 'chris' ? 'negin' : 'chris';         // the other person's voice shown on every phrase
+let token = APPUSER === 'negin' ? raw.get('ghToken') : '';
+const ME = token ? 'negin' : null;                          // only Negin's phone, with her code, saves takes online
+const PARTNER = 'chris';                                    // the native voice shown on every phrase
 const VOICES = DATA.voices || {}, TIPS = DATA.tips || {};
 const LIVE = {}, LIVETIPS = {};                             // fresh lists read from GitHub on open: person -> Map(key -> sha)
 const ITEM = {};                                            // key -> phrase
@@ -682,10 +687,11 @@ $('invite').onclick = () => shareOrCopy({title: 'Record German for Negin', text:
 const CHRIS_LIST = (() => { const ks = new Set(); DATA.sections.forEach(s => s.groups.forEach(g => { if (g.kind === 'cards') return;
   g.items.forEach(it => { if (it.parts) it.parts.forEach(x => ks.add(x.a)); else ks.add(it.a); }); })); return [...ks]; })();
 function renderAccount(){
-  $('p-connect').hidden = !!token; $('p-connected').hidden = !token; $('p-invite').hidden = !(token && ME === 'negin');
+  $('p-connect').hidden = !!token || APPUSER === 'chris' || ASK_WHO; $('p-connected').hidden = !token; $('p-invite').hidden = !(token && ME === 'negin');
   if (token) $('who-line').textContent = `This phone records as ${NAMES[ME] || ME}. New takes are saved in the app and work on every device.`;
   const w = $('whoami');
-  if (ME === 'chris') { w.hidden = false; w.innerHTML = `Hi Chris! Your recording list is here: <a href="record.html?who=chris">open my list</a>. Danke! ❤️`; }
+  if (ASK_WHO) { w.hidden = false; w.innerHTML = `<b>Who is using this phone?</b><br><span style="display:inline-flex;gap:8px;margin-top:8px"><button class="btn primary" data-who="negin">I'm Negin</button><button class="btn" data-who="chris">I'm Chris</button></span>`; }
+  else if (APPUSER === 'chris') { w.hidden = false; w.innerHTML = `Hi Chris! Your recording list is here: <a href="record.html?who=chris">open my list</a>. Danke! ❤️`; }
   else w.hidden = true;
   const n = CHRIS_LIST.filter(k => hasRec('chris', k)).length, nt = LIVETIPS.chris ? LIVETIPS.chris.size : Object.keys(TIPS.chris || {}).length;
   $('chris-progress').innerHTML = n ? `Chris has recorded <b>${n} of ${CHRIS_LIST.length}</b>${nt ? ` and left <b>${nt}</b> suggestion${nt === 1 ? '' : 's'}` : ''}.` : 'Chris hasn’t recorded anything yet.';
@@ -697,12 +703,16 @@ $('code-save').onclick = async () => {
   try { const r = await fetch(`https://api.github.com/repos/${REPO}`, {headers: {'Authorization': `Bearer ${v}`}});
     if (r.status === 401) throw new Error('GitHub didn’t accept this code. Check you copied all of it.');
   } catch (e) { m.textContent = e.message || 'Couldn’t reach GitHub. Try again.'; m.className = 'msg err'; return; }
-  raw.set('ghToken', v); if (!raw.get('whoAmI')) raw.set('whoAmI', 'negin');
+  raw.set('ghToken', v); raw.set('appUser', 'negin'); raw.del('whoAmI');
   toast('Saved. Reloading…'); setTimeout(() => location.reload(), 700);
 };
-$('code-remove').onclick = () => { raw.del('ghToken'); raw.del('whoAmI'); toast('Code removed. Reloading…'); setTimeout(() => location.reload(), 700); };
+$('code-remove').onclick = () => { raw.del('ghToken'); raw.del('whoAmI'); raw.del('appUser'); toast('Code removed. Reloading…'); setTimeout(() => location.reload(), 700); };
 renderAccount();
-if (raw.get('justJoined')) { raw.del('justJoined'); toast(ME === 'chris' ? 'Welcome, Chris! Tap Record under any phrase.' : 'This phone now saves recordings online.'); }
+if (raw.get('justJoined')) { raw.del('justJoined'); toast('This phone now saves your recordings online.'); }
+document.addEventListener('click', e => { const b = e.target.closest('[data-who]'); if (!b) return;
+  if (b.dataset.who === 'chris' && raw.get('ghToken')) { raw.set('rec-token-chris', raw.get('ghToken')); raw.del('ghToken'); }
+  raw.set('appUser', b.dataset.who); raw.del('whoAmI'); toast(b.dataset.who === 'negin' ? 'Got it. This is your phone.' : 'Got it. Opening your recording list…');
+  setTimeout(() => { if (b.dataset.who === 'chris') location.href = 'record.html?who=chris'; else location.reload(); }, 700); });
 
 // ---------- today's review (spaced repetition) ----------
 const NEW_PER_DAY = 10, MAX_DUE = 25, GAPS = [1, 1, 3, 7, 14, 30];

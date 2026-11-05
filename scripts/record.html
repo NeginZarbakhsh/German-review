@@ -158,8 +158,10 @@ const WHO = ((new URLSearchParams(location.search).get('who') || 'chris').toLowe
 const NAMES = {chris: 'Chris', negin: 'Negin'}, NAME = NAMES[WHO] || WHO, OTHER = WHO === 'chris' ? 'negin' : 'chris';
 if (WHO !== 'chris') { $('h1').textContent = `Hi ${NAME} 👋`; $('intro').textContent = 'Record each phrase, listen back, and save the takes you like.'; document.title = `${NAME}'s Recordings · German Daily Review`; }
 // The code can come inside the link (…#code=github_pat_…). It stays in the link on purpose, so a Home Screen shortcut keeps working.
-let token = (location.hash.match(/code=([A-Za-z0-9_]+)/) || [])[1] || raw.get('ghToken');
-if (token) { raw.set('ghToken', token); raw.set('whoAmI', WHO); }
+// This page keeps its own code, separate from the practice app, so opening it never changes who the app thinks you are.
+const TOKEN_KEY = `rec-token-${WHO}`;
+let token = (location.hash.match(/code=([A-Za-z0-9_]+)/) || [])[1] || raw.get(TOKEN_KEY) || (raw.get('whoAmI') === WHO ? raw.get('ghToken') : '');
+if (token) raw.set(TOKEN_KEY, token);
 
 // ---------- the list: every phrase once, every word once ----------
 const items = [], byKey = new Map();
@@ -376,7 +378,8 @@ async function sendWaiting(){
   // 1) takes recorded here that didn't upload last time   2) takes Chris made in the main app on this phone
   const waiting = await pendingDb.keys().catch(() => []);
   for (const k of waiting) if (byKey.has(k)) { const wav = await pendingDb.get(k).catch(() => null); if (wav) { draft.set(k, wav); } } else pendingDb.del(k).catch(() => {});
-  const fromApp = (await appDb.keys().catch(() => [])).filter(k => byKey.has(k) && !mine.has(k) && !draft.has(k));
+  // Only on a phone confirmed as Chris's: the practice app's takes on Negin's phone are her voice, never his.
+  const fromApp = raw.get('appUser') === WHO ? (await appDb.keys().catch(() => [])).filter(k => byKey.has(k) && !mine.has(k) && !draft.has(k)) : [];
   const retry = [...draft.keys()];
   if (retry.length) { render(); for (const k of retry) await saveTake(k, draft.get(k), false); }
   if (fromApp.length) {
@@ -460,7 +463,7 @@ async function start(){
   $('main').hidden = false; $('main').innerHTML = '<div class="empty">Loading your list…</div>';
   try { await loadState(); }
   catch (e) {
-    if (e.message === 'code') { raw.del('ghToken'); token = ''; $('main').hidden = true; $('setup').hidden = false; $('token-msg').textContent = 'That code didn’t work. Paste a new one from Negin.'; $('token-msg').className = 'msg err'; return; }
+    if (e.message === 'code') { raw.del(TOKEN_KEY); token = ''; $('main').hidden = true; $('setup').hidden = false; $('token-msg').textContent = 'That code didn’t work. Paste a new one from Negin.'; $('token-msg').className = 'msg err'; return; }
     Object.keys((DATA.voices || {})[WHO] || {}).forEach(k => mine.set(k, null)); toast('Offline: showing the last saved list.');
   }
   $('progress').hidden = false; $('tabs').hidden = false; $('hint').hidden = navigator.standalone === true;
@@ -470,7 +473,7 @@ async function start(){
 $('token-save').onclick = () => {
   const v = $('token').value.trim();
   if (!/^(github_pat_|gh[pousr]_)/.test(v)) { $('token-msg').textContent = 'That doesn’t look like the code. It starts with github_pat_.'; $('token-msg').className = 'msg err'; return; }
-  token = v; raw.set('ghToken', v); raw.set('whoAmI', WHO); start();
+  token = v; raw.set(TOKEN_KEY, v); start();
 };
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && token && !recKey && !draft.size) loadState().then(render).catch(() => {}); });
 if (token) start(); else $('setup').hidden = false;
