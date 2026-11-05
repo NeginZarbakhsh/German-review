@@ -19,6 +19,7 @@ STRESS_FIXES = {"viːdɜzˈeːən": "vˈiːdɜzeːən"}  # Wiedersehen: stress o
 data = yaml.safe_load(open(PHRASES, encoding="utf-8"))
 
 voice = PiperVoice.load(VOICE)
+IDS = voice.config.phoneme_id_map
 _orig = voice.phonemize
 def phonemize(text):
     out = []
@@ -26,7 +27,10 @@ def phonemize(text):
         s = unicodedata.normalize("NFC", "".join(sent))  # keeps the soft ch in "ich" as one sound
         for a, b in STRESS_FIXES.items():
             s = s.replace(a, b)
-        out.append(list(s))
+        fitted = []
+        for ch in s:  # use whichever form of each sound this voice knows
+            fitted.extend([ch] if ch in IDS else list(unicodedata.normalize("NFD", ch)))
+        out.append(fitted)
     return out
 voice.phonemize = phonemize
 
@@ -54,13 +58,27 @@ for sec in data["sections"]:
                 with wave.open(wav, "wb") as w:
                     voice.synthesize_wav(text, w, syn_config=SynthesisConfig(length_scale=ls, noise_scale=0.5, noise_w_scale=0.6))
                 subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", wav, "-af", "apad=pad_dur=0.15",
-                                "-ac", "1", "-ar", "22050", "-b:a", "40k", mp3], check=True)
+                                "-ac", "1", "-ar", "22050", "-b:a", "48k", mp3], check=True)
                 count += 1
 shutil.rmtree(tmp)
 
 page = open(f"{HERE}/template.html", encoding="utf-8").read()
 page = page.replace("__DATA__", json.dumps({"sections": data["sections"], "mistakes": data["mistakes"]}, ensure_ascii=False))
 open(f"{OUT}/index.html", "w", encoding="utf-8").write(page)
-json.dump({"name": "German Daily Review", "short_name": "Deutsch", "start_url": ".", "display": "standalone",
-           "background_color": "#f2f4f8", "theme_color": "#2347c5"}, open(f"{OUT}/manifest.json", "w"))
+for f in os.listdir(f"{HERE}/../static"):
+    shutil.copy(f"{HERE}/../static/{f}", f"{OUT}/{f}")
+json.dump({"name": "German Daily Review", "short_name": "Deutsch", "start_url": ".", "scope": ".", "display": "standalone",
+           "background_color": "#f2f4f8", "theme_color": "#2347c5",
+           "icons": [{"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
+                     {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"},
+                     {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}]},
+          open(f"{OUT}/manifest.json", "w"))
+
+# Offline: cache the page, icons and every recording that is in use
+used = sorted({f"audio/{it['a']}_{v}.mp3" for sec in data["sections"] for g in sec["groups"] if g["kind"] != "cards"
+               for it in g["items"] for v in ("n", "s")})
+files = ["./", "index.html", "manifest.json"] + sorted(os.listdir(f"{HERE}/../static")) + used
+version = hashlib.md5((os.path.basename(VOICE) + page + "".join(files)).encode("utf-8")).hexdigest()[:10]
+sw = open(f"{HERE}/sw.js", encoding="utf-8").read().replace("__VERSION__", version).replace("__FILES__", json.dumps(files))
+open(f"{OUT}/sw.js", "w", encoding="utf-8").write(sw)
 print(f"Built site with {count} new recordings.")

@@ -28,14 +28,30 @@ jobs:
           pip install piper-tts==1.8.0 pyyaml
 
       - name: Get the German voice
+        id: voice
         run: |
           mkdir -p voice
-          curl -sSL -o voice.tgz https://github.com/rhasspy/piper/releases/download/v0.0.2/voice-de-thorsten-low.tar.gz
-          tar xzf voice.tgz -C voice
+          HF=https://huggingface.co/rhasspy/piper-voices/resolve/main/de/de_DE/thorsten/high
+          if curl -fsSL -o voice/de_DE-thorsten-high.onnx "$HF/de_DE-thorsten-high.onnx" \
+             && curl -fsSL -o voice/de_DE-thorsten-high.onnx.json "$HF/de_DE-thorsten-high.onnx.json"; then
+            echo "name=de_DE-thorsten-high" >> "$GITHUB_OUTPUT"
+          else
+            echo "High-quality voice unavailable, using the basic one"
+            curl -fsSL -o voice.tgz https://github.com/rhasspy/piper/releases/download/v0.0.2/voice-de-thorsten-low.tar.gz
+            tar xzf voice.tgz -C voice
+            echo "name=de-thorsten-low" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Reuse recordings from earlier builds
+        uses: actions/cache@v4
+        with:
+          path: site/audio
+          key: audio-${{ steps.voice.outputs.name }}-v2-${{ hashFiles('phrases.yml') }}
+          restore-keys: audio-${{ steps.voice.outputs.name }}-v2-
 
       - name: Record phrases and build the page
         run: |
-          python scripts/make.py voice/de-thorsten-low.onnx phrases.yml site
+          python scripts/make.py voice/${{ steps.voice.outputs.name }}.onnx phrases.yml site
           touch site/.nojekyll
 
       - name: Publish to the gh-pages branch

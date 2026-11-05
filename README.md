@@ -25,6 +25,12 @@ Open it at **https://neginzarbakhsh.github.io/German-review/**
 To add a mistake to “Watch out”, add a line under `mistakes:` like
 `- [what I wrote, correct spelling, why]`.
 
+## Today's review
+
+The blue box at the top picks phrases for you each day: up to 10 new ones, plus the ones due again.
+Tap **Got it** or **Again**. Phrases you know come back after 1, 3, 7, 14 and 30 days; phrases you forget come back tomorrow.
+Progress is saved on the phone you use.
+
 ## How it works
 
 `scripts/make.py` records every phrase with the Piper German voice (Thorsten), slow and normal,
