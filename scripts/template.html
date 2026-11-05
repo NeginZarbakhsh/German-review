@@ -156,6 +156,11 @@ h3{font-family:var(--display);font-weight:500;font-size:1.05rem;margin:22px 0 4p
 .rv-done p{color:var(--muted);margin:0}
 .vnote{margin:0;font-size:.85rem;color:var(--muted)}
 .vnote b{color:var(--fg)}
+.cbtn{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--accent);background:var(--surface);color:var(--accent);font:700 .78rem var(--body);border-radius:999px;padding:4px 9px;cursor:pointer;white-space:nowrap}
+.cbtn svg{width:13px;height:13px}
+.cbtn.on{background:var(--accent);color:var(--accent-ink)}
+.tile .cbtn{align-self:flex-start;margin-top:6px}
+.rv-btns{display:flex;align-items:center;gap:8px}
 button:focus-visible,a:focus-visible{outline:3px solid var(--stress);outline-offset:2px}
 @media (max-width:480px){h1{font-size:1.75rem}.de{font-size:1.18rem}.card{padding:12px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
@@ -186,9 +191,8 @@ html{scroll-behavior:smooth}
       <button id="s-normal" data-speed="n" aria-pressed="false">Normal</button>
     </div>
     <div class="seg" role="group" aria-label="Voice">
-      <button id="v-chris" data-voice="chris" aria-pressed="false" hidden>Chris</button>
-      <button id="v-device" data-voice="device" aria-pressed="false">iPhone</button>
-      <button id="v-std" data-voice="std" aria-pressed="true">Standard</button>
+      <button id="v-device" data-voice="device" aria-pressed="true">iPhone</button>
+      <button id="v-std" data-voice="std" aria-pressed="false">Standard</button>
     </div>
     <button class="toggle" id="hard" aria-pressed="false"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/></svg>Starred</button>
   </div>
@@ -209,6 +213,7 @@ html{scroll-behavior:smooth}
 <script>
 const DATA = __DATA__;
 const PLAY = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>';
+const MIC = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-3.1A7 7 0 0 0 19 11z"/></svg>';
 const STAR = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/></svg>';
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const stress = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
@@ -216,8 +221,8 @@ const store = {get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JS
 
 let speed = store.get('speed','s'), mode = store.get('mode','learn'), hardOnly = false;
 const CHRIS = DATA.chris || {}, HAS_CHRIS = Object.keys(CHRIS).length > 0;
-let voice = store.get('voice', HAS_CHRIS ? 'chris' : 'std');
-if (voice === 'chris' && !HAS_CHRIS) voice = 'std';
+let voice = store.get('voice', 'device');
+if (voice !== 'std') voice = 'device';
 const A2T = {}; DATA.sections.forEach(s => s.groups.forEach(g => { if (g.kind !== 'cards') g.items.forEach(it => A2T[it.a] = it.speak); }));
 let starred = new Set(store.get('starred', []));
 const main = document.getElementById('main'), chips = document.getElementById('chips');
@@ -235,19 +240,19 @@ function rowCard(it, id, sound){
       ${it.tip?`<div class="tip hide">${esc(it.tip)}</div>`:''}
       <button class="reveal" data-reveal="${id}">Say it out loud, then tap to check</button>
     </div>
-    <div class="side"><button class="play" data-play="${id}" aria-label="Play ${esc(it.de)}">${PLAY}</button>${starBtn(id, it.a)}</div>
+    <div class="side"><button class="play" data-play="${id}" aria-label="Play ${esc(it.de)}">${PLAY}</button>${CHRIS[it.a] ? `<button class="cbtn" data-chris="${it.a}" aria-label="Play Chris saying ${esc(it.de)}">${MIC}Chris</button>` : ''}${starBtn(id, it.a)}</div>
   </div>`;
 }
 function tile(it, id){
   return `<div class="tile${starred.has(it.a)?' hard':''}" id="${id}" data-a="${it.a}" data-play="${id}" role="button" tabindex="0" aria-label="Play ${esc(it.de)}">
-    <span class="n">${esc(it.en)}</span><span class="tw hide">${esc(it.de)}</span><span class="ts hide">${stress(it.say)}</span>${starBtn(id, it.a)}</div>`;
+    <span class="n">${esc(it.en)}</span><span class="tw hide">${esc(it.de)}</span><span class="ts hide">${stress(it.say)}</span>${CHRIS[it.a] ? `<button class="cbtn" data-chris="${it.a}" aria-label="Play Chris saying ${esc(it.de)}">${MIC}Chris</button>` : ''}${starBtn(id, it.a)}</div>`;
 }
 function crow(it, id){
   return `<div class="crow${starred.has(it.a)?' hard':''}" id="${id}" data-a="${it.a}">
     <div class="body"><div class="de hide">${esc(it.de)}</div>
       <div class="meta"><span class="say hide">${stress(it.say)}</span><span class="en">${esc(it.en)}</span></div>
       <button class="reveal" data-reveal="${id}">Tap to check</button></div>
-    <div class="side">${starBtn(id, it.a)}<button class="play" data-play="${id}" aria-label="Play ${esc(it.de)}">${PLAY}</button></div></div>`;
+    <div class="side">${starBtn(id, it.a)}${CHRIS[it.a] ? `<button class="cbtn" data-chris="${it.a}" aria-label="Play Chris saying ${esc(it.de)}">${MIC}Chris</button>` : ''}<button class="play" data-play="${id}" aria-label="Play ${esc(it.de)}">${PLAY}</button></div></div>`;
 }
 
 const sequences = {};
@@ -284,8 +289,7 @@ function playNext(){
   sayA(el.dataset.a, () => setTimeout(playNext, queue.length ? 350 : 0), clearPlaying);
 }
 const blobs = new Map();
-function srcFor(a){ return voice === 'chris' && CHRIS[a] ? `voices/chris/${CHRIS[a]}` : `audio/${a}_${speed}.mp3`; }
-function load(a){ const k = srcFor(a);
+function load(a, chris){ const k = chris ? `voices/chris/${CHRIS[a]}` : `audio/${a}_${speed}.mp3`;
   if (!blobs.has(k)) blobs.set(k, fetch(k).then(r => { if (!r.ok) throw 0; return r.blob(); }).then(b => URL.createObjectURL(b)).catch(e => { blobs.delete(k); throw e; }));
   return blobs.get(k); }
 function stopAll(){ player.pause(); onEnd = null; if ('speechSynthesis' in window) speechSynthesis.cancel(); }
@@ -295,10 +299,13 @@ function sayA(a, end = () => {}, fail = () => {}){
     const u = new SpeechSynthesisUtterance(A2T[a]); u.lang = deVoice.lang; u.voice = deVoice; u.rate = speed === 's' ? 0.7 : 0.95;
     u.onend = end; u.onerror = fail; speechSynthesis.cancel(); speechSynthesis.speak(u); return;
   }
-  load(a).then(url => { player.src = url; const r = voice === 'chris' && CHRIS[a] && speed === 's' ? 0.8 : 1;
+  load(a).then(url => { player.src = url; const r = 1;
     player.defaultPlaybackRate = r; player.playbackRate = r; player.preservesPitch = true; onEnd = end; return player.play(); }).catch(fail);
 }
 function playA(a){ stopAll(); queue = []; clearPlaying(); sayA(a); }
+function playChris(a, btn){ stopAll(); queue = []; clearPlaying();
+  load(a, true).then(url => { player.src = url; const r = speed === 's' ? 0.8 : 1; player.defaultPlaybackRate = r; player.playbackRate = r; player.preservesPitch = true;
+    if (btn) { btn.classList.add('on'); onEnd = () => btn.classList.remove('on'); } return player.play(); }).catch(() => btn && btn.classList.remove('on')); }
 function pickDe(){
   if (!('speechSynthesis' in window)) return;
   const tier = v => /premium/i.test(v.name + v.voiceURI) ? 3 : /enhanced/i.test(v.name + v.voiceURI) ? 2 : 0;
@@ -313,9 +320,6 @@ function voiceNote(){
     if (!deVoice) n.innerHTML = 'No German voice on this device yet, so you hear the Standard voice. On iPhone: <b>Settings › Accessibility › Spoken Content › Voices › German › Anna</b>, then download <b>Anna (Premium)</b>.';
     else if (!/premium|enhanced/i.test(deVoice.name + deVoice.voiceURI)) n.innerHTML = `Using <b>${esc(deVoice.name)}</b>. For a more natural voice, download <b>Anna (Premium)</b> in <b>Settings › Accessibility › Spoken Content › Voices › German</b>.`;
     else n.innerHTML = `Using <b>${esc(deVoice.name)}</b>.`;
-  } else if (voice === 'chris') {
-    const total = Object.keys(A2T).length, have = Object.keys(A2T).filter(a => CHRIS[a]).length;
-    if (have < total) { n.hidden = false; n.textContent = `Chris has recorded ${have} of ${total} phrases. The rest use the Standard voice.`; }
   }
 }
 player.addEventListener('ended', () => { const f = onEnd; onEnd = null; if (f) f(); });
@@ -323,6 +327,8 @@ function play(ids){ stopAll(); queue = ids.slice(); playNext(); }
 
 function reveal(el){ el.classList.add('shown'); }
 document.addEventListener('click', e => {
+  const cb = e.target.closest('[data-chris]');
+  if (cb) { e.stopPropagation(); if (mode === 'practice') { const host = cb.closest('.card,.tile,.crow'); if (host) host.classList.add('shown'); } playChris(cb.dataset.chris, cb); return; }
   const st = e.target.closest('[data-star]');
   if (st) { e.stopPropagation(); const a = document.getElementById(st.dataset.star).dataset.a; const on = !starred.has(a);
     on ? starred.add(a) : starred.delete(a);
@@ -350,7 +356,6 @@ document.getElementById('hard').onclick = function(){ hardOnly = !hardOnly; this
 function setVoice(v){ voice = v; store.set('voice', v); stopAll(); clearPlaying();
   document.querySelectorAll('[data-voice]').forEach(b=>b.setAttribute('aria-pressed', b.dataset.voice===v)); voiceNote(); }
 document.querySelectorAll('[data-voice]').forEach(b=>b.onclick=()=>setVoice(b.dataset.voice));
-document.getElementById('v-chris').hidden = !HAS_CHRIS;
 if ('speechSynthesis' in window) { pickDe(); speechSynthesis.onvoiceschanged = pickDe; } else document.getElementById('v-device').hidden = true;
 setMode(mode); setSpeed(speed); setVoice(voice);
 
@@ -410,7 +415,7 @@ function showBack(){
   const it = rq[ri];
   const words = (it.words || []).length ? `<div class="words">${it.words.map(([d,e]) => `<span class="w"><b>${esc(d)}</b> <span>= ${esc(e)}</span></span>`).join('')}</div>` : '';
   card.insertAdjacentHTML('beforeend', `<div class="rv-ans"><div class="rv-row"><div class="rv-de">${esc(it.de)}</div>
-    <button class="play" id="rv-play" aria-label="Play again">${PLAY}</button></div>
+    <div class="rv-btns">${CHRIS[it.a] ? `<button class="cbtn" data-chris="${it.a}" aria-label="Play Chris saying ${esc(it.de)}">${MIC}Chris</button>` : ''}<button class="play" id="rv-play" aria-label="Play again">${PLAY}</button></div></div>
     <div class="say">${stress(it.say)}</div>${it.fa ? `<div class="fa" dir="rtl" lang="fa">${esc(it.fa)}</div>` : ''}${words}
     ${it.tip ? `<div class="tip">${esc(it.tip)}</div>` : ''}</div>`);
   document.getElementById('rv-play').onclick = () => playA(it.a);

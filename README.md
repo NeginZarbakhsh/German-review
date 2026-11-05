@@ -33,12 +33,13 @@ Progress is saved on the phone you use.
 
 ## Voices
 
-The voice switch on the page has three options:
+The ▶ button plays the main voice. The switch at the top picks which one:
 
-- **Chris**: real recordings by Chris. Phrases he hasn't recorded yet use the Standard voice.
-- **iPhone**: the German voice built into the phone. Download **Anna (Premium)** in
+- **iPhone** (default): the German voice built into the phone. Download **Anna (Premium)** in
   Settings › Accessibility › Spoken Content › Voices › German for the most natural sound.
 - **Standard**: the computer voice recorded when the page is built.
+
+Phrases Chris has recorded also get a separate **🎤 Chris** button that plays his recording.
 
 ### Chris's recording page
 
