@@ -137,9 +137,14 @@ page_data = json.dumps({"sections": data["sections"], "mistakes": data["mistakes
 repo = os.environ.get("GITHUB_REPOSITORY", "NeginZarbakhsh/German-review")
 owner, name = repo.split("/")
 site = f"https://{owner.lower()}.github.io/{name}/"
+import datetime
+BUILD = hashlib.md5((page_data + open(f"{HERE}/template.html", encoding="utf-8").read() + open(f"{HERE}/record.html", encoding="utf-8").read()).encode("utf-8")).hexdigest()[:10]
+STAMP = datetime.datetime.now(datetime.timezone.utc).strftime("%d %b, %H:%M UTC").lstrip("0")
+open(f"{OUT}/version.json", "w").write(json.dumps({"build": BUILD, "stamp": STAMP}))
 page = (open(f"{HERE}/template.html", encoding="utf-8").read()
-        .replace("__DATA__", page_data).replace("__REPO__", json.dumps(repo)).replace("__SITE__", site))
-rec_page = open(f"{HERE}/record.html", encoding="utf-8").read().replace("__DATA__", page_data).replace("__REPO__", json.dumps(repo))
+        .replace("__DATA__", page_data).replace("__REPO__", json.dumps(repo)).replace("__SITE__", site)
+        .replace("__BUILD__", BUILD).replace("__STAMP__", STAMP))
+rec_page = open(f"{HERE}/record.html", encoding="utf-8").read().replace("__DATA__", page_data).replace("__REPO__", json.dumps(repo)).replace("__BUILD__", BUILD).replace("__STAMP__", STAMP)
 open(f"{OUT}/record.html", "w", encoding="utf-8").write(rec_page)
 open(f"{OUT}/index.html", "w", encoding="utf-8").write(page)
 for f in os.listdir(f"{HERE}/../static"):

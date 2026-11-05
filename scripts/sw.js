@@ -19,7 +19,7 @@ self.addEventListener('fetch', e => {
   if (url.origin === location.origin) {
     if (req.mode === 'navigate') {
       // Newest page when online, saved page when offline
-      e.respondWith(fetch(req).catch(() => caches.match('./').then(r => r || caches.match('index.html'))));
+      e.respondWith(fetch(req, {cache: 'no-store'}).catch(() => caches.match(req, {ignoreSearch: true}).then(r => r || caches.match('./')).then(r => r || caches.match('index.html'))));
       return;
     }
     e.respondWith(caches.match(req, {ignoreSearch: true}).then(r => r || fetch(req)));

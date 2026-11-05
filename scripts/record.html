@@ -94,6 +94,7 @@ main{padding-block:14px 60px;display:flex;flex-direction:column;gap:10px}
 .empty{text-align:center;color:var(--muted);padding:40px 16px}
 .empty b{display:block;font-family:var(--display);font-size:1.5rem;color:var(--fg);margin-bottom:6px}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:11px 18px;border-radius:999px;font-weight:700;font-size:.9rem;z-index:60;max-width:calc(100% - 32px);text-align:center}
+.ver{text-align:center;font-size:.78rem;color:var(--muted);margin:0 0 24px;opacity:.8}
 button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--new);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -130,6 +131,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px soli
 </div></nav>
 
 <main class="wrap" id="main" hidden></main>
+<p class="ver">Version __STAMP__</p>
 <div class="toast" id="toast" hidden role="status"></div>
 
 <script>
@@ -472,5 +474,13 @@ $('token-save').onclick = () => {
 };
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && token && !recKey && !draft.size) loadState().then(render).catch(() => {}); });
 if (token) start(); else $('setup').hidden = false;
+// ---------- always run the newest version ----------
+// Safari may keep an old copy of this page for a few minutes. Ask the server which version is current,
+// and if this copy is older, reload once with a new address so the newest page loads.
+(() => { const BUILD = '__BUILD__';
+  fetch('version.json?t=' + Date.now(), {cache: 'no-store'}).then(r => r.json()).then(v => {
+    const u = new URL(location.href);
+    if (v.build && v.build !== BUILD && u.searchParams.get('v') !== v.build) { u.searchParams.set('v', v.build); location.replace(u.toString()); }
+  }).catch(() => {}); })();
 </script>
 </body></html>

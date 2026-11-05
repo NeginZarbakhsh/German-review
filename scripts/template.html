@@ -198,6 +198,7 @@ footer{padding-block:28px 48px;color:var(--muted);font-size:.85rem;text-align:ce
 .rv-done p{color:var(--muted);margin:0}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:11px 18px;border-radius:999px;font-weight:700;font-size:.9rem;z-index:60;max-width:calc(100% - 32px);text-align:center}
 
+.ver{text-align:center;font-size:.78rem;color:var(--muted);margin:0 0 24px;opacity:.8}
 button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--stress);outline-offset:2px}
 @media (max-width:480px){h1{font-size:1.8rem}.de{font-size:1.22rem}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
@@ -260,7 +261,7 @@ html{scroll-behavior:smooth}
     <div class="btns"><button class="btn quiet" id="code-remove">Remove code from this phone</button></div>
   </div>
 </section>
-<footer class="wrap">Made by Negin Zarbakhsh, with recordings by Chris.</footer>
+<footer class="wrap">Made by Negin Zarbakhsh, with recordings by Chris.<br><span class="ver">Version __STAMP__</span></footer>
 
 <div class="rv" id="rv" hidden role="dialog" aria-modal="true" aria-label="Today's review">
   <div class="rv-in">
@@ -783,5 +784,13 @@ refreshToday();
 
 // ---------- offline ----------
 if ('serviceWorker' in navigator && window.isSecureContext) navigator.serviceWorker.register('sw.js').catch(() => {});
+// ---------- always run the newest version ----------
+// Safari may keep an old copy of this page for a few minutes. Ask the server which version is current,
+// and if this copy is older, reload once with a new address so the newest page loads.
+(() => { const BUILD = '__BUILD__';
+  fetch('version.json?t=' + Date.now(), {cache: 'no-store'}).then(r => r.json()).then(v => {
+    const u = new URL(location.href);
+    if (v.build && v.build !== BUILD && u.searchParams.get('v') !== v.build) { u.searchParams.set('v', v.build); location.replace(u.toString()); }
+  }).catch(() => {}); })();
 </script>
 </body></html>
