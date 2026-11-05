@@ -33,11 +33,11 @@ Progress is saved on the phone you use.
 
 ## Voices
 
-The ▶ button plays the main voice. The switch at the top picks which one:
+The ▶ button plays the main voice. Pick it in the **Voice** list at the top and tap **Test** to hear it:
 
-- **iPhone** (default): the German voice built into the phone. Download **Anna (Premium)** in
-  Settings › Accessibility › Spoken Content › Voices › German for the most natural sound.
-- **Standard**: the computer voice recorded when the page is built.
+- **Best phone voice** (default) or any German voice your phone offers, e.g. **Anna (Premium)**.
+  Phone voices are muted when the iPhone is on **Silent**.
+- **Standard (recorded)**: the computer voice recorded when the page is built. Plays even on Silent.
 
 Phrases Chris has recorded also get a separate **🎤 Chris** button that plays his recording.
 

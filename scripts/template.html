@@ -155,6 +155,10 @@ h3{font-family:var(--display);font-weight:500;font-size:1.05rem;margin:22px 0 4p
 .rv-done .rv-en{font-size:2rem}
 .rv-done p{color:var(--muted);margin:0}
 .vnote{margin:0;font-size:.85rem;color:var(--muted)}
+.vpick{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:3px 3px 3px 10px;max-width:100%;min-width:0}
+.vpick label{font:700 .8rem var(--body);color:var(--muted)}
+.vpick select{font:700 .85rem var(--body);color:var(--fg);background:transparent;border:0;padding:5px 2px;min-width:0;max-width:52vw;text-overflow:ellipsis}
+.vpick button{border:0;background:var(--accent);color:var(--accent-ink);font:700 .8rem var(--body);border-radius:7px;padding:6px 10px;cursor:pointer}
 .vnote b{color:var(--fg)}
 .cbtn{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--accent);background:var(--surface);color:var(--accent);font:700 .78rem var(--body);border-radius:999px;padding:4px 9px;cursor:pointer;white-space:nowrap}
 .cbtn svg{width:13px;height:13px}
@@ -195,10 +199,7 @@ html{scroll-behavior:smooth}
       <button id="s-slow" data-speed="s" aria-pressed="true">Slow</button>
       <button id="s-normal" data-speed="n" aria-pressed="false">Normal</button>
     </div>
-    <div class="seg" role="group" aria-label="Voice">
-      <button id="v-device" data-voice="device" aria-pressed="true">iPhone</button>
-      <button id="v-std" data-voice="std" aria-pressed="false">Standard</button>
-    </div>
+    <div class="vpick"><label for="vsel">Voice</label><select id="vsel"></select><button id="vtest" type="button">Test</button></div>
     <button class="toggle" id="hard" aria-pressed="false"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/></svg>Starred</button>
   </div>
   <p class="vnote" id="vnote" hidden></p>
@@ -228,8 +229,8 @@ let speed = store.get('speed','s'), mode = store.get('mode','learn'), hardOnly =
 const VOICES = DATA.voices || {}, VNAMES = {chris: 'Chris', negin: 'Me'};
 function vbtns(it){ return Object.keys(VOICES).filter(v => VOICES[v][it.a]).map(v =>
   `<button class="cbtn${v === 'negin' ? ' me' : ''}" data-vs="${v}" data-va="${it.a}" aria-label="Play ${esc(VNAMES[v] || v)}: ${esc(it.de)}">${MIC}${esc(VNAMES[v] || v)}</button>`).join(''); }
-let voice = store.get('voice', 'device');
-if (voice !== 'std') voice = 'device';
+let voice = store.get('voice', 'auto');   // 'auto' = best German phone voice, 'std' = recorded Standard voice, or a phone voice's id
+if (voice === 'device') voice = 'auto';
 const A2T = {}; DATA.sections.forEach(s => s.groups.forEach(g => { if (g.kind !== 'cards') g.items.forEach(it => A2T[it.a] = it.speak); }));
 let starred = new Set(store.get('starred', []));
 const main = document.getElementById('main'), chips = document.getElementById('chips');
@@ -300,34 +301,59 @@ function load(a, sp){ const k = sp ? `voices/${sp}/${VOICES[sp][a]}` : `audio/${
   if (!blobs.has(k)) blobs.set(k, fetch(k).then(r => { if (!r.ok) throw 0; return r.blob(); }).then(b => URL.createObjectURL(b)).catch(e => { blobs.delete(k); throw e; }));
   return blobs.get(k); }
 function stopAll(){ player.pause(); onEnd = null; if ('speechSynthesis' in window) speechSynthesis.cancel(); }
-let onEnd = null, deVoice = null;
+let onEnd = null, deVoices = [];
+const HAS_TTS = 'speechSynthesis' in window;
+const tier = v => /premium/i.test(v.name + v.voiceURI) ? 3 : /enhanced/i.test(v.name + v.voiceURI) ? 2 : 0;
+const vlabel = v => v.name + (tier(v) === 3 && !/premium/i.test(v.name) ? ' (Premium)' : tier(v) === 2 && !/enhanced/i.test(v.name) ? ' (Enhanced)' : '');
+function phoneVoice(){ if (voice === 'auto') return deVoices[0] || null; return deVoices.find(v => v.voiceURI === voice) || null; }
+// iPhone keeps speech quiet on Silent; playing a short silent sound first can switch audio to "playback" so speech is heard
+let silentUrl = null;
+function unlockAudio(){ try {
+  if (!silentUrl) { const n = 2205, b = new ArrayBuffer(44 + n * 2), d = new DataView(b), w = (o, t) => { for (let i = 0; i < t.length; i++) d.setUint8(o + i, t.charCodeAt(i)); };
+    w(0,'RIFF'); d.setUint32(4,36+n*2,true); w(8,'WAVE'); w(12,'fmt '); d.setUint32(16,16,true); d.setUint16(20,1,true); d.setUint16(22,1,true);
+    d.setUint32(24,22050,true); d.setUint32(28,44100,true); d.setUint16(32,2,true); d.setUint16(34,16,true); w(36,'data'); d.setUint32(40,n*2,true);
+    silentUrl = URL.createObjectURL(new Blob([b], {type: 'audio/wav'})); }
+  const s = new Audio(silentUrl); s.play().catch(() => {}); } catch (e) {} }
+function speak(text, end = () => {}, fail = () => {}){
+  unlockAudio();
+  const u = new SpeechSynthesisUtterance(text), v = phoneVoice();
+  u.lang = v ? v.lang : 'de-DE'; if (v) { try { u.voice = v; } catch (e) {} } u.rate = speed === 's' ? 0.75 : 0.95;
+  let started = false; u.onstart = () => { started = true; };
+  u.onend = end; u.onerror = () => { if (!started) fail(); else end(); };
+  speechSynthesis.cancel(); speechSynthesis.speak(u);
+}
+function playStd(a, end, fail){
+  load(a).then(url => { player.src = url; player.defaultPlaybackRate = 1; player.playbackRate = 1; onEnd = end; return player.play(); }).catch(fail);
+}
 function sayA(a, end = () => {}, fail = () => {}){
-  if (voice === 'device' && deVoice) {
-    const u = new SpeechSynthesisUtterance(A2T[a]); u.lang = deVoice.lang; u.voice = deVoice; u.rate = speed === 's' ? 0.7 : 0.95;
-    u.onend = end; u.onerror = fail; speechSynthesis.cancel(); speechSynthesis.speak(u); return;
-  }
-  load(a).then(url => { player.src = url; const r = 1;
-    player.defaultPlaybackRate = r; player.playbackRate = r; player.preservesPitch = true; onEnd = end; return player.play(); }).catch(fail);
+  if (voice !== 'std' && HAS_TTS) { speak(A2T[a], end, () => playStd(a, end, fail)); return; }
+  playStd(a, end, fail);
 }
 function playA(a){ stopAll(); queue = []; clearPlaying(); sayA(a); }
 function playVoice(sp, a, btn){ stopAll(); queue = []; clearPlaying();
   load(a, sp).then(url => { player.src = url; const r = speed === 's' ? 0.8 : 1; player.defaultPlaybackRate = r; player.playbackRate = r; player.preservesPitch = true;
     if (btn) { btn.classList.add('on'); onEnd = () => btn.classList.remove('on'); } return player.play(); }).catch(() => btn && btn.classList.remove('on')); }
-function pickDe(){
-  if (!('speechSynthesis' in window)) return;
-  const tier = v => /premium/i.test(v.name + v.voiceURI) ? 3 : /enhanced/i.test(v.name + v.voiceURI) ? 2 : 0;
-  const vs = speechSynthesis.getVoices().filter(v => /^de([-_]|$)/i.test(v.lang));
-  deVoice = vs.sort((x, y) => (tier(y) + (/DE$/i.test(y.lang) ? 1 : 0)) - (tier(x) + (/DE$/i.test(x.lang) ? 1 : 0)))[0] || null;
+function listVoices(){
+  if (!HAS_TTS) return;
+  deVoices = speechSynthesis.getVoices().filter(v => /^de([-_]|$)/i.test(v.lang))
+    .sort((x, y) => (tier(y) + (/DE$/i.test(y.lang) ? 1 : 0)) - (tier(x) + (/DE$/i.test(x.lang) ? 1 : 0)) || x.name.localeCompare(y.name));
+  const sel = document.getElementById('vsel'), best = deVoices[0];
+  const opts = [];
+  if (HAS_TTS) opts.push(['auto', best ? `Best phone voice (${vlabel(best)})` : 'Phone voice']);
+  deVoices.forEach(v => opts.push([v.voiceURI, vlabel(v)]));
+  opts.push(['std', 'Standard (recorded)']);
+  if (voice !== 'auto' && voice !== 'std' && !deVoices.some(v => v.voiceURI === voice) && deVoices.length) voice = 'auto';
+  sel.innerHTML = opts.map(([val, lab]) => `<option value="${esc(val)}"${val === voice ? ' selected' : ''}>${esc(lab)}</option>`).join('');
   voiceNote();
 }
 function voiceNote(){
-  const n = document.getElementById('vnote'); n.hidden = true;
-  if (voice === 'device') {
-    n.hidden = false;
-    if (!deVoice) n.innerHTML = 'No German voice on this device yet, so you hear the Standard voice. On iPhone: <b>Settings › Accessibility › Spoken Content › Voices › German › Anna</b>, then download <b>Anna (Premium)</b>.';
-    else if (!/premium|enhanced/i.test(deVoice.name + deVoice.voiceURI)) n.innerHTML = `Using <b>${esc(deVoice.name)}</b>. For a more natural voice, download <b>Anna (Premium)</b> in <b>Settings › Accessibility › Spoken Content › Voices › German</b>.`;
-    else n.innerHTML = `Using <b>${esc(deVoice.name)}</b>.`;
-  }
+  const n = document.getElementById('vnote'); n.hidden = false;
+  if (voice === 'std') { n.innerHTML = 'Standard: the recorded computer voice. Works on every phone, even on Silent.'; return; }
+  const v = phoneVoice();
+  const silent = ' No sound? Turn off <b>Silent mode</b>. Phone voices are muted on Silent.';
+  if (!v) n.innerHTML = 'Your browser didn’t list its German voices, so the phone picks one itself.' + silent + ' If it sounds English, choose <b>Standard</b>.';
+  else if (tier(v) < 2) n.innerHTML = `Using <b>${esc(vlabel(v))}</b>. Can't see <b>Anna (Premium)</b> in the list? Safari sometimes hides Premium voices. Tap <b>Test</b> on each voice and keep the one you like best.` + silent;
+  else n.innerHTML = `Using <b>${esc(vlabel(v))}</b>.` + silent;
 }
 player.addEventListener('ended', () => { const f = onEnd; onEnd = null; if (f) f(); });
 function play(ids){ stopAll(); queue = ids.slice(); playNext(); }
@@ -360,10 +386,12 @@ document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>setMode(b.data
 document.querySelectorAll('[data-speed]').forEach(b=>b.onclick=()=>setSpeed(b.dataset.speed));
 document.getElementById('hard').onclick = function(){ hardOnly = !hardOnly; this.setAttribute('aria-pressed', hardOnly); document.body.classList.toggle('hardonly', hardOnly);
   document.querySelectorAll('section').forEach(sec => { const empty = sec.querySelector('.group-empty'); if (empty) empty.hidden = !!sec.querySelector('.hard'); }); };
-function setVoice(v){ voice = v; store.set('voice', v); stopAll(); clearPlaying();
-  document.querySelectorAll('[data-voice]').forEach(b=>b.setAttribute('aria-pressed', b.dataset.voice===v)); voiceNote(); }
-document.querySelectorAll('[data-voice]').forEach(b=>b.onclick=()=>setVoice(b.dataset.voice));
-if ('speechSynthesis' in window) { pickDe(); speechSynthesis.onvoiceschanged = pickDe; } else document.getElementById('v-device').hidden = true;
+function setVoice(v){ voice = v; store.set('voice', v); stopAll(); clearPlaying(); voiceNote(); }
+document.getElementById('vsel').onchange = e => setVoice(e.target.value);
+document.getElementById('vtest').onclick = () => { stopAll(); clearPlaying();
+  if (voice === 'std' || !HAS_TTS) playStd(Object.keys(A2T)[0], () => {}, () => {});
+  else speak('Hallo! Guten Morgen. Wie heißt du?', () => {}, () => playStd(Object.keys(A2T)[0], () => {}, () => {})); };
+listVoices(); if (HAS_TTS) { speechSynthesis.onvoiceschanged = listVoices; setTimeout(listVoices, 700); setTimeout(listVoices, 2000); }
 setMode(mode); setSpeed(speed); setVoice(voice);
 
 // highlight current section chip
