@@ -121,6 +121,9 @@ h3{font-family:var(--display);font-weight:500;font-size:1.05rem;margin:24px 0 8p
 .practice .card:not(.shown) .reveal{display:block}
 .practice .card .en{order:-1;color:var(--fg);font-weight:700;font-size:1.1rem}
 .practice .card.shown .en{font-weight:400;color:var(--muted);font-size:1rem}
+/* in Practice you test yourself: only your own buttons (Me, Record) */
+.practice main .pbar{grid-template-columns:repeat(2,1fr)}
+.practice main .pbar .pb:not([data-me]):not(.rec){display:none}
 .hardonly .card:not(.hard){display:none}
 .group-empty{display:none;color:var(--muted);font-size:.9rem}
 .hardonly .group-empty{display:block}
@@ -498,7 +501,9 @@ async function onRec(btn){
     setRecLook(btn, false); host && host.classList.remove('recording');
     local.add(a); takeUrls.set(a, URL.createObjectURL(new Blob([wav], {type: 'audio/wav'}))); enableMe(a);
     idb.set(a, wav).catch(() => {});
-    const ref = hasPartner(a) ? PARTNER : 'std';
+    const inPractice = mode === 'practice' && !btn.closest('.rv-card');
+    if (inPractice) reveal(host);                     // in Practice: show the answer and compare with the standard voice
+    const ref = !inPractice && hasPartner(a) ? PARTNER : 'std';
     setStat(a, `Playing your take, then ${ref === 'std' ? 'the standard voice' : NAMES[ref]}…`);
     stopAll();
     const pb = host ? host.querySelector('.pbar') : null;
