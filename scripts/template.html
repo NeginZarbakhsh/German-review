@@ -159,6 +159,10 @@ h3{font-family:var(--display);font-weight:500;font-size:1.05rem;margin:22px 0 4p
 .cbtn{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--accent);background:var(--surface);color:var(--accent);font:700 .78rem var(--body);border-radius:999px;padding:4px 9px;cursor:pointer;white-space:nowrap}
 .cbtn svg{width:13px;height:13px}
 .cbtn.on{background:var(--accent);color:var(--accent-ink)}
+.cbtn.me{border-color:var(--stress);color:var(--stress)}
+.cbtn.me.on{background:var(--stress);color:var(--surface)}
+.recme{display:inline-flex;align-items:center;gap:8px;margin-top:4px;text-decoration:none;font-weight:700;color:var(--stress);border:1px solid var(--stress);border-radius:999px;padding:7px 14px;font-size:.92rem}
+.recme svg{width:15px;height:15px}
 .tile .cbtn{align-self:flex-start;margin-top:6px}
 .rv-btns{display:flex;align-items:center;gap:8px}
 button:focus-visible,a:focus-visible{outline:3px solid var(--stress);outline-offset:2px}
@@ -177,6 +181,7 @@ html{scroll-behavior:smooth}
   </div>
   <p class="hint">Below: everything you've learned. Tap ▶ to listen, use Practice to test yourself, and star anything you forget.</p>
   <p class="legend">Orange <b>CAPITALS</b> show the stressed part of the word.</p>
+  <a class="recme" href="record.html?who=negin"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-3.1A7 7 0 0 0 19 11z"/></svg>Record yourself and compare with Chris</a>
 </div></header>
 
 <div class="bar"><div class="wrap">
@@ -220,7 +225,9 @@ const stress = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
 const store = {get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}}, set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 
 let speed = store.get('speed','s'), mode = store.get('mode','learn'), hardOnly = false;
-const CHRIS = DATA.chris || {}, HAS_CHRIS = Object.keys(CHRIS).length > 0;
+const VOICES = DATA.voices || {}, VNAMES = {chris: 'Chris', negin: 'Me'};
+function vbtns(it){ return Object.keys(VOICES).filter(v => VOICES[v][it.a]).map(v =>
+  `<button class="cbtn${v === 'negin' ? ' me' : ''}" data-vs="${v}" data-va="${it.a}" aria-label="Play ${esc(VNAMES[v] || v)}: ${esc(it.de)}">${MIC}${esc(VNAMES[v] || v)}</button>`).join(''); }
 let voice = store.get('voice', 'device');
 if (voice !== 'std') voice = 'device';
 const A2T = {}; DATA.sections.forEach(s => s.groups.forEach(g => { if (g.kind !== 'cards') g.items.forEach(it => A2T[it.a] = it.speak); }));
@@ -240,19 +247,19 @@ function rowCard(it, id, sound){
       ${it.tip?`<div class="tip hide">${esc(it.tip)}</div>`:''}
       <button class="reveal" data-reveal="${id}">Say it out loud, then tap to check</button>
     </div>
-    <div class="side"><button class="play" data-play="${id}" aria-label="Play ${esc(it.de)}">${PLAY}</button>${CHRIS[it.a] ? `<button class="cbtn" data-chris="${it.a}" aria-label="Play Chris saying ${esc(it.de)}">${MIC}Chris</button>` : ''}${starBtn(id, it.a)}</div>
+    <div class="side"><button class="play" data-play="${id}" aria-label="Play ${esc(it.de)}">${PLAY}</button>${vbtns(it)}${starBtn(id, it.a)}</div>
   </div>`;
 }
 function tile(it, id){
   return `<div class="tile${starred.has(it.a)?' hard':''}" id="${id}" data-a="${it.a}" data-play="${id}" role="button" tabindex="0" aria-label="Play ${esc(it.de)}">
-    <span class="n">${esc(it.en)}</span><span class="tw hide">${esc(it.de)}</span><span class="ts hide">${stress(it.say)}</span>${CHRIS[it.a] ? `<button class="cbtn" data-chris="${it.a}" aria-label="Play Chris saying ${esc(it.de)}">${MIC}Chris</button>` : ''}${starBtn(id, it.a)}</div>`;
+    <span class="n">${esc(it.en)}</span><span class="tw hide">${esc(it.de)}</span><span class="ts hide">${stress(it.say)}</span>${vbtns(it)}${starBtn(id, it.a)}</div>`;
 }
 function crow(it, id){
   return `<div class="crow${starred.has(it.a)?' hard':''}" id="${id}" data-a="${it.a}">
     <div class="body"><div class="de hide">${esc(it.de)}</div>
       <div class="meta"><span class="say hide">${stress(it.say)}</span><span class="en">${esc(it.en)}</span></div>
       <button class="reveal" data-reveal="${id}">Tap to check</button></div>
-    <div class="side">${starBtn(id, it.a)}${CHRIS[it.a] ? `<button class="cbtn" data-chris="${it.a}" aria-label="Play Chris saying ${esc(it.de)}">${MIC}Chris</button>` : ''}<button class="play" data-play="${id}" aria-label="Play ${esc(it.de)}">${PLAY}</button></div></div>`;
+    <div class="side">${starBtn(id, it.a)}${vbtns(it)}<button class="play" data-play="${id}" aria-label="Play ${esc(it.de)}">${PLAY}</button></div></div>`;
 }
 
 const sequences = {};
@@ -289,7 +296,7 @@ function playNext(){
   sayA(el.dataset.a, () => setTimeout(playNext, queue.length ? 350 : 0), clearPlaying);
 }
 const blobs = new Map();
-function load(a, chris){ const k = chris ? `voices/chris/${CHRIS[a]}` : `audio/${a}_${speed}.mp3`;
+function load(a, sp){ const k = sp ? `voices/${sp}/${VOICES[sp][a]}` : `audio/${a}_${speed}.mp3`;
   if (!blobs.has(k)) blobs.set(k, fetch(k).then(r => { if (!r.ok) throw 0; return r.blob(); }).then(b => URL.createObjectURL(b)).catch(e => { blobs.delete(k); throw e; }));
   return blobs.get(k); }
 function stopAll(){ player.pause(); onEnd = null; if ('speechSynthesis' in window) speechSynthesis.cancel(); }
@@ -303,8 +310,8 @@ function sayA(a, end = () => {}, fail = () => {}){
     player.defaultPlaybackRate = r; player.playbackRate = r; player.preservesPitch = true; onEnd = end; return player.play(); }).catch(fail);
 }
 function playA(a){ stopAll(); queue = []; clearPlaying(); sayA(a); }
-function playChris(a, btn){ stopAll(); queue = []; clearPlaying();
-  load(a, true).then(url => { player.src = url; const r = speed === 's' ? 0.8 : 1; player.defaultPlaybackRate = r; player.playbackRate = r; player.preservesPitch = true;
+function playVoice(sp, a, btn){ stopAll(); queue = []; clearPlaying();
+  load(a, sp).then(url => { player.src = url; const r = speed === 's' ? 0.8 : 1; player.defaultPlaybackRate = r; player.playbackRate = r; player.preservesPitch = true;
     if (btn) { btn.classList.add('on'); onEnd = () => btn.classList.remove('on'); } return player.play(); }).catch(() => btn && btn.classList.remove('on')); }
 function pickDe(){
   if (!('speechSynthesis' in window)) return;
@@ -327,8 +334,8 @@ function play(ids){ stopAll(); queue = ids.slice(); playNext(); }
 
 function reveal(el){ el.classList.add('shown'); }
 document.addEventListener('click', e => {
-  const cb = e.target.closest('[data-chris]');
-  if (cb) { e.stopPropagation(); if (mode === 'practice') { const host = cb.closest('.card,.tile,.crow'); if (host) host.classList.add('shown'); } playChris(cb.dataset.chris, cb); return; }
+  const cb = e.target.closest('[data-vs]');
+  if (cb) { e.stopPropagation(); if (mode === 'practice') { const host = cb.closest('.card,.tile,.crow'); if (host) host.classList.add('shown'); } playVoice(cb.dataset.vs, cb.dataset.va, cb); return; }
   const st = e.target.closest('[data-star]');
   if (st) { e.stopPropagation(); const a = document.getElementById(st.dataset.star).dataset.a; const on = !starred.has(a);
     on ? starred.add(a) : starred.delete(a);
@@ -415,7 +422,7 @@ function showBack(){
   const it = rq[ri];
   const words = (it.words || []).length ? `<div class="words">${it.words.map(([d,e]) => `<span class="w"><b>${esc(d)}</b> <span>= ${esc(e)}</span></span>`).join('')}</div>` : '';
   card.insertAdjacentHTML('beforeend', `<div class="rv-ans"><div class="rv-row"><div class="rv-de">${esc(it.de)}</div>
-    <div class="rv-btns">${CHRIS[it.a] ? `<button class="cbtn" data-chris="${it.a}" aria-label="Play Chris saying ${esc(it.de)}">${MIC}Chris</button>` : ''}<button class="play" id="rv-play" aria-label="Play again">${PLAY}</button></div></div>
+    <div class="rv-btns">${vbtns(it)}<button class="play" id="rv-play" aria-label="Play again">${PLAY}</button></div></div>
     <div class="say">${stress(it.say)}</div>${it.fa ? `<div class="fa" dir="rtl" lang="fa">${esc(it.fa)}</div>` : ''}${words}
     ${it.tip ? `<div class="tip">${esc(it.tip)}</div>` : ''}</div>`);
   document.getElementById('rv-play').onclick = () => playA(it.a);

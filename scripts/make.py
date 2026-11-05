@@ -66,28 +66,35 @@ for sec in data["sections"]:
                 count += 1
 shutil.rmtree(tmp)
 
-# Chris's own recordings (saved by record.html into recordings/chris/<phrase>.wav)
-chris = {}
-rec_dir = f"{HERE}/../recordings/chris"
-os.makedirs(f"{OUT}/voices/chris", exist_ok=True)
-if os.path.isdir(rec_dir):
-    for f in sorted(os.listdir(rec_dir)):
-        if not f.endswith(".wav"):
+# People's own recordings, saved by record.html into recordings/<person>/<phrase>.wav
+# (recordings/chris = Chris, recordings/negin = Negin)
+voices = {"chris": {}, "negin": {}}
+rec_root = f"{HERE}/../recordings"
+if os.path.isdir(rec_root):
+    for person in sorted(os.listdir(rec_root)):
+        rec_dir = f"{rec_root}/{person}"
+        if not os.path.isdir(rec_dir) or not person.isalpha():
             continue
-        a = f[:-4]
-        try:
-            with wave.open(f"{rec_dir}/{f}", "rb") as w:
-                rate, pcm = w.getframerate(), w.readframes(w.getnframes())
-            enc = lameenc.Encoder()
-            enc.set_bit_rate(64); enc.set_in_sample_rate(rate); enc.set_channels(1); enc.set_quality(2)
-            name = f"{a}-{hashlib.md5(pcm).hexdigest()[:8]}.mp3"  # new name for every new take, so phones never play an old copy
-            open(f"{OUT}/voices/chris/{name}", "wb").write(enc.encode(pcm + b"\x00\x00" * int(rate * 0.15)) + enc.flush())
-            chris[a] = name
-        except Exception as e:
-            print(f"Skipped recording {f}: {e}")
-print(f"Chris has recorded {len(chris)} phrases.")
+        voices.setdefault(person, {})
+        os.makedirs(f"{OUT}/voices/{person}", exist_ok=True)
+        for f in sorted(os.listdir(rec_dir)):
+            if not f.endswith(".wav"):
+                continue
+            a = f[:-4]
+            try:
+                with wave.open(f"{rec_dir}/{f}", "rb") as w:
+                    rate, pcm = w.getframerate(), w.readframes(w.getnframes())
+                enc = lameenc.Encoder()
+                enc.set_bit_rate(64); enc.set_in_sample_rate(rate); enc.set_channels(1); enc.set_quality(2)
+                name = f"{a}-{hashlib.md5(pcm).hexdigest()[:8]}.mp3"  # new name for every new take, so phones never play an old copy
+                open(f"{OUT}/voices/{person}/{name}", "wb").write(enc.encode(pcm + b"\x00\x00" * int(rate * 0.15)) + enc.flush())
+                voices[person][a] = name
+            except Exception as e:
+                print(f"Skipped recording {person}/{f}: {e}")
+for person, recs in voices.items():
+    print(f"{person} has recorded {len(recs)} phrases.")
 
-page_data = json.dumps({"sections": data["sections"], "mistakes": data["mistakes"], "chris": chris}, ensure_ascii=False)
+page_data = json.dumps({"sections": data["sections"], "mistakes": data["mistakes"], "voices": voices}, ensure_ascii=False)
 page = open(f"{HERE}/template.html", encoding="utf-8").read().replace("__DATA__", page_data)
 repo = os.environ.get("GITHUB_REPOSITORY", "NeginZarbakhsh/German-review")
 rec_page = open(f"{HERE}/record.html", encoding="utf-8").read().replace("__DATA__", page_data).replace("__REPO__", json.dumps(repo))
@@ -104,7 +111,7 @@ json.dump({"name": "German Daily Review", "short_name": "Deutsch", "start_url": 
 
 # Offline: cache the page, icons and every recording that is in use
 used = sorted({f"audio/{it['a']}_{v}.mp3" for sec in data["sections"] for g in sec["groups"] if g["kind"] != "cards"
-               for it in g["items"] for v in ("n", "s")}) + [f"voices/chris/{m}" for m in chris.values()]
+               for it in g["items"] for v in ("n", "s")}) + [f"voices/{p}/{m}" for p, recs in voices.items() for m in recs.values()]
 files = ["./", "index.html", "manifest.json"] + sorted(os.listdir(f"{HERE}/../static")) + used
 version = hashlib.md5((os.path.basename(VOICE) + page + "".join(files)).encode("utf-8")).hexdigest()[:10]
 sw = open(f"{HERE}/sw.js", encoding="utf-8").read().replace("__VERSION__", version).replace("__FILES__", json.dumps(files))

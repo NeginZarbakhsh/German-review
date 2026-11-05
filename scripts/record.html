@@ -30,6 +30,7 @@ input{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);bor
 .btn{font:700 .95rem var(--body);border-radius:10px;padding:10px 16px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .btn:disabled{opacity:.45;cursor:default}
+.btn.other{border-color:var(--accent);color:var(--accent)}
 .btn.danger{color:var(--rec);border-color:var(--rec)}
 .btn.danger.armed{background:var(--rec);color:#fff}
 .row-btns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
@@ -68,12 +69,12 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
 </head><body>
 
 <header class="wrap">
-  <h1>Record phrases</h1>
-  <p class="sub">Thank you for helping Negin with her German! Read each phrase the way you'd normally say it, clearly and at a relaxed pace. Your recordings appear in her app about 2 minutes after you save.</p>
+  <h1 id="h1">Record phrases</h1>
+  <p class="sub" id="intro">Thank you for helping Negin with her German! Read each phrase the way you'd normally say it, clearly and at a relaxed pace. Your recordings appear in her app about 2 minutes after you save.</p>
 
   <div class="panel" id="setup">
     <h2>Step 1 · Enter the access code</h2>
-    <p>Negin will send you a code that starts with <b>github_pat_</b>. Paste it here once. It stays saved on this phone.</p>
+    <p id="code-help">Negin will send you a code that starts with <b>github_pat_</b>. Paste it here once. It stays saved on this phone.</p>
     <input id="token" type="password" autocomplete="off" placeholder="github_pat_…" aria-label="Access code">
     <div class="row-btns"><button class="btn primary" id="token-save">Continue</button><span class="msg" id="token-msg"></span></div>
   </div>
@@ -104,7 +105,12 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
 <script>
 const DATA = __DATA__;
 const REPO = __REPO__;
-const FOLDER = 'recordings/chris';
+const WHO = (new URLSearchParams(location.search).get('who') || 'chris').toLowerCase().replace(/[^a-z]/g, '') || 'chris';
+const NAME = {chris: 'Chris', negin: 'Negin'}[WHO] || WHO;
+const FOLDER = `recordings/${WHO}`;
+const VOICES = DATA.voices || {};
+const MINE = VOICES[WHO] || {};
+const OTHERS = Object.keys(VOICES).filter(v => v !== WHO);
 const store = {get(k,d){try{const v=localStorage.getItem(k);return v===null?d:v}catch(e){return d}}, set(k,v){try{localStorage.setItem(k,v)}catch(e){}}, del(k){try{localStorage.removeItem(k)}catch(e){}}};
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const $ = id => document.getElementById(id);
@@ -119,7 +125,13 @@ DATA.sections.forEach(s => {
   }); });
   if (items.length) groups.push({title: s.title, items});
 });
-const done = new Set(Object.keys(DATA.chris || {}));
+const done = new Set(Object.keys(MINE));
+if (WHO === 'negin') {
+  document.title = 'Record Yourself · German Daily Review';
+  document.getElementById('h1').textContent = 'Record yourself';
+  document.getElementById('intro').innerHTML = 'Tap <b>▶ Chris</b> to hear him, then record yourself and <b>Listen</b> to compare. Save the takes you want to keep. They appear in your app as <b>🎤 Me</b>, and Chris can hear them too.';
+  document.getElementById('code-help').innerHTML = 'Paste the same <b>github_pat_</b> code you gave Chris. It stays saved on this phone.';
+}
 let token = store.get('ghToken', '');
 
 // --- GitHub ---
@@ -139,7 +151,7 @@ async function remove(a, text) {
   const existing = await gh(path);
   if (existing.status === 404) return;
   if (!existing.ok) throw new Error('Could not reach GitHub. Try again.');
-  const r = await gh(path, {method: 'DELETE', body: JSON.stringify({message: `Chris deleted: ${text}`, sha: (await existing.json()).sha})});
+  const r = await gh(path, {method: 'DELETE', body: JSON.stringify({message: `${NAME} deleted: ${text}`, sha: (await existing.json()).sha})});
   if (!r.ok) throw new Error(r.status === 401 ? 'GitHub says this code is wrong or has expired.' : 'Deleting failed. Try again.');
 }
 async function upload(a, wavBytes, text) {
@@ -149,7 +161,7 @@ async function upload(a, wavBytes, text) {
   if (existing.ok) sha = (await existing.json()).sha;
   let bin = ''; const u8 = new Uint8Array(wavBytes);
   for (let i = 0; i < u8.length; i += 0x8000) bin += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
-  const r = await gh(path, {method: 'PUT', body: JSON.stringify({message: `Chris recorded: ${text}`, content: btoa(bin), ...(sha ? {sha} : {})})});
+  const r = await gh(path, {method: 'PUT', body: JSON.stringify({message: `${NAME} recorded: ${text}`, content: btoa(bin), ...(sha ? {sha} : {})})});
   if (!r.ok) {
     let msg = ''; try { msg = (await r.json()).message || ''; } catch (e) {}
     if (r.status === 401) throw new Error('GitHub says this code is wrong or has expired. Tap “Change code” and paste a new one.');
@@ -215,7 +227,8 @@ function render() {
         <span class="badge">${done.has(it.a) ? 'Saved' : 'To record'}</span></div>
       <div class="ctl">
         <button class="rec" data-rec><span class="dot"></span><span>Record</span></button>
-        <button class="btn" data-listen${done.has(it.a) ? '' : ' disabled'}>Listen</button>
+        ${OTHERS.filter(v => VOICES[v][it.a]).map(v => `<button class="btn other" data-other="voices/${v}/${VOICES[v][it.a]}">▶ ${esc({chris: 'Chris', negin: 'Negin'}[v] || v)}</button>`).join('')}
+        <button class="btn" data-listen${done.has(it.a) ? '' : ' disabled'}>${WHO === 'negin' ? 'Listen to me' : 'Listen'}</button>
         <button class="btn primary" data-save disabled>Save</button>
         <button class="btn danger" data-delete${done.has(it.a) ? '' : ' hidden'}>Delete</button>
         <span class="status" role="status"></span>
@@ -246,10 +259,12 @@ main.addEventListener('click', async e => {
     try { await startRec(card); rec.classList.add('on'); rec.lastElementChild.textContent = 'Stop'; setStatus('Recording… say the phrase, then tap Stop.'); }
     catch (err) { setStatus('Microphone blocked. Allow microphone access for this site in your browser settings.', 'err'); }
   }
+  const oth = e.target.closest('[data-other]');
+  if (oth) { player.src = oth.dataset.other; player.play().catch(() => {}); return; }
   if (e.target.closest('[data-listen]')) {
     const wav = takes.get(a);
     if (wav) player.src = URL.createObjectURL(new Blob([wav], {type: 'audio/wav'}));
-    else if (DATA.chris && DATA.chris[a] && !deleted.has(a)) player.src = `voices/chris/${DATA.chris[a]}`;
+    else if (MINE[a] && !deleted.has(a)) player.src = `voices/${WHO}/${MINE[a]}`;
     else return;
     player.play().catch(() => setStatus('This recording is still being published. Try again in a minute.'));
   }

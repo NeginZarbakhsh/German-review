@@ -41,6 +41,13 @@ The ▶ button plays the main voice. The switch at the top picks which one:
 
 Phrases Chris has recorded also get a separate **🎤 Chris** button that plays his recording.
 
+### Record yourself
+
+Open **https://neginzarbakhsh.github.io/German-review/record.html?who=negin** (or tap
+“Record yourself and compare with Chris” in the app). Each phrase has **▶ Chris** to hear him,
+then you record and **Listen to me** to compare. Saved takes appear in the app as **🎤 Me**,
+and Chris sees a **▶ Negin** button on his recording page. Your recordings go into `recordings/negin/`.
+
 ### Chris's recording page
 
 Chris records at **https://neginzarbakhsh.github.io/German-review/record.html**.
