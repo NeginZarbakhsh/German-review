@@ -18,17 +18,17 @@ html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset
 :root{
   --bg:#f2f4f8; --surface:#ffffff; --fg:#141b27; --muted:#5a6578; --line:#e2e6ee;
   --accent:#2347c5; --accent-ink:#ffffff; --accent-soft:#e8eefc; --stress:#c2410c; --star:#d97706; --bad:#b42318;
-  --rec:#d92d20; --ok:#067647; --tap:#f4f6fa;
+  --rec:#d92d20; --ok:#067647; --tap:#f4f6fa; --tip:#6e48e8; --tip-soft:#f1edff;
   --display:"Bricolage Grotesque",system-ui,sans-serif;
   --body:"Atkinson Hyperlegible",system-ui,sans-serif;
   --fa:"Vazirmatn",Tahoma,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#0e131b; --surface:#161d28; --fg:#e7ecf4; --muted:#9aa6ba; --line:#263142;
-  --accent:#86a5ff; --accent-ink:#0e131b; --accent-soft:#1c2945; --stress:#fb923c; --star:#fbbf24; --bad:#f97066; --rec:#f97066; --ok:#47cd89; --tap:#1c2431; color-scheme:dark}}
+  --accent:#86a5ff; --accent-ink:#0e131b; --accent-soft:#1c2945; --stress:#fb923c; --star:#fbbf24; --bad:#f97066; --rec:#f97066; --ok:#47cd89; --tap:#1c2431; --tip:#a48afb; --tip-soft:#221c3d; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0e131b; --surface:#161d28; --fg:#e7ecf4; --muted:#9aa6ba; --line:#263142;
-  --accent:#86a5ff; --accent-ink:#0e131b; --accent-soft:#1c2945; --stress:#fb923c; --star:#fbbf24; --bad:#f97066; --rec:#f97066; --ok:#47cd89; --tap:#1c2431; color-scheme:dark}
+  --accent:#86a5ff; --accent-ink:#0e131b; --accent-soft:#1c2945; --stress:#fb923c; --star:#fbbf24; --bad:#f97066; --rec:#f97066; --ok:#47cd89; --tap:#1c2431; --tip:#a48afb; --tip-soft:#221c3d; color-scheme:dark}
 
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.5;-webkit-tap-highlight-color:transparent}
@@ -111,6 +111,14 @@ h3{font-family:var(--display);font-weight:500;font-size:1.05rem;margin:24px 0 8p
 .pb.rec.on svg{color:#fff;animation:pulse 1s infinite}
 .pb:disabled{opacity:.28;cursor:default}
 @keyframes pulse{50%{opacity:.35}}
+.tips:empty{display:none}
+.tips{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.tipbox{display:flex;gap:10px;align-items:flex-start;background:var(--tip-soft);border-radius:12px;padding:9px 10px 9px 12px;font-size:.92rem}
+.tipbox .tt{flex:1;min-width:0;overflow-wrap:anywhere}
+.tipbox b{color:var(--tip)}
+.tipbtn{flex:none;display:inline-flex;align-items:center;gap:5px;border:0;background:var(--tip);color:#fff;border-radius:999px;font:700 .8rem var(--body);padding:6px 11px;cursor:pointer}
+.tipbtn svg{width:11px;height:11px}
+.tipbtn.on{background:var(--fg);color:var(--bg)}
 .rstat{grid-column:1/-1;font-size:.84rem;color:var(--muted);padding:2px 0 6px 0}
 .rstat:empty{display:none}
 .rstat.ok{color:var(--ok);font-weight:700}
@@ -229,10 +237,11 @@ html{scroll-behavior:smooth}
   <div class="sec-head"><h2>Share &amp; recordings</h2></div>
   <p class="lead">Send the app to friends, and choose where recordings are kept.</p>
   <div class="panel" id="p-invite" hidden>
-    <h3>Invite Chris to record</h3>
-    <p>Sends Chris a link that opens this app ready for him. He taps <b>Record</b> under any phrase, and his takes appear here for you.</p>
+    <h3>Chris's recordings</h3>
+    <p id="chris-progress">Chris hasn't recorded anything yet.</p>
+    <p>Send Chris his own recording list. It shows him what's left, what's new, and lets him listen, re-record, delete and add suggestions. Everything he saves appears here.</p>
     <p class="warn">Only send this link to Chris. Anyone with it can save recordings to your app.</p>
-    <div class="btns"><button class="btn primary" id="invite">Send link to Chris</button><span class="msg" id="invite-msg"></span></div>
+    <div class="btns"><button class="btn primary" id="invite">Send Chris his link</button><span class="msg" id="invite-msg"></span></div>
   </div>
   <div class="panel">
     <h3>Share this app</h3>
@@ -293,14 +302,18 @@ const NAMES = {chris: 'Chris', negin: 'Negin'};
 let token = raw.get('ghToken');
 let ME = token ? (raw.get('whoAmI') || 'negin') : null;   // only a phone with the access code saves online
 const PARTNER = ME === 'chris' ? 'negin' : 'chris';         // the other person's voice shown on every phrase
-const VOICES = DATA.voices || {};
+const VOICES = DATA.voices || {}, TIPS = DATA.tips || {};
+const LIVE = {}, LIVETIPS = {};                             // fresh lists read from GitHub on open: person -> Map(key -> sha)
+const ITEM = {};                                            // key -> phrase
 const local = new Set();                                    // phrases with a take kept on this phone
-const hasPartner = a => !!(VOICES[PARTNER] && VOICES[PARTNER][a]);
-const hasMe = a => local.has(a) || !!(ME && VOICES[ME] && VOICES[ME][a]);
+const hasRec = (p, k) => LIVE[p] ? LIVE[p].has(k) : !!(VOICES[p] && VOICES[p][k]);
+// a line like "Abend. acht." is recorded word by word, so it counts as recorded when every word is
+const hasPartner = a => hasRec(PARTNER, a) || !!(ITEM[a] && ITEM[a].parts && ITEM[a].parts.every(x => hasRec(PARTNER, x.a)));
+const hasMe = a => local.has(a) || !!(ME && hasRec(ME, a));
 
 let speed = store.get('speed','s'), mode = store.get('mode','learn'), hardOnly = false;
 let starred = new Set(store.get('starred', []));
-const A2T = {}; DATA.sections.forEach(s => s.groups.forEach(g => { if (g.kind !== 'cards') g.items.forEach(it => A2T[it.a] = it.speak); }));
+const A2T = {}; DATA.sections.forEach(s => s.groups.forEach(g => { if (g.kind !== 'cards') g.items.forEach(it => { A2T[it.a] = it.speak; ITEM[it.a] = it; }); }));
 const main = $('main'), chips = $('chips');
 
 // ---------- phone voice (best German voice on the device, e.g. Anna Premium) ----------
@@ -338,12 +351,14 @@ function rowCard(it, id, sound){
       ${it.fa ? `<div class="fa hide" dir="rtl" lang="fa">${esc(it.fa)}</div>` : ''}
       ${words(it)}
       ${it.tip?`<div class="tip hide">${esc(it.tip)}</div>`:''}
+      <div class="tips hide" data-tips="${it.a}"></div>
       <button class="reveal" data-reveal="${id}">Say it out loud, then tap to check</button>
     </div>${starBtn(it.a)}${pbar(it, id)}</div>`;
 }
 function numCard(it, id){
   return `<div class="card num${starred.has(it.a)?' hard':''}" id="${id}" data-a="${it.a}">
     <div class="body"><div class="numrow"><span class="n">${esc(it.en)}</span><div><div class="tw hide">${esc(it.de)}</div><div class="ts hide">${stress(it.say)}</div></div></div>
+      <div class="tips hide" data-tips="${it.a}"></div>
       <button class="reveal" data-reveal="${id}">Say it, then tap to check</button></div>${starBtn(it.a)}${pbar(it, id)}</div>`;
 }
 const sequences = {};
@@ -385,13 +400,27 @@ async function myUrl(a){
   if (takeUrls.has(a)) return takeUrls.get(a);
   const buf = await idb.get(a).catch(() => null);
   if (buf) { const u = URL.createObjectURL(new Blob([buf], {type: 'audio/wav'})); takeUrls.set(a, u); return u; }
-  if (ME && VOICES[ME] && VOICES[ME][a]) return fetchUrl(`voices/${ME}/${VOICES[ME][a]}`);
+  if (ME && hasRec(ME, a)) return personUrl(ME, a);
   throw 0;
+}
+// Fresh copies straight from GitHub, so a new, re-recorded or deleted take shows up without waiting for the site to rebuild
+const apiHeaders = accept => ({'Accept': accept, ...(token ? {'Authorization': `Bearer ${token}`} : {})});
+function liveUrl(sha){
+  const k = 'sha:' + sha;
+  if (!blobs.has(k)) blobs.set(k, fetch(`https://api.github.com/repos/${REPO}/git/blobs/${sha}`, {headers: apiHeaders('application/vnd.github.raw')})
+    .then(r => { if (!r.ok) throw 0; return r.blob(); }).then(b => URL.createObjectURL(new Blob([b], {type: 'audio/wav'}))).catch(e => { blobs.delete(k); throw e; }));
+  return blobs.get(k);
+}
+function personUrl(p, k){
+  const sha = LIVE[p] && LIVE[p].get(k);
+  if (sha && (token || !(VOICES[p] && VOICES[p][k]))) return liveUrl(sha).catch(() => VOICES[p] && VOICES[p][k] ? fetchUrl(`voices/${p}/${VOICES[p][k]}`) : Promise.reject(0));
+  if (VOICES[p] && VOICES[p][k]) return fetchUrl(`voices/${p}/${VOICES[p][k]}`);
+  return Promise.reject(0);
 }
 function srcFor(kind, a){
   if (kind === 'std') return fetchUrl(`audio/${a}_${speed}.mp3`);
   if (kind === 'me') return myUrl(a);
-  return fetchUrl(`voices/${kind}/${VOICES[kind][a]}`);
+  return personUrl(kind, a);
 }
 function speak(a, my, done){
   const u = new SpeechSynthesisUtterance(A2T[a]);
@@ -411,11 +440,20 @@ function playKind(kind, a, btn, end){
   const done = () => { if (btn) btn.classList.remove('on'); if (onBtn === btn) onBtn = null; if (my === ticket) end && end(); };
   if (kind === 'ph') { if (HAS_TTS) speak(a, my, done); else done(); return; }
   const rate = kind === 'std' ? 1 : (speed === 's' ? 0.85 : 1);
-  srcFor(kind, a).then(url => {
+  // a person who recorded a line word by word: play the words one after another
+  let keys = [a];
+  if (kind !== 'std' && kind !== 'me' && !hasRec(kind, a) && ITEM[a] && ITEM[a].parts) keys = ITEM[a].parts.map(x => x.a).filter(k => hasRec(kind, k));
+  const step = i => {
     if (my !== ticket) return;
-    player.src = url; player.defaultPlaybackRate = rate; player.playbackRate = rate; player.preservesPitch = true;
-    onEnd = done; return player.play();
-  }).catch(() => { if (my === ticket) done(); else if (btn) btn.classList.remove('on'); });
+    if (i >= keys.length) return done();
+    srcFor(kind, keys[i]).then(url => {
+      if (my !== ticket) return;
+      player.src = url; player.defaultPlaybackRate = rate; player.playbackRate = rate; player.preservesPitch = true;
+      onEnd = i + 1 < keys.length ? () => setTimeout(() => step(i + 1), 300) : done;
+      return player.play();
+    }).catch(() => { if (my === ticket) step(i + 1); else if (btn) btn.classList.remove('on'); });
+  };
+  step(0);
 }
 function playNext(){
   document.querySelectorAll('.card.playing').forEach(e => e.classList.remove('playing'));
@@ -461,15 +499,24 @@ function downsample(buf, from, to){
   return out;
 }
 function trim(buf, rate){
-  let peak = 0; for (const v of buf) peak = Math.max(peak, Math.abs(v));
-  const th = Math.max(0.02, peak * 0.08), win = Math.floor(rate * 0.02);
-  const loud = i => { let m = 0; for (let j = i; j < Math.min(i + win, buf.length); j++) m = Math.max(m, Math.abs(buf[j])); return m > th; };
-  let s = 0; while (s < buf.length && !loud(s)) s += win;
-  let e = buf.length - win; while (e > s && !loud(e)) e -= win;
-  const pad = Math.floor(rate * 0.12), out = buf.slice(Math.max(0, s - pad), Math.min(buf.length, e + win + pad));
-  const gain = peak > 0 ? Math.min(4, 0.9 / peak) : 1;
-  for (let i = 0; i < out.length; i++) out[i] *= gain;
-  return out;
+  // Find the speech by loudness over 20 ms windows. The first 80 ms and last 150 ms are ignored,
+  // because tapping Record/Stop makes a click there, and a click must never decide where the voice is.
+  const win = Math.max(1, Math.floor(rate * 0.02)), n = Math.floor(buf.length / win);
+  const skipA = Math.min(n, Math.ceil(0.08 * rate / win)), skipB = Math.min(n - skipA, Math.ceil(0.15 * rate / win));
+  const rms = []; for (let i = 0; i < n; i++) { let s = 0; for (let j = i * win; j < (i + 1) * win; j++) s += buf[j] * buf[j]; rms.push(Math.sqrt(s / win)); }
+  const core = rms.slice(skipA, n - skipB);
+  if (core.length < 5) return buf;
+  const loud = core.slice().sort((x, y) => x - y)[Math.floor(core.length * 0.9)];   // level of the voice, not of one click
+  const th = Math.max(0.004, loud * 0.12);
+  let s = skipA; while (s < n - skipB && rms[s] < th) s++;
+  let e = n - skipB - 1; while (e > s && rms[e] < th) e--;
+  const pad = Math.floor(rate * 0.15), lo = skipA * win, hi = (n - skipB) * win;
+  let out = e > s ? buf.slice(Math.max(lo, s * win - pad), Math.min(hi, (e + 1) * win + pad)) : buf.slice(lo, hi);
+  if (out.length < rate * 0.4) out = buf.slice(lo, hi);                                // too short to be speech: keep it all
+  let peak = 0; for (const v of out) peak = Math.max(peak, Math.abs(v));
+  const g = Math.min(8, 0.16 / Math.max(loud, 1e-4), 0.95 / Math.max(peak, 1e-4));   // even out the volume
+  const res = new Float32Array(out.length); for (let i = 0; i < out.length; i++) res[i] = Math.max(-1, Math.min(1, out[i] * g));
+  return res;
 }
 function toWav(f32, rate){
   const b = new ArrayBuffer(44 + f32.length * 2), v = new DataView(b);
@@ -524,11 +571,66 @@ async function onRec(btn){
 }
 idb.keys().then(keys => keys.forEach(k => { local.add(k); enableMe(k); })).catch(() => {});
 
+// ---------- live updates: read who recorded what straight from GitHub ----------
+function refreshButtons(){
+  document.querySelectorAll('.pbar').forEach(bar => {
+    const a = bar.dataset.pbar, pv = bar.querySelector('[data-vs]'), me = bar.querySelector('[data-me]');
+    if (pv) pv.disabled = !hasPartner(a);
+    if (me) me.disabled = !hasMe(a);
+  });
+}
+function tipsFor(a){
+  const keys = [a, ...((ITEM[a] && ITEM[a].parts) || []).map(x => x.a)], out = [];
+  Object.keys({...TIPS, ...LIVETIPS}).forEach(p => keys.forEach(k => {
+    const t = LIVETIPS[p] ? LIVETIPS[p].get(k) : (TIPS[p] && TIPS[p][k]);
+    if (t && (t.text || t.wav || t.file)) out.push({p, k, text: t.text || '', audio: !!(t.wav || t.file), word: k !== a ? (ITEM[a].parts.find(x => x.a === k) || {}).w : ''});
+  }));
+  return out;
+}
+function renderTips(){
+  document.querySelectorAll('[data-tips]').forEach(el => {
+    const list = tipsFor(el.dataset.tips);
+    el.innerHTML = list.map(t => `<div class="tipbox"><span class="tt"><b>💡 ${esc(NAMES[t.p] || t.p)}'s tip${t.word ? ` · ${esc(t.word)}` : ''}</b>${t.text ? ' ' + esc(t.text) : ''}</span>${t.audio ? `<button class="tipbtn" data-tipp="${t.p}" data-tipk="${t.k}">${I.play}Hear it</button>` : ''}</div>`).join('');
+  });
+}
+function tipUrl(p, k){
+  const live = LIVETIPS[p] && LIVETIPS[p].get(k);
+  if (live && live.wav) return liveUrl(live.wav);
+  const t = TIPS[p] && TIPS[p][k];
+  return t && t.file ? fetchUrl(`voices/${p}/${t.file}`) : Promise.reject(0);
+}
+let lastSync = 0;
+async function liveSync(){
+  if (Date.now() - lastSync < 30000) return; lastSync = Date.now();
+  const ls = async path => { const r = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {headers: apiHeaders('application/vnd.github+json'), cache: 'no-store'});
+    if (r.status === 404) return []; if (!r.ok) throw 0; const j = await r.json(); return Array.isArray(j) ? j : []; };
+  const text = async sha => { const r = await fetch(`https://api.github.com/repos/${REPO}/git/blobs/${sha}`, {headers: apiHeaders('application/vnd.github.raw')}); return r.ok ? r.text() : ''; };
+  await Promise.all(['chris', 'negin'].map(async p => {
+    try { LIVE[p] = new Map((await ls(`recordings/${p}`)).filter(f => f.type === 'file' && f.name.endsWith('.wav')).map(f => [f.name.slice(0, -4), f.sha])); } catch (e) {}
+    try { const m = new Map();
+      (await ls(`recordings/${p}/tips`)).filter(f => f.type === 'file').forEach(f => { const k = f.name.replace(/\.[^.]+$/, ''), ext = f.name.split('.').pop(); const e = m.get(k) || {}; e[ext] = f.sha; m.set(k, e); });
+      await Promise.all([...m.values()].filter(e => e.txt).map(async e => { e.text = (await text(e.txt)).trim(); }));
+      LIVETIPS[p] = m; } catch (e) {}
+  }));
+  refreshButtons(); renderTips(); renderAccount();
+}
+renderTips();
+liveSync();
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') liveSync(); });
+
+// ---------- reopen where you left off ----------
+(() => { const y = +raw.get('scrollY'); if (y && !location.hash) requestAnimationFrame(() => scrollTo({top: y, behavior: 'instant'})); })();
+let sTimer; addEventListener('scroll', () => { clearTimeout(sTimer); sTimer = setTimeout(() => raw.set('scrollY', String(Math.round(scrollY))), 300); }, {passive: true});
+
 // ---------- taps ----------
 function reveal(el){ if (el) el.classList.add('shown'); }
 document.addEventListener('click', e => {
   const t = e.target;
   const rec = t.closest('[data-rec]'); if (rec) { onRec(rec); return; }
+  const tb = t.closest('[data-tipp]');
+  if (tb) { if (tb.classList.contains('on')) { stopAll(); return; } stopAll(); const my = ++ticket; tb.classList.add('on'); onBtn = tb;
+    tipUrl(tb.dataset.tipp, tb.dataset.tipk).then(url => { if (my !== ticket) return; player.src = url; player.playbackRate = 1; onEnd = () => tb.classList.remove('on'); return player.play(); })
+      .catch(() => { tb.classList.remove('on'); toast('Couldn’t play the tip. Check your internet.'); }); return; }
   const st = t.closest('[data-star]');
   if (st) { const a = st.dataset.star, on = !starred.has(a); on ? starred.add(a) : starred.delete(a);
     document.querySelectorAll(`[data-a="${a}"]`).forEach(el => el.classList.toggle('hard', on));
@@ -574,14 +676,18 @@ async function shareOrCopy(data, msgEl){
   catch (e) { msgEl.textContent = data.url; msgEl.className = 'msg'; }
 }
 $('share-app').onclick = () => shareOrCopy({title: 'German Daily Review', text: 'Learn a little German every day 🇩🇪', url: BASE}, $('share-msg'));
-$('invite').onclick = () => shareOrCopy({title: 'Record German for Negin', text: 'Could you record my German phrases? Open the link and tap Record under any phrase. Danke! ❤️',
-  url: `${BASE}#who=chris&code=${token}`}, $('invite-msg'));
+$('invite').onclick = () => shareOrCopy({title: 'Record German for Negin', text: 'Your German recording list 🎙 Open it, tap Record, and save. Keep the link: it shows what’s left each day. Danke! ❤️',
+  url: `${BASE}record.html?who=chris#code=${token}`}, $('invite-msg'));
+const CHRIS_LIST = (() => { const ks = new Set(); DATA.sections.forEach(s => s.groups.forEach(g => { if (g.kind === 'cards') return;
+  g.items.forEach(it => { if (it.parts) it.parts.forEach(x => ks.add(x.a)); else ks.add(it.a); }); })); return [...ks]; })();
 function renderAccount(){
   $('p-connect').hidden = !!token; $('p-connected').hidden = !token; $('p-invite').hidden = !(token && ME === 'negin');
   if (token) $('who-line').textContent = `This phone records as ${NAMES[ME] || ME}. New takes are saved in the app and work on every device.`;
   const w = $('whoami');
-  if (ME === 'chris') { w.hidden = false; w.innerHTML = `Hi Chris! Tap <b>Record</b> under any phrase and say it. Your takes are saved for Negin. ${'Danke! ❤️'}`; }
+  if (ME === 'chris') { w.hidden = false; w.innerHTML = `Hi Chris! Your recording list is here: <a href="record.html?who=chris">open my list</a>. Danke! ❤️`; }
   else w.hidden = true;
+  const n = CHRIS_LIST.filter(k => hasRec('chris', k)).length, nt = LIVETIPS.chris ? LIVETIPS.chris.size : Object.keys(TIPS.chris || {}).length;
+  $('chris-progress').innerHTML = n ? `Chris has recorded <b>${n} of ${CHRIS_LIST.length}</b>${nt ? ` and left <b>${nt}</b> suggestion${nt === 1 ? '' : 's'}` : ''}.` : 'Chris hasn’t recorded anything yet.';
 }
 $('code-save').onclick = async () => {
   const v = $('code').value.trim(), m = $('code-msg');

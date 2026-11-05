@@ -1,324 +1,430 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Record Phrases · German Daily Review</title>
+<title>Chris's Recordings · German Daily Review</title>
 <meta name="robots" content="noindex">
-<link rel="icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Record">
+<meta name="theme-color" content="#2347c5">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
 <style>
-/* Layout: one column; sticky progress bar; one card per phrase with Record / Listen / Save */
+/* Layout: one column. Progress card on top, three tabs (To record / Done / All), one card per phrase.
+   Each card has one row of big icon buttons that change with its state: new → recording → check → saved. */
 :root{
-  --bg:#f2f4f8; --surface:#ffffff; --fg:#141b27; --muted:#5a6578; --line:#dde2eb;
-  --accent:#2347c5; --accent-ink:#ffffff; --accent-soft:#e6ecfb; --rec:#d92d20; --ok:#067647; --ok-soft:#dcfae6;
+  --bg:#f2f4f8; --surface:#ffffff; --fg:#141b27; --muted:#5a6578; --line:#e2e6ee; --tap:#f4f6fa;
+  --accent:#2347c5; --accent-ink:#ffffff; --accent-soft:#e8eefc; --rec:#d92d20; --ok:#067647; --ok-soft:#dcfae6; --new:#c2410c; --tip:#7a5af8; --tip-soft:#f1edff;
   --display:"Bricolage Grotesque",system-ui,sans-serif; --body:"Atkinson Hyperlegible",system-ui,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root{
-  --bg:#0e131b; --surface:#161d28; --fg:#e7ecf4; --muted:#9aa6ba; --line:#263142;
-  --accent:#86a5ff; --accent-ink:#0e131b; --accent-soft:#1c2945; --rec:#f97066; --ok:#47cd89; --ok-soft:#0d2a1c; color-scheme:dark}}
+  --bg:#0e131b; --surface:#161d28; --fg:#e7ecf4; --muted:#9aa6ba; --line:#263142; --tap:#1c2431;
+  --accent:#86a5ff; --accent-ink:#0e131b; --accent-soft:#1c2945; --rec:#f97066; --ok:#47cd89; --ok-soft:#0d2a1c; --new:#fb923c; --tip:#a48afb; --tip-soft:#221c3d; color-scheme:dark}}
 *{box-sizing:border-box}
 html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.5}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.5;-webkit-tap-highlight-color:transparent}
 [hidden]{display:none!important}
-.wrap{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-header{padding-block:24px 12px}
-h1{font-family:var(--display);font-size:1.9rem;line-height:1.1;margin:0}
-.sub{color:var(--muted);margin:6px 0 0}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:16px}
-.panel h2{font-family:var(--display);font-size:1.15rem;margin:0 0 6px}
-.panel p{margin:0 0 10px;color:var(--muted)}
-.panel ol{margin:0 0 4px;padding-left:20px;color:var(--muted)}
-input{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg)}
-.btn{font:700 .95rem var(--body);border-radius:10px;padding:10px 16px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
+.wrap{max-width:620px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{padding-block:28px 6px}
+h1{font-family:var(--display);font-size:2rem;line-height:1.1;margin:0;letter-spacing:-.015em}
+.sub{color:var(--muted);margin:8px 0 0;max-width:48ch}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;margin-top:18px;display:flex;flex-direction:column;gap:10px}
+.panel h2{font-family:var(--display);font-size:1.15rem;margin:0}
+.panel p{margin:0;color:var(--muted)}
+input,textarea{width:100%;font:inherit;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--fg)}
+textarea{min-height:70px;resize:vertical}
+.btn{font:700 .95rem var(--body);border-radius:12px;padding:11px 16px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-.btn:disabled{opacity:.45;cursor:default}
-.btn.other{border-color:var(--accent);color:var(--accent)}
-.btn.danger{color:var(--rec);border-color:var(--rec)}
-.btn.danger.armed{background:var(--rec);color:#fff}
-.row-btns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
+.btn.tip{background:var(--tip);border-color:var(--tip);color:#fff}
+.btn:disabled{opacity:.45}
 .msg{font-size:.9rem;color:var(--muted)}
 .msg.err{color:var(--rec)}
-.bar{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding-block:10px;margin-top:12px}
-.bar .wrap{display:flex;flex-direction:column;gap:8px}
-.prog{display:flex;justify-content:space-between;font-weight:700;font-size:.92rem}
-.track{height:6px;border-radius:99px;background:var(--line);overflow:hidden}
-.track i{display:block;height:100%;background:var(--ok);width:0;transition:width .3s}
-.filter{display:flex;gap:6px}
-.filter button{font:700 .85rem var(--body);border:1px solid var(--line);background:var(--surface);color:var(--muted);padding:6px 12px;border-radius:999px;cursor:pointer}
-.filter button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
-main{padding-block:12px 64px}
-h3{font-family:var(--display);font-weight:500;font-size:1.05rem;margin:22px 0 8px;color:var(--muted)}
-.list{display:flex;flex-direction:column;gap:8px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
-.card.done{border-color:var(--ok)}
-.top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
-.de{font-family:var(--display);font-weight:700;font-size:1.35rem;line-height:1.2;min-width:0}
-.en{color:var(--muted);font-size:.92rem}
-.badge{flex:none;font-size:.78rem;font-weight:700;border-radius:999px;padding:3px 10px;background:var(--bg);color:var(--muted);border:1px solid var(--line)}
-.done .badge{background:var(--ok-soft);color:var(--ok);border-color:transparent}
-.ctl{display:flex;gap:8px;margin-top:12px;align-items:center;flex-wrap:wrap}
-.rec{display:inline-flex;align-items:center;gap:8px;font:700 .95rem var(--body);border:0;border-radius:999px;padding:10px 16px;cursor:pointer;background:var(--rec);color:#fff}
-.rec .dot{width:10px;height:10px;border-radius:50%;background:#fff}
-.rec.on .dot{border-radius:2px;animation:pulse 1s infinite}
-@keyframes pulse{50%{opacity:.4}}
-.status{font-size:.88rem;color:var(--muted)}
+
+.progress{background:var(--accent);color:var(--accent-ink);border-radius:20px;padding:20px;margin-top:18px}
+.p-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.p-num{font-family:var(--display);font-weight:700;font-size:2.4rem;line-height:1;font-variant-numeric:tabular-nums}
+.p-num small{font-size:1.1rem;opacity:.75;font-weight:500}
+.p-pct{font-weight:700;opacity:.85;font-variant-numeric:tabular-nums}
+.track{height:10px;border-radius:99px;background:color-mix(in srgb,var(--accent-ink) 25%,transparent);overflow:hidden;margin-top:14px}
+.track i{display:block;height:100%;width:0;background:var(--accent-ink);border-radius:99px;transition:width .4s}
+.p-stats{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:12px;font-size:.92rem}
+.p-stats b{font-variant-numeric:tabular-nums}
+.hint{font-size:.86rem;color:var(--muted);margin:12px 0 0}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line);margin-top:18px}
+.tabs .wrap{display:flex;gap:6px;padding-block:10px}
+.tabs button{flex:1;font:700 .9rem var(--body);border:1px solid var(--line);background:var(--surface);color:var(--muted);padding:9px 6px;border-radius:12px;cursor:pointer;white-space:nowrap}
+.tabs button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.tabs .n{font-variant-numeric:tabular-nums;opacity:.75;margin-left:4px}
+
+main{padding-block:14px 60px;display:flex;flex-direction:column;gap:10px}
+.sec{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;margin:14px 0 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px 10px 8px 18px;transition:border-color .15s,box-shadow .15s}
+.card.recording{border-color:var(--rec);box-shadow:0 0 0 1px var(--rec)}
+.card.done{border-color:color-mix(in srgb,var(--ok) 45%,var(--line))}
+.head{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;padding-right:6px}
+.de{font-family:var(--display);font-weight:700;font-size:1.45rem;line-height:1.2;min-width:0}
+.en{color:var(--muted);font-size:.92rem;margin-top:2px}
+.badge{flex:none;font-size:.74rem;font-weight:700;border-radius:999px;padding:3px 10px;background:var(--tap);color:var(--muted)}
+.badge.new{background:color-mix(in srgb,var(--new) 15%,transparent);color:var(--new)}
+.badge.done{background:var(--ok-soft);color:var(--ok)}
+.tipview{margin:10px 6px 0 0;background:var(--tip-soft);border-radius:12px;padding:10px 12px;font-size:.92rem;display:flex;gap:10px;align-items:flex-start}
+.tipview b{color:var(--tip)}
+.tipview .t{flex:1;min-width:0;overflow-wrap:anywhere}
+.tipplay{flex:none;border:0;background:var(--tip);color:#fff;border-radius:999px;font:700 .8rem var(--body);padding:6px 10px;cursor:pointer}
+.row{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin:12px -2px 0 -10px;padding-top:6px;border-top:1px solid var(--line)}
+.pb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;height:58px;border:0;border-radius:12px;background:transparent;color:var(--fg);font:700 .74rem var(--body);cursor:pointer;min-width:0}
+.pb svg{width:22px;height:22px}
+.pb span{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pb:active{background:var(--tap)}
+@media (hover:hover){.pb:hover{background:var(--tap)}}
+.pb.rec{color:var(--rec)} .pb.rec.on{background:var(--rec);color:#fff}
+.pb.rec.on svg{animation:pulse 1s infinite}
+.pb.play svg{color:var(--accent)} .pb.play.on{background:var(--accent);color:var(--accent-ink)} .pb.play.on svg{color:var(--accent-ink)}
+.pb.save{color:var(--ok)} .pb.del{color:var(--rec)} .pb.del.armed{background:var(--rec);color:#fff}
+.pb.sug{color:var(--tip)}
+.pb:disabled{opacity:.3}
+@keyframes pulse{50%{opacity:.35}}
+.status{font-size:.86rem;color:var(--muted);padding:4px 0 6px 0}
+.status:empty{display:none}
 .status.ok{color:var(--ok);font-weight:700}
 .status.err{color:var(--rec)}
-.hide-done .card.done{display:none}
-button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.tipedit{margin:10px 6px 6px 0;background:var(--tip-soft);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.tipedit label{font-weight:700;font-size:.9rem;color:var(--tip)}
+.tipedit .btns{display:flex;flex-wrap:wrap;gap:6px}
+.tipedit .btn{padding:9px 12px;font-size:.88rem}
+.empty{text-align:center;color:var(--muted);padding:40px 16px}
+.empty b{display:block;font-family:var(--display);font-size:1.5rem;color:var(--fg);margin-bottom:6px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:11px 18px;border-radius:999px;font-weight:700;font-size:.9rem;z-index:60;max-width:calc(100% - 32px);text-align:center}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--new);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head><body>
 
 <header class="wrap">
-  <h1 id="h1">Record phrases</h1>
-  <p class="sub" id="intro">Thank you for helping Negin with her German! Read each phrase the way you'd normally say it, clearly and at a relaxed pace. Your recordings appear in her app about 2 minutes after you save.</p>
+  <h1 id="h1">Hi Chris 👋</h1>
+  <p class="sub" id="intro">Negin is learning German and learns best from your voice. Record each phrase the way you'd normally say it. Have a better way to say something? Tap <b>Suggest</b>.</p>
 
-  <div class="panel" id="setup">
-    <h2>Step 1 · Enter the access code</h2>
-    <p id="code-help">Negin will send you a code that starts with <b>github_pat_</b>. Paste it here once. It stays saved on this phone.</p>
+  <div class="panel" id="setup" hidden>
+    <h2>One-time setup</h2>
+    <p>Paste the code Negin sent you. It starts with <b>github_pat_</b>.</p>
     <input id="token" type="password" autocomplete="off" placeholder="github_pat_…" aria-label="Access code">
-    <div class="row-btns"><button class="btn primary" id="token-save">Continue</button><span class="msg" id="token-msg"></span></div>
+    <div><button class="btn primary" id="token-save">Continue</button> <span class="msg" id="token-msg"></span></div>
   </div>
 
-  <div class="panel" id="tips" hidden>
-    <h2>How to record</h2>
-    <ol>
-      <li>Tap <b>Record</b>, wait a moment, say the phrase, then tap <b>Stop</b>.</li>
-      <li>Tap <b>Listen</b>. Happy with it? Tap <b>Save</b>. If not, record again.</li>
-      <li>A quiet room helps. Hold the phone about 20 cm away.</li>
-      <li>To redo a saved phrase, just record and save again. The new take replaces the old one. <b>Delete</b> removes it completely.</li>
-    </ol>
-    <div class="row-btns"><span class="msg">Code saved on this phone.</span><button class="btn" id="token-reset">Change code</button></div>
+  <div class="progress" id="progress" hidden>
+    <div class="p-top"><div class="p-num"><span id="p-done">0</span> <small>of <span id="p-total">0</span> recorded</small></div><div class="p-pct" id="p-pct">0%</div></div>
+    <div class="track"><i id="p-fill"></i></div>
+    <div class="p-stats"><span><b id="p-left">0</b> to go</span><span><b id="p-today">0</b> today</span><span id="p-new-wrap"><b id="p-new">0</b> new from Negin</span><span><b id="p-tips">0</b> suggestions</span></div>
   </div>
+  <p class="hint" id="hint" hidden>Tip: in Safari tap <b>Share → Add to Home Screen</b> to open this list like an app.</p>
 </header>
 
-<div class="bar" id="bar" hidden><div class="wrap">
-  <div class="prog"><span id="prog-text"></span><span id="prog-pct"></span></div>
-  <div class="track"><i id="prog-fill"></i></div>
-  <div class="filter" role="group" aria-label="Show">
-    <button id="f-todo" aria-pressed="true">Still to record</button>
-    <button id="f-all" aria-pressed="false">All phrases</button>
-  </div>
-</div></div>
+<nav class="tabs" id="tabs" hidden aria-label="Show"><div class="wrap">
+  <button data-tab="todo" aria-pressed="true">To record<span class="n" id="n-todo"></span></button>
+  <button data-tab="done" aria-pressed="false">Done<span class="n" id="n-done"></span></button>
+  <button data-tab="all" aria-pressed="false">All<span class="n" id="n-all"></span></button>
+</div></nav>
 
 <main class="wrap" id="main" hidden></main>
+<div class="toast" id="toast" hidden role="status"></div>
 
 <script>
 const DATA = __DATA__;
 const REPO = __REPO__;
-const WHO = (new URLSearchParams(location.search).get('who') || 'chris').toLowerCase().replace(/[^a-z]/g, '') || 'chris';
-const NAME = {chris: 'Chris', negin: 'Negin'}[WHO] || WHO;
-const FOLDER = `recordings/${WHO}`;
-const VOICES = DATA.voices || {};
-const MINE = VOICES[WHO] || {};
-const OTHERS = Object.keys(VOICES).filter(v => v !== WHO);
-const store = {get(k,d){try{const v=localStorage.getItem(k);return v===null?d:v}catch(e){return d}}, set(k,v){try{localStorage.setItem(k,v)}catch(e){}}, del(k){try{localStorage.removeItem(k)}catch(e){}}};
-const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const $ = id => document.getElementById(id);
-
-// Phrases to record, once each, grouped by section
-const seen = new Set(), groups = [];
-DATA.sections.forEach(s => {
-  const items = [];
-  s.groups.forEach(g => { if (g.kind === 'cards') return; g.items.forEach(it => {
-    if (seen.has(it.a)) return; seen.add(it.a);
-    items.push({a: it.a, text: it.speak.replace(/\. /g, ' · ').replace(/\.$/, ''), en: s.id === 'sounds' ? 'Read the words with a short pause between them.' : it.en});
-  }); });
-  if (items.length) groups.push({title: s.title, items});
-});
-const done = new Set(Object.keys(MINE));
-if (WHO === 'negin') {
-  document.title = 'Record Yourself · German Daily Review';
-  document.getElementById('h1').textContent = 'Record yourself';
-  document.getElementById('intro').innerHTML = 'Tap <b>▶ Chris</b> to hear him, then record yourself and <b>Listen</b> to compare. Save the takes you want to keep. They appear in your app as <b>🎤 Me</b>, and Chris can hear them too.';
-  document.getElementById('code-help').innerHTML = 'Paste the same <b>github_pat_</b> code you gave Chris. It stays saved on this phone.';
-}
-let token = store.get('ghToken', '');
-// A link like record.html?who=chris#code=github_pat_… sets the code automatically, then hides it from the address bar
-const fromLink = (location.hash.match(/code=([A-Za-z0-9_]+)/) || [])[1];
-if (fromLink) { token = fromLink; store.set('ghToken', token); store.set('whoAmI', WHO); history.replaceState(null, '', location.pathname + location.search); }
-
-// --- GitHub ---
-async function gh(path, opts = {}) {
-  const r = await fetch(`https://api.github.com/repos/${REPO}${path}`, {...opts, headers: {
-    'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', ...(opts.headers || {})}});
-  return r;
-}
-async function checkToken() {
-  const r = await gh('');
-  if (r.status === 401) throw new Error('That code didn’t work. Check you copied all of it.');
-  if (!r.ok) throw new Error('Could not reach GitHub. Check your internet and try again.');
-}
-const NO_WRITE = 'GitHub accepted the code but won’t let it save. In GitHub, edit this token: Repository access must include German-review, and Contents must be “Read and write”.';
-async function remove(a, text) {
-  const path = `/contents/${FOLDER}/${a}.wav`;
-  const existing = await gh(path);
-  if (existing.status === 404) return;
-  if (!existing.ok) throw new Error('Could not reach GitHub. Try again.');
-  const r = await gh(path, {method: 'DELETE', body: JSON.stringify({message: `${NAME} deleted: ${text}`, sha: (await existing.json()).sha})});
-  if (!r.ok) throw new Error(r.status === 401 ? 'GitHub says this code is wrong or has expired.' : 'Deleting failed. Try again.');
-}
-async function upload(a, wavBytes, text) {
-  const path = `/contents/${FOLDER}/${a}.wav`;
-  let sha;
-  const existing = await gh(path);
-  if (existing.ok) sha = (await existing.json()).sha;
-  let bin = ''; const u8 = new Uint8Array(wavBytes);
-  for (let i = 0; i < u8.length; i += 0x8000) bin += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
-  const r = await gh(path, {method: 'PUT', body: JSON.stringify({message: `${NAME} recorded: ${text}`, content: btoa(bin), ...(sha ? {sha} : {})})});
-  if (!r.ok) {
-    let msg = ''; try { msg = (await r.json()).message || ''; } catch (e) {}
-    if (r.status === 401) throw new Error('GitHub says this code is wrong or has expired. Tap “Change code” and paste a new one.');
-    if (r.status === 403 || r.status === 404) throw new Error(NO_WRITE + (msg ? ` (GitHub: ${msg})` : ''));
-    throw new Error(`Saving failed (GitHub ${r.status}${msg ? ': ' + msg : ''}). Try again.`);
-  }
-}
-
-// --- Recording (raw audio, saved as WAV so it plays everywhere) ---
-let ctx, stream, node, chunks = [], recording = null;
-async function startRec(card) {
-  if (!stream) stream = await navigator.mediaDevices.getUserMedia({audio: {echoCancellation: false, noiseSuppression: true, autoGainControl: true}});
-  if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
-  await ctx.resume();
-  const src = ctx.createMediaStreamSource(stream);
-  node = ctx.createScriptProcessor(4096, 1, 1);
-  chunks = [];
-  node.onaudioprocess = e => { chunks.push(new Float32Array(e.inputBuffer.getChannelData(0))); e.outputBuffer.getChannelData(0).fill(0); };
-  src.connect(node); node.connect(ctx.destination);
-  node._src = src; recording = card;
-}
-function stopRec() {
-  node.disconnect(); node._src.disconnect();
-  const len = chunks.reduce((n, c) => n + c.length, 0), all = new Float32Array(len);
-  let o = 0; chunks.forEach(c => { all.set(c, o); o += c.length; });
-  recording = null;
-  return toWav(trim(downsample(all, ctx.sampleRate, 24000), 24000), 24000);
-}
-function downsample(buf, from, to) {
-  if (from === to) return buf;
-  const ratio = from / to, out = new Float32Array(Math.floor(buf.length / ratio));
-  for (let i = 0; i < out.length; i++) { const s = Math.floor(i * ratio), e = Math.floor((i + 1) * ratio); let sum = 0; for (let j = s; j < e; j++) sum += buf[j]; out[i] = sum / (e - s); }
-  return out;
-}
-function trim(buf, rate) {
-  let peak = 0; for (const v of buf) peak = Math.max(peak, Math.abs(v));
-  const th = Math.max(0.02, peak * 0.08), win = Math.floor(rate * 0.02);
-  const loud = i => { let m = 0; for (let j = i; j < Math.min(i + win, buf.length); j++) m = Math.max(m, Math.abs(buf[j])); return m > th; };
-  let s = 0; while (s < buf.length && !loud(s)) s += win;
-  let e = buf.length - win; while (e > s && !loud(e)) e -= win;
-  const pad = Math.floor(rate * 0.12);
-  const out = buf.slice(Math.max(0, s - pad), Math.min(buf.length, e + win + pad));
-  const gain = peak > 0 ? Math.min(4, 0.9 / peak) : 1;
-  for (let i = 0; i < out.length; i++) out[i] *= gain;
-  return out;
-}
-function toWav(f32, rate) {
-  const b = new ArrayBuffer(44 + f32.length * 2), v = new DataView(b);
-  const w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
-  w(0, 'RIFF'); v.setUint32(4, 36 + f32.length * 2, true); w(8, 'WAVE'); w(12, 'fmt ');
-  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, rate, true);
-  v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); w(36, 'data'); v.setUint32(40, f32.length * 2, true);
-  for (let i = 0; i < f32.length; i++) v.setInt16(44 + i * 2, Math.max(-1, Math.min(1, f32[i])) * 0x7fff, true);
-  return b;
-}
-
-// --- UI ---
-const main = $('main'), player = new Audio();
-function render() {
-  main.innerHTML = groups.map(g => `<h3>${esc(g.title)}</h3><div class="list">${g.items.map(it => `
-    <div class="card${done.has(it.a) ? ' done' : ''}" id="c-${it.a}" data-a="${it.a}">
-      <div class="top"><div><div class="de">${esc(it.text)}</div><div class="en">${esc(it.en)}</div></div>
-        <span class="badge">${done.has(it.a) ? 'Saved' : 'To record'}</span></div>
-      <div class="ctl">
-        <button class="rec" data-rec><span class="dot"></span><span>Record</span></button>
-        ${OTHERS.filter(v => VOICES[v][it.a]).map(v => `<button class="btn other" data-other="voices/${v}/${VOICES[v][it.a]}">▶ ${esc({chris: 'Chris', negin: 'Negin'}[v] || v)}</button>`).join('')}
-        <button class="btn" data-listen${done.has(it.a) ? '' : ' disabled'}>${WHO === 'negin' ? 'Listen to me' : 'Listen'}</button>
-        <button class="btn primary" data-save disabled>Save</button>
-        <button class="btn danger" data-delete${done.has(it.a) ? '' : ' hidden'}>Delete</button>
-        <span class="status" role="status"></span>
-      </div></div>`).join('')}</div>`).join('');
-  progress();
-}
-function progress() {
-  const total = seen.size, n = [...seen].filter(a => done.has(a)).length;
-  $('prog-text').textContent = `${n} of ${total} recorded`;
-  $('prog-pct').textContent = `${Math.round(n / total * 100)}%`;
-  $('prog-fill').style.width = `${n / total * 100}%`;
-}
-const takes = new Map(), deleted = new Set();
-main.addEventListener('click', async e => {
-  const card = e.target.closest('.card'); if (!card) return;
-  const a = card.dataset.a, status = card.querySelector('.status'), rec = card.querySelector('[data-rec]');
-  const setStatus = (t, cls = '') => { status.textContent = t; status.className = 'status ' + cls; };
-  if (e.target.closest('[data-rec]')) {
-    if (recording === card) {
-      const wav = stopRec(); takes.set(a, wav);
-      rec.classList.remove('on'); rec.lastElementChild.textContent = 'Record again';
-      card.querySelector('[data-listen]').disabled = false; card.querySelector('[data-save]').disabled = false;
-      setStatus('Listen, then save.');
-      player.src = URL.createObjectURL(new Blob([wav], {type: 'audio/wav'})); player.play().catch(() => {});
-      return;
-    }
-    if (recording) return;
-    try { await startRec(card); rec.classList.add('on'); rec.lastElementChild.textContent = 'Stop'; setStatus('Recording… say the phrase, then tap Stop.'); }
-    catch (err) { setStatus('Microphone blocked. Allow microphone access for this site in your browser settings.', 'err'); }
-  }
-  const oth = e.target.closest('[data-other]');
-  if (oth) { player.src = oth.dataset.other; player.play().catch(() => {}); return; }
-  if (e.target.closest('[data-listen]')) {
-    const wav = takes.get(a);
-    if (wav) player.src = URL.createObjectURL(new Blob([wav], {type: 'audio/wav'}));
-    else if (MINE[a] && !deleted.has(a)) player.src = `voices/${WHO}/${MINE[a]}`;
-    else return;
-    player.play().catch(() => setStatus('This recording is still being published. Try again in a minute.'));
-  }
-  const del = e.target.closest('[data-delete]');
-  if (del) {
-    if (!del.classList.contains('armed')) {
-      del.classList.add('armed'); del.textContent = 'Tap again to delete';
-      setTimeout(() => { del.classList.remove('armed'); del.textContent = 'Delete'; }, 4000);
-      return;
-    }
-    del.disabled = true; setStatus('Deleting…');
-    try {
-      await remove(a, card.querySelector('.de').textContent);
-      done.delete(a); deleted.add(a); takes.delete(a);
-      card.classList.remove('done'); card.querySelector('.badge').textContent = 'To record';
-      del.hidden = true; del.disabled = false; del.classList.remove('armed'); del.textContent = 'Delete';
-      card.querySelector('[data-listen]').disabled = true; card.querySelector('[data-save]').disabled = true;
-      rec.lastElementChild.textContent = 'Record';
-      setStatus('Deleted. It disappears from the app in about 2 minutes.', 'ok'); progress();
-    } catch (err) { del.disabled = false; setStatus(err.message, 'err'); }
-  }
-  if (e.target.closest('[data-save]')) {
-    const btn = e.target.closest('[data-save]'); btn.disabled = true; setStatus('Saving…');
-    try {
-      await upload(a, takes.get(a), card.querySelector('.de').textContent);
-      const replaced = done.has(a);
-      done.add(a); deleted.delete(a); card.classList.add('done'); card.querySelector('.badge').textContent = 'Saved';
-      card.querySelector('[data-delete]').hidden = false;
-      setStatus(replaced ? 'Saved ✓ The new take replaces the old one in about 2 minutes.' : 'Saved ✓', 'ok'); progress();
-    } catch (err) { btn.disabled = false; setStatus(err.message, 'err'); }
-  }
-});
-function setFilter(todo) {
-  document.body.classList.toggle('hide-done', todo);
-  $('f-todo').setAttribute('aria-pressed', todo); $('f-all').setAttribute('aria-pressed', !todo);
-}
-$('f-todo').onclick = () => setFilter(true);
-$('f-all').onclick = () => setFilter(false);
-
-function showApp() {
-  $('setup').hidden = true; $('tips').hidden = false; $('bar').hidden = false; $('main').hidden = false;
-  render(); setFilter(true);
-}
-$('token-save').onclick = async () => {
-  token = $('token').value.trim(); const m = $('token-msg');
-  if (!token) { m.textContent = 'Paste the code first.'; m.className = 'msg err'; return; }
-  m.textContent = 'Checking…'; m.className = 'msg';
-  try { await checkToken(); store.set('ghToken', token); store.set('whoAmI', WHO); showApp(); }
-  catch (err) { m.textContent = err.message; m.className = 'msg err'; }
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const raw = {get(k){try{return localStorage.getItem(k)||''}catch(e){return ''}}, set(k,v){try{localStorage.setItem(k,v)}catch(e){}}, del(k){try{localStorage.removeItem(k)}catch(e){}}};
+const svg = d => `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="${d}"/></svg>`;
+const I = {
+  mic: svg('M12 14.5a3.5 3.5 0 0 0 3.5-3.5V5a3.5 3.5 0 0 0-7 0v6a3.5 3.5 0 0 0 3.5 3.5zm6-3.5a6 6 0 0 1-12 0H4a8 8 0 0 0 7 7.9V22h2v-3.1a8 8 0 0 0 7-7.9h-2z'),
+  stop: svg('M6 6h12v12H6z'),
+  play: svg('M7 4.5v15l13-7.5z'),
+  check: svg('M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z'),
+  redo: svg('M12 5V2L7 6l5 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z'),
+  trash: svg('M7 21a2 2 0 0 1-2-2V7h14v12a2 2 0 0 1-2 2H7zM9 4h6l1 1h4v2H4V5h4l1-1z'),
+  bulb: svg('M9 21h6v-1.5H9V21zm3-19a7 7 0 0 0-4 12.7V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.3A7 7 0 0 0 12 2z'),
+  person: svg('M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9zm0 2c-4.4 0-8.5 2.2-8.5 5.3V21h17v-1.7c0-3.1-4.1-5.3-8.5-5.3z')
 };
-$('token-reset').onclick = () => { store.del('ghToken'); store.del('whoAmI'); token = ''; location.reload(); };
-if (token) showApp();
+function toast(t){ const el = $('toast'); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => el.hidden = true, 2600); }
+
+// ---------- who + access code ----------
+const WHO = ((new URLSearchParams(location.search).get('who') || 'chris').toLowerCase().replace(/[^a-z]/g, '')) || 'chris';
+const NAMES = {chris: 'Chris', negin: 'Negin'}, NAME = NAMES[WHO] || WHO, OTHER = WHO === 'chris' ? 'negin' : 'chris';
+if (WHO !== 'chris') { $('h1').textContent = `Hi ${NAME} 👋`; $('intro').textContent = 'Record each phrase, listen back, and save the takes you like.'; document.title = `${NAME}'s Recordings · German Daily Review`; }
+// The code can come inside the link (…#code=github_pat_…). It stays in the link on purpose, so a Home Screen shortcut keeps working.
+let token = (location.hash.match(/code=([A-Za-z0-9_]+)/) || [])[1] || raw.get('ghToken');
+if (token) { raw.set('ghToken', token); raw.set('whoAmI', WHO); }
+
+// ---------- the list: every phrase once, every word once ----------
+const items = [], byKey = new Map();
+DATA.sections.forEach(s => s.groups.forEach(g => { if (g.kind === 'cards') return; g.items.forEach(it => {
+  const add = (a, text, en) => { if (byKey.has(a)) return; const o = {a, text, en, sec: s.title}; byKey.set(a, o); items.push(o); };
+  if (it.parts) it.parts.forEach(p => add(p.a, p.w, s.id === 'sounds' ? `Example word (${it.de})` : it.en));
+  else add(it.a, it.speak.replace(/[.!]$/, ''), it.en);
+}); }));
+
+// ---------- GitHub ----------
+function gh(path, opts = {}, accept = 'application/vnd.github+json'){
+  return fetch(`https://api.github.com/repos/${REPO}${path}`, {...opts, cache: 'no-store', headers: {'Authorization': `Bearer ${token}`, 'Accept': accept, 'X-GitHub-Api-Version': '2022-11-28'}});
+}
+async function listDir(path){
+  const r = await gh(`/contents/${path}`);
+  if (r.status === 404) return [];
+  if (r.status === 401) throw new Error('code');
+  if (!r.ok) throw new Error('net');
+  const j = await r.json(); return Array.isArray(j) ? j : [];
+}
+function b64(bytes){ let s = ''; const u8 = new Uint8Array(bytes); for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); }
+async function put(path, bytes, message, sha){
+  const r = await gh(`/contents/${path}`, {method: 'PUT', body: JSON.stringify({message, content: b64(bytes), ...(sha ? {sha} : {})})});
+  if (r.status === 409 || r.status === 422) { const cur = await gh(`/contents/${path}`); if (cur.ok) return put(path, bytes, message, (await cur.json()).sha); }
+  if (!r.ok) throw new Error(r.status === 401 ? 'The code has expired. Ask Negin for a new link.' : r.status === 403 || r.status === 404 ? 'This code can’t save. Ask Negin to check its permissions.' : 'Saving failed. Check your internet and try again.');
+  return (await r.json()).content.sha;
+}
+async function del(path, sha){
+  const r = await gh(`/contents/${path}`, {method: 'DELETE', body: JSON.stringify({message: `${NAME} deleted ${path.split('/').pop()}`, sha})});
+  if (!r.ok && r.status !== 404) throw new Error('Deleting failed. Try again.');
+}
+const blobCache = new Map();
+function blobUrl(sha, type = 'audio/wav'){
+  if (!blobCache.has(sha)) blobCache.set(sha, gh(`/git/blobs/${sha}`, {}, 'application/vnd.github.raw').then(r => { if (!r.ok) throw 0; return r.blob(); }).then(b => URL.createObjectURL(new Blob([b], {type}))).catch(e => { blobCache.delete(sha); throw e; }));
+  return blobCache.get(sha);
+}
+async function blobText(sha){ const r = await gh(`/git/blobs/${sha}`, {}, 'application/vnd.github.raw'); return r.ok ? r.text() : ''; }
+
+// ---------- live state (always read fresh from GitHub, so it's never out of date) ----------
+const mine = new Map(), theirs = new Map(), tips = new Map();   // key -> sha ; tips: key -> {txt, wav, text}
+async function loadState(){
+  const [m, o, t] = await Promise.all([listDir(`recordings/${WHO}`), listDir(`recordings/${OTHER}`).catch(() => []), listDir(`recordings/${WHO}/tips`)]);
+  mine.clear(); theirs.clear(); tips.clear();
+  m.filter(f => f.type === 'file' && f.name.endsWith('.wav')).forEach(f => mine.set(f.name.slice(0, -4), f.sha));
+  o.filter(f => f.type === 'file' && f.name.endsWith('.wav')).forEach(f => theirs.set(f.name.slice(0, -4), f.sha));
+  t.filter(f => f.type === 'file').forEach(f => { const [k, ext] = [f.name.replace(/\.[^.]+$/, ''), f.name.split('.').pop()]; const e = tips.get(k) || {}; e[ext] = f.sha; tips.set(k, e); });
+  await Promise.all([...tips.values()].filter(e => e.txt).map(async e => { e.text = await blobText(e.txt); }));
+}
+
+// ---------- “new” and “today” ----------
+const seenKey = `seen-${WHO}`, todayKey = `today-${WHO}`, dayStr = new Date().toLocaleDateString('en-CA');
+let seen = null; try { seen = JSON.parse(raw.get(seenKey) || 'null'); } catch (e) {}
+const isNew = new Set(seen ? items.filter(i => !seen.includes(i.a)).map(i => i.a) : []);
+raw.set(seenKey, JSON.stringify(items.map(i => i.a)));
+function todayCount(){ try { const t = JSON.parse(raw.get(todayKey) || '{}'); return t.d === dayStr ? t.n : 0; } catch (e) { return 0; } }
+function bumpToday(){ raw.set(todayKey, JSON.stringify({d: dayStr, n: todayCount() + 1})); }
+
+// ---------- recording ----------
+let actx, stream, node, chunks = [], recKey = null;
+async function startRec(k){
+  if (!stream) stream = await navigator.mediaDevices.getUserMedia({audio: {echoCancellation: false, noiseSuppression: true, autoGainControl: true}});
+  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+  await actx.resume();
+  const src = actx.createMediaStreamSource(stream);
+  node = actx.createScriptProcessor(4096, 1, 1); chunks = [];
+  node.onaudioprocess = e => { chunks.push(new Float32Array(e.inputBuffer.getChannelData(0))); e.outputBuffer.getChannelData(0).fill(0); };
+  src.connect(node); node.connect(actx.destination); node._src = src; recKey = k;
+}
+function stopRec(){
+  node.disconnect(); node._src.disconnect(); recKey = null;
+  const len = chunks.reduce((n, c) => n + c.length, 0), all = new Float32Array(len); let o = 0; chunks.forEach(c => { all.set(c, o); o += c.length; });
+  return toWav(trim(downsample(all, actx.sampleRate, 24000), 24000), 24000);
+}
+function downsample(buf, from, to){ if (from === to) return buf; const r = from / to, out = new Float32Array(Math.floor(buf.length / r));
+  for (let i = 0; i < out.length; i++) { const s = Math.floor(i * r), e = Math.floor((i + 1) * r); let sum = 0; for (let j = s; j < e; j++) sum += buf[j]; out[i] = sum / (e - s); } return out; }
+function trim(buf, rate){
+  // Find the speech by loudness over 20 ms windows. The first 80 ms and last 150 ms are ignored,
+  // because tapping Record/Stop makes a click there, and a click must never decide where the voice is.
+  const win = Math.max(1, Math.floor(rate * 0.02)), n = Math.floor(buf.length / win);
+  const skipA = Math.min(n, Math.ceil(0.08 * rate / win)), skipB = Math.min(n - skipA, Math.ceil(0.15 * rate / win));
+  const rms = []; for (let i = 0; i < n; i++) { let s = 0; for (let j = i * win; j < (i + 1) * win; j++) s += buf[j] * buf[j]; rms.push(Math.sqrt(s / win)); }
+  const core = rms.slice(skipA, n - skipB);
+  if (core.length < 5) return buf;
+  const loud = core.slice().sort((x, y) => x - y)[Math.floor(core.length * 0.9)];   // level of the voice, not of one click
+  const th = Math.max(0.004, loud * 0.12);
+  let s = skipA; while (s < n - skipB && rms[s] < th) s++;
+  let e = n - skipB - 1; while (e > s && rms[e] < th) e--;
+  const pad = Math.floor(rate * 0.15), lo = skipA * win, hi = (n - skipB) * win;
+  let out = e > s ? buf.slice(Math.max(lo, s * win - pad), Math.min(hi, (e + 1) * win + pad)) : buf.slice(lo, hi);
+  if (out.length < rate * 0.4) out = buf.slice(lo, hi);                                // too short to be speech: keep it all
+  let peak = 0; for (const v of out) peak = Math.max(peak, Math.abs(v));
+  const g = Math.min(8, 0.16 / Math.max(loud, 1e-4), 0.95 / Math.max(peak, 1e-4));   // even out the volume
+  const res = new Float32Array(out.length); for (let i = 0; i < out.length; i++) res[i] = Math.max(-1, Math.min(1, out[i] * g));
+  return res;
+}
+function toWav(f32, rate){
+  const b = new ArrayBuffer(44 + f32.length * 2), v = new DataView(b), w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  w(0,'RIFF'); v.setUint32(4,36+f32.length*2,true); w(8,'WAVE'); w(12,'fmt '); v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
+  v.setUint32(24,rate,true); v.setUint32(28,rate*2,true); v.setUint16(32,2,true); v.setUint16(34,16,true); w(36,'data'); v.setUint32(40,f32.length*2,true);
+  for (let i = 0; i < f32.length; i++) v.setInt16(44 + i * 2, Math.max(-1, Math.min(1, f32[i])) * 0x7fff, true); return b;
+}
+
+// ---------- playback (one at a time) ----------
+const player = new Audio(); let playingBtn = null, ticket = 0;
+function stopPlay(){ ticket++; player.pause(); if (playingBtn) playingBtn.classList.remove('on'); playingBtn = null; }
+player.addEventListener('ended', () => { if (playingBtn) playingBtn.classList.remove('on'); playingBtn = null; });
+async function playFrom(getUrl, btn){
+  if (btn && btn === playingBtn) { stopPlay(); return; }
+  stopPlay(); const my = ticket;
+  if (btn) { btn.classList.add('on'); playingBtn = btn; }
+  try { const url = await getUrl(); if (my !== ticket) return; player.src = url; await player.play(); }
+  catch (e) { if (btn) btn.classList.remove('on'); playingBtn = null; toast('Couldn’t play that. Check your internet.'); }
+}
+
+// ---------- cards ----------
+const draft = new Map();            // key -> unsaved take
+const tipDraft = new Map();         // key -> unsaved suggestion audio
+let tab = 'todo';
+const pb = (cls, act, icon, label, extra = '') => `<button class="pb ${cls}" data-act="${act}" ${extra}>${icon}<span>${label}</span></button>`;
+function cardHtml(it){
+  const k = it.a, saved = mine.has(k), d = draft.has(k), rec = recKey === k, tip = tips.get(k), other = theirs.has(k);
+  let badge = saved ? '<span class="badge done">Saved ✓</span>' : isNew.has(k) ? '<span class="badge new">New</span>' : '<span class="badge">To record</span>';
+  let row;
+  if (rec) row = pb('rec on', 'stop', I.stop, 'Stop') + pb('', '', '', '', 'disabled style="visibility:hidden"').repeat(3);
+  else if (d) row = pb('play', 'listen-draft', I.play, 'Listen') + pb('save', 'save', I.check, 'Save') + pb('rec', 'record', I.redo, 'Redo') + pb('sug', 'suggest', I.bulb, tip ? 'Edit tip' : 'Suggest');
+  else if (saved) row = pb('play', 'listen', I.play, 'Listen') + pb('rec', 'record', I.mic, 'Re-record') + pb('del', 'delete', I.trash, 'Delete') + pb('sug', 'suggest', I.bulb, tip ? 'Edit tip' : 'Suggest');
+  else row = pb('rec', 'record', I.mic, 'Record') + pb('play', 'listen-other', I.person, NAMES[OTHER], other ? '' : 'disabled') + pb('sug', 'suggest', I.bulb, tip ? 'Edit tip' : 'Suggest') + pb('', '', '', '', 'disabled style="visibility:hidden"');
+  const tipView = tip && (tip.text || tip.wav) ? `<div class="tipview"><span class="t"><b>💡 Your suggestion:</b> ${esc(tip.text || '(recording)')}</span>${tip.wav ? `<button class="tipplay" data-act="play-tip">▶ Play</button>` : ''}</div>` : '';
+  return `<div class="card${saved ? ' done' : ''}${rec ? ' recording' : ''}" data-k="${k}">
+    <div class="head"><div><div class="de">${esc(it.text)}</div><div class="en">${esc(it.en)}</div></div>${badge}</div>
+    ${tipView}<div class="row">${row}</div><div class="status" role="status"></div><div class="tipslot"></div></div>`;
+}
+function visibleItems(){
+  const list = items.filter(i => tab === 'all' || (tab === 'done' ? mine.has(i.a) : !mine.has(i.a)));
+  if (tab === 'todo') list.sort((x, y) => (isNew.has(y.a) - isNew.has(x.a)));
+  return list;
+}
+function render(){
+  const list = visibleItems(); let html = '', sec = '';
+  if (!list.length) html = tab === 'todo'
+    ? `<div class="empty"><b>All done! 🎉</b>Every phrase is recorded. Thank you! When Negin adds new ones, they'll show up here.</div>`
+    : `<div class="empty"><b>Nothing here yet</b>Record a phrase and it will appear here.</div>`;
+  list.forEach(it => { if (it.sec !== sec && !(tab === 'todo' && isNew.has(it.a))) { sec = it.sec; html += `<div class="sec">${esc(sec)}</div>`; } html += cardHtml(it); });
+  $('main').innerHTML = html; progress();
+}
+function rerender(k){ const el = document.querySelector(`.card[data-k="${k}"]`); if (!el) return; const tmp = document.createElement('div'); tmp.innerHTML = cardHtml(byKey.get(k)); el.replaceWith(tmp.firstElementChild); progress(); }
+function progress(){
+  const total = items.length, done = items.filter(i => mine.has(i.a)).length;
+  $('p-done').textContent = done; $('p-total').textContent = total; $('p-left').textContent = total - done;
+  $('p-pct').textContent = `${Math.round(done / total * 100)}%`; $('p-fill').style.width = `${done / total * 100}%`;
+  $('p-today').textContent = todayCount(); $('p-tips').textContent = [...tips.values()].filter(t => t.text || t.wav).length;
+  const nNew = [...isNew].filter(k => !mine.has(k)).length; $('p-new').textContent = nNew; $('p-new-wrap').hidden = !nNew;
+  $('n-todo').textContent = total - done; $('n-done').textContent = done; $('n-all').textContent = total;
+}
+function status(k, t, cls = ''){ const el = document.querySelector(`.card[data-k="${k}"] .status`); if (el) { el.textContent = t; el.className = 'status ' + cls; } }
+
+// ---------- actions ----------
+let armed = null;
+$('main').addEventListener('click', async e => {
+  const btn = e.target.closest('[data-act]'); if (!btn || btn.disabled) return;
+  const card = btn.closest('.card'), k = card.dataset.k, it = byKey.get(k), act = btn.dataset.act;
+  if (act === 'record') {
+    if (recKey) { toast('Finish the recording you started first.'); return; }
+    stopPlay();
+    try { await startRec(k); rerender(k); status(k, 'Recording… say it, then tap Stop.'); }
+    catch (err) { status(k, 'Microphone blocked. Allow the microphone for this site in Safari settings, then try again.', 'err'); }
+  }
+  else if (act === 'stop') { const wav = stopRec(); draft.set(k, wav); rerender(k); status(k, 'Listen, then Save, or Redo.'); playFrom(async () => URL.createObjectURL(new Blob([wav], {type: 'audio/wav'})), document.querySelector(`.card[data-k="${k}"] [data-act="listen-draft"]`)); }
+  else if (act === 'listen-draft') playFrom(async () => URL.createObjectURL(new Blob([draft.get(k)], {type: 'audio/wav'})), btn);
+  else if (act === 'listen') playFrom(() => blobUrl(mine.get(k)), btn);
+  else if (act === 'listen-other') playFrom(() => blobUrl(theirs.get(k)), btn);
+  else if (act === 'play-tip') playFrom(() => blobUrl(tips.get(k).wav), btn);
+  else if (act === 'save') {
+    btn.disabled = true; status(k, 'Saving…');
+    try {
+      const wasSaved = mine.has(k);
+      const sha = await put(`recordings/${WHO}/${k}.wav`, draft.get(k), `${NAME} recorded: ${it.text}`, mine.get(k));
+      mine.set(k, sha); blobCache.set(sha, Promise.resolve(URL.createObjectURL(new Blob([draft.get(k)], {type: 'audio/wav'})))); draft.delete(k);
+      if (!wasSaved) bumpToday();
+      rerender(k); status(k, wasSaved ? 'Saved ✓ The new take replaced the old one.' : 'Saved ✓ Negin will see it in a minute or two.', 'ok');
+      if (tab === 'todo') setTimeout(() => { const el = document.querySelector(`.card[data-k="${k}"]`); if (el && !recKey && !draft.size) { el.style.opacity = .4; setTimeout(render, 500); } }, 1600);
+    } catch (err) { btn.disabled = false; status(k, err.message, 'err'); }
+  }
+  else if (act === 'delete') {
+    if (armed !== btn) { armed = btn; btn.classList.add('armed'); btn.lastElementChild.textContent = 'Tap again'; setTimeout(() => { if (armed === btn) { armed = null; btn.classList.remove('armed'); btn.lastElementChild.textContent = 'Delete'; } }, 3500); return; }
+    armed = null; btn.disabled = true; status(k, 'Deleting…');
+    try { await del(`recordings/${WHO}/${k}.wav`, mine.get(k)); mine.delete(k); rerender(k); status(k, 'Deleted. You can record it again any time.', 'ok'); }
+    catch (err) { btn.disabled = false; status(k, err.message, 'err'); }
+  }
+  else if (act === 'suggest') openTip(card, k);
+});
+
+// ---------- suggestions ----------
+function openTip(card, k){
+  const slot = card.querySelector('.tipslot');
+  if (slot.innerHTML) { slot.innerHTML = ''; return; }
+  const t = tips.get(k) || {};
+  slot.innerHTML = `<div class="tipedit">
+    <label for="tip-${k}">Your suggestion for Negin</label>
+    <textarea id="tip-${k}" placeholder="For example: In everyday German we usually say … / The r is softer here …">${esc(t.text || '')}</textarea>
+    <div class="btns">
+      <button class="btn" data-tip="rec">● Record how you'd say it</button>
+      <button class="btn" data-tip="listen" ${t.wav || tipDraft.has(k) ? '' : 'hidden'}>▶ Listen</button>
+    </div>
+    <div class="btns">
+      <button class="btn tip" data-tip="save">Save suggestion</button>
+      ${t.txt || t.wav ? '<button class="btn" data-tip="delete">Delete suggestion</button>' : ''}
+      <button class="btn" data-tip="close">Cancel</button>
+    </div>
+    <span class="msg" data-tipmsg></span></div>`;
+  slot.querySelector('textarea').focus();
+}
+$('main').addEventListener('click', async e => {
+  const b = e.target.closest('[data-tip]'); if (!b) return;
+  const card = b.closest('.card'), k = card.dataset.k, it = byKey.get(k), slot = card.querySelector('.tipslot'), msg = slot.querySelector('[data-tipmsg]'), t = tips.get(k) || {};
+  const say = (x, cls = '') => { msg.textContent = x; msg.className = 'msg ' + cls; };
+  const act = b.dataset.tip;
+  if (act === 'close') { slot.innerHTML = ''; return; }
+  if (act === 'rec') {
+    if (recKey === 'tip:' + k) { tipDraft.set(k, stopRec()); b.textContent = '● Record again'; slot.querySelector('[data-tip="listen"]').hidden = false; say('Recorded. Listen, then Save suggestion.');
+      playFrom(async () => URL.createObjectURL(new Blob([tipDraft.get(k)], {type: 'audio/wav'}))); return; }
+    if (recKey) { toast('Finish the recording you started first.'); return; }
+    stopPlay(); try { await startRec('tip:' + k); b.textContent = '■ Stop'; say('Recording… tap Stop when done.'); } catch (err) { say('Microphone blocked.', 'err'); }
+    return;
+  }
+  if (act === 'listen') { playFrom(tipDraft.has(k) ? async () => URL.createObjectURL(new Blob([tipDraft.get(k)], {type: 'audio/wav'})) : () => blobUrl(t.wav)); return; }
+  if (act === 'save') {
+    if (recKey === 'tip:' + k) tipDraft.set(k, stopRec());
+    const text = slot.querySelector('textarea').value.trim();
+    if (!text && !tipDraft.has(k) && !t.wav) { say('Write a note or record how you would say it.', 'err'); return; }
+    b.disabled = true; say('Saving…');
+    try {
+      const e2 = {...t};
+      if (text !== (t.text || '')) {
+        if (text) { e2.txt = await put(`recordings/${WHO}/tips/${k}.txt`, new TextEncoder().encode(text), `${NAME} suggested for “${it.text}”`, t.txt); e2.text = text; }
+        else if (t.txt) { await del(`recordings/${WHO}/tips/${k}.txt`, t.txt); delete e2.txt; delete e2.text; }
+      }
+      if (tipDraft.has(k)) { e2.wav = await put(`recordings/${WHO}/tips/${k}.wav`, tipDraft.get(k), `${NAME} recorded a suggestion for “${it.text}”`, t.wav);
+        blobCache.set(e2.wav, Promise.resolve(URL.createObjectURL(new Blob([tipDraft.get(k)], {type: 'audio/wav'})))); tipDraft.delete(k); }
+      tips.set(k, e2); rerender(k); status(k, 'Suggestion saved ✓ Negin will see it under this phrase.', 'ok');
+    } catch (err) { b.disabled = false; say(err.message, 'err'); }
+    return;
+  }
+  if (act === 'delete') {
+    b.disabled = true; say('Deleting…');
+    try { if (t.txt) await del(`recordings/${WHO}/tips/${k}.txt`, t.txt); if (t.wav) await del(`recordings/${WHO}/tips/${k}.wav`, t.wav);
+      tips.delete(k); tipDraft.delete(k); rerender(k); status(k, 'Suggestion deleted.', 'ok'); }
+    catch (err) { b.disabled = false; say(err.message, 'err'); }
+  }
+});
+
+// ---------- tabs + start ----------
+document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => {
+  tab = b.dataset.tab; document.querySelectorAll('[data-tab]').forEach(x => x.setAttribute('aria-pressed', x === b)); render(); scrollTo({top: $('tabs').offsetTop - 4, behavior: 'smooth'});
+});
+async function start(){
+  $('setup').hidden = true;
+  $('main').hidden = false; $('main').innerHTML = '<div class="empty">Loading your list…</div>';
+  try { await loadState(); }
+  catch (e) {
+    if (e.message === 'code') { raw.del('ghToken'); token = ''; $('main').hidden = true; $('setup').hidden = false; $('token-msg').textContent = 'That code didn’t work. Paste a new one from Negin.'; $('token-msg').className = 'msg err'; return; }
+    Object.keys((DATA.voices || {})[WHO] || {}).forEach(k => mine.set(k, null)); toast('Offline: showing the last saved list.');
+  }
+  $('progress').hidden = false; $('tabs').hidden = false; $('hint').hidden = navigator.standalone === true;
+  render();
+}
+$('token-save').onclick = () => {
+  const v = $('token').value.trim();
+  if (!/^(github_pat_|gh[pousr]_)/.test(v)) { $('token-msg').textContent = 'That doesn’t look like the code. It starts with github_pat_.'; $('token-msg').className = 'msg err'; return; }
+  token = v; raw.set('ghToken', v); raw.set('whoAmI', WHO); start();
+};
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && token && !recKey && !draft.size) loadState().then(render).catch(() => {}); });
+if (token) start(); else $('setup').hidden = false;
 </script>
 </body></html>

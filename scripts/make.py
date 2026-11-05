@@ -34,6 +34,17 @@ def phonemize(text):
     return out
 voice.phonemize = phonemize
 
+def mp3_from_wav(src, dest_dir, stem):
+    """Turn a recorded WAV into an MP3 with a new name for every new take, so phones never play an old copy."""
+    with wave.open(src, "rb") as w:
+        rate, pcm = w.getframerate(), w.readframes(w.getnframes())
+    enc = lameenc.Encoder()
+    enc.set_bit_rate(64); enc.set_in_sample_rate(rate); enc.set_channels(1); enc.set_quality(2)
+    name = f"{stem}-{hashlib.md5(pcm).hexdigest()[:8]}.mp3"
+    os.makedirs(dest_dir, exist_ok=True)
+    open(f"{dest_dir}/{name}", "wb").write(enc.encode(pcm + b"\x00\x00" * int(rate * 0.15)) + enc.flush())
+    return name
+
 def key(t):
     return hashlib.md5(t.encode("utf-8")).hexdigest()[:8]
 
@@ -66,9 +77,30 @@ for sec in data["sections"]:
                 count += 1
 shutil.rmtree(tmp)
 
+# Lines that read several words one by one (e.g. "Abend. acht.") are split into parts, so a person records
+# each word only once. A part that is also a phrase of its own (e.g. "acht") reuses that phrase's recording.
+singles = {}
+for sec in data["sections"]:
+    for g in sec["groups"]:
+        if g["kind"] != "cards":
+            for it in g["items"]:
+                if ". " not in it["speak"]:
+                    singles.setdefault(it["speak"].rstrip(".!").lower(), it["a"])
+for sec in data["sections"]:
+    for g in sec["groups"]:
+        if g["kind"] != "cards":
+            for it in g["items"]:
+                bits = [b.strip().rstrip(".!") for b in it["speak"].split(". ")]
+                bits = [b for b in bits if b]
+                if len(bits) > 1:
+                    it["parts"] = [{"w": b, "a": singles.get(b.lower(), key(b))} for b in bits]
+                elif bits and singles.get(bits[0].lower(), it["a"]) != it["a"]:
+                    it["parts"] = [{"w": bits[0], "a": singles[bits[0].lower()]}]   # e.g. "sechs." in Sounds = the number "sechs"
+
 # People's own recordings, saved by record.html into recordings/<person>/<phrase>.wav
 # (recordings/chris = Chris, recordings/negin = Negin)
 voices = {"chris": {}, "negin": {}}
+tips = {}   # suggestions: recordings/<person>/tips/<phrase>.txt (a note) and/or .wav (how they'd say it)
 rec_root = f"{HERE}/../recordings"
 if os.path.isdir(rec_root):
     for person in sorted(os.listdir(rec_root)):
@@ -82,19 +114,26 @@ if os.path.isdir(rec_root):
                 continue
             a = f[:-4]
             try:
-                with wave.open(f"{rec_dir}/{f}", "rb") as w:
-                    rate, pcm = w.getframerate(), w.readframes(w.getnframes())
-                enc = lameenc.Encoder()
-                enc.set_bit_rate(64); enc.set_in_sample_rate(rate); enc.set_channels(1); enc.set_quality(2)
-                name = f"{a}-{hashlib.md5(pcm).hexdigest()[:8]}.mp3"  # new name for every new take, so phones never play an old copy
-                open(f"{OUT}/voices/{person}/{name}", "wb").write(enc.encode(pcm + b"\x00\x00" * int(rate * 0.15)) + enc.flush())
-                voices[person][a] = name
+                voices[person][a] = mp3_from_wav(f"{rec_dir}/{f}", f"{OUT}/voices/{person}", a)
             except Exception as e:
                 print(f"Skipped recording {person}/{f}: {e}")
+        tip_dir = f"{rec_dir}/tips"
+        if os.path.isdir(tip_dir):
+            for f in sorted(os.listdir(tip_dir)):
+                a, ext = os.path.splitext(f)
+                try:
+                    if ext == ".txt":
+                        text = open(f"{tip_dir}/{f}", encoding="utf-8").read().strip()[:600]
+                        if text:
+                            tips.setdefault(person, {}).setdefault(a, {})["text"] = text
+                    elif ext == ".wav":
+                        tips.setdefault(person, {}).setdefault(a, {})["file"] = "tips/" + mp3_from_wav(f"{tip_dir}/{f}", f"{OUT}/voices/{person}/tips", a)
+                except Exception as e:
+                    print(f"Skipped tip {person}/{f}: {e}")
 for person, recs in voices.items():
-    print(f"{person} has recorded {len(recs)} phrases.")
+    print(f"{person} has recorded {len(recs)} phrases and {len(tips.get(person, {}))} suggestions.")
 
-page_data = json.dumps({"sections": data["sections"], "mistakes": data["mistakes"], "voices": voices}, ensure_ascii=False)
+page_data = json.dumps({"sections": data["sections"], "mistakes": data["mistakes"], "voices": voices, "tips": tips}, ensure_ascii=False)
 repo = os.environ.get("GITHUB_REPOSITORY", "NeginZarbakhsh/German-review")
 owner, name = repo.split("/")
 site = f"https://{owner.lower()}.github.io/{name}/"
@@ -114,7 +153,8 @@ json.dump({"name": "German Daily Review", "short_name": "Deutsch", "start_url": 
 
 # Offline: cache the page, icons and every recording that is in use
 used = sorted({f"audio/{it['a']}_{v}.mp3" for sec in data["sections"] for g in sec["groups"] if g["kind"] != "cards"
-               for it in g["items"] for v in ("n", "s")}) + [f"voices/{p}/{m}" for p, recs in voices.items() for m in recs.values()]
+               for it in g["items"] for v in ("n", "s")}) + [f"voices/{p}/{m}" for p, recs in voices.items() for m in recs.values()] \
+       + [f"voices/{p}/{t['file']}" for p, ts in tips.items() for t in ts.values() if "file" in t]
 files = ["./", "index.html", "manifest.json"] + sorted(os.listdir(f"{HERE}/../static")) + used
 version = hashlib.md5((os.path.basename(VOICE) + page + "".join(files)).encode("utf-8")).hexdigest()[:10]
 sw = open(f"{HERE}/sw.js", encoding="utf-8").read().replace("__VERSION__", version).replace("__FILES__", json.dumps(files))
