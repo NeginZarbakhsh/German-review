@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chris's Recordings · German Daily Review</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Record">
+<meta name="theme-color" content="#2347c5">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: one column. Progress card on top, three tabs (To record / Done / All), one card per phrase.
+   Each card has one row of big icon buttons that change with its state: new → recording → check → saved. */
+:root{
+  --bg:#f2f4f8; --surface:#ffffff; --fg:#141b27; --muted:#5a6578; --line:#e2e6ee; --tap:#f4f6fa;
+  --accent:#2347c5; --accent-ink:#ffffff; --accent-soft:#e8eefc; --rec:#d92d20; --ok:#067647; --ok-soft:#dcfae6; --new:#c2410c; --tip:#7a5af8; --tip-soft:#f1edff;
+  --display:"Bricolage Grotesque",system-ui,sans-serif; --body:"Atkinson Hyperlegible",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0e131b; --surface:#161d28; --fg:#e7ecf4; --muted:#9aa6ba; --line:#263142; --tap:#1c2431;
+  --accent:#86a5ff; --accent-ink:#0e131b; --accent-soft:#1c2945; --rec:#f97066; --ok:#47cd89; --ok-soft:#0d2a1c; --new:#fb923c; --tip:#a48afb; --tip-soft:#221c3d; color-scheme:dark}}
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.5;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+.wrap{max-width:620px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{padding-block:28px 6px}
+h1{font-family:var(--display);font-size:2rem;line-height:1.1;margin:0;letter-spacing:-.015em}
+.sub{color:var(--muted);margin:8px 0 0;max-width:48ch}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;margin-top:18px;display:flex;flex-direction:column;gap:10px}
+.panel h2{font-family:var(--display);font-size:1.15rem;margin:0}
+.panel p{margin:0;color:var(--muted)}
+input,textarea{width:100%;font:inherit;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--fg)}
+textarea{min-height:70px;resize:vertical}
+.btn{font:700 .95rem var(--body);border-radius:12px;padding:11px 16px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.tip{background:var(--tip);border-color:var(--tip);color:#fff}
+.btn:disabled{opacity:.45}
+.msg{font-size:.9rem;color:var(--muted)}
+.msg.err{color:var(--rec)}
+
+.progress{background:var(--accent);color:var(--accent-ink);border-radius:20px;padding:20px;margin-top:18px}
+.p-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.p-num{font-family:var(--display);font-weight:700;font-size:2.4rem;line-height:1;font-variant-numeric:tabular-nums}
+.p-num small{font-size:1.1rem;opacity:.75;font-weight:500}
+.p-pct{font-weight:700;opacity:.85;font-variant-numeric:tabular-nums}
+.track{height:10px;border-radius:99px;background:color-mix(in srgb,var(--accent-ink) 25%,transparent);overflow:hidden;margin-top:14px}
+.track i{display:block;height:100%;width:0;background:var(--accent-ink);border-radius:99px;transition:width .4s}
+.p-stats{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:12px;font-size:.92rem}
+.p-stats b{font-variant-numeric:tabular-nums}
+.hint{font-size:.86rem;color:var(--muted);margin:12px 0 0}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line);margin-top:18px}
+.tabs .wrap{display:flex;gap:6px;padding-block:10px}
+.tabs button{flex:1;font:700 .9rem var(--body);border:1px solid var(--line);background:var(--surface);color:var(--muted);padding:9px 6px;border-radius:12px;cursor:pointer;white-space:nowrap}
+.tabs button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.tabs .n{font-variant-numeric:tabular-nums;opacity:.75;margin-left:4px}
+
+main{padding-block:14px 60px;display:flex;flex-direction:column;gap:10px}
+.sec{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;margin:14px 0 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px 10px 8px 18px;transition:border-color .15s,box-shadow .15s}
+.card.recording{border-color:var(--rec);box-shadow:0 0 0 1px var(--rec)}
+.card.done{border-color:color-mix(in srgb,var(--ok) 45%,var(--line))}
+.head{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;padding-right:6px}
+.de{font-family:var(--display);font-weight:700;font-size:1.45rem;line-height:1.2;min-width:0}
+.en{color:var(--muted);font-size:.92rem;margin-top:2px}
+.badge{flex:none;font-size:.74rem;font-weight:700;border-radius:999px;padding:3px 10px;background:var(--tap);color:var(--muted)}
+.badge.new{background:color-mix(in srgb,var(--new) 15%,transparent);color:var(--new)}
+.badge.done{background:var(--ok-soft);color:var(--ok)}
+.tipview{margin:10px 6px 0 0;background:var(--tip-soft);border-radius:12px;padding:10px 12px;font-size:.92rem;display:flex;gap:10px;align-items:flex-start}
+.tipview b{color:var(--tip)}
+.tipview .t{flex:1;min-width:0;overflow-wrap:anywhere}
+.tipplay{flex:none;border:0;background:var(--tip);color:#fff;border-radius:999px;font:700 .8rem var(--body);padding:6px 10px;cursor:pointer}
+.row{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin:12px -2px 0 -10px;padding-top:6px;border-top:1px solid var(--line)}
+.pb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;height:58px;border:0;border-radius:12px;background:transparent;color:var(--fg);font:700 .74rem var(--body);cursor:pointer;min-width:0}
+.pb svg{width:22px;height:22px}
+.pb span{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pb:active{background:var(--tap)}
+@media (hover:hover){.pb:hover{background:var(--tap)}}
+.pb.rec{color:var(--rec)} .pb.rec.on{background:var(--rec);color:#fff}
+.pb.rec.on svg{animation:pulse 1s infinite}
+.pb.play svg{color:var(--accent)} .pb.play.on{background:var(--accent);color:var(--accent-ink)} .pb.play.on svg{color:var(--accent-ink)}
+.pb.save{color:var(--ok)} .pb.del{color:var(--rec)} .pb.del.armed{background:var(--rec);color:#fff}
+.pb.sug{color:var(--tip)}
+.pb:disabled{opacity:.3}
+@keyframes pulse{50%{opacity:.35}}
+.status{font-size:.86rem;color:var(--muted);padding:4px 0 6px 0}
+.status:empty{display:none}
+.status.ok{color:var(--ok);font-weight:700}
+.status.err{color:var(--rec)}
+.tipedit{margin:10px 6px 6px 0;background:var(--tip-soft);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.tipedit label{font-weight:700;font-size:.9rem;color:var(--tip)}
+.tipedit .btns{display:flex;flex-wrap:wrap;gap:6px}
+.tipedit .btn{padding:9px 12px;font-size:.88rem}
+.empty{text-align:center;color:var(--muted);padding:40px 16px}
+.empty b{display:block;font-family:var(--display);font-size:1.5rem;color:var(--fg);margin-bottom:6px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:11px 18px;border-radius:999px;font-weight:700;font-size:.9rem;z-index:60;max-width:calc(100% - 32px);text-align:center}
+.ver{text-align:center;font-size:.78rem;color:var(--muted);margin:0 0 24px;opacity:.8}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--new);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head><body>
+
+<header class="wrap">
+  <h1 id="h1">Hi Chris 👋</h1>
+  <p class="sub" id="intro">Negin is learning German and learns best from your voice. Tap <b>Record</b>, say the phrase the way you'd normally say it, then tap <b>Stop</b>. It saves by itself. Have a better way to say something? Tap <b>Suggest</b>.</p>
+
+  <div class="panel" id="setup" hidden>
+    <h2>One-time setup</h2>
+    <p>Paste the code Negin sent you. It starts with <b>github_pat_</b>.</p>
+    <input id="token" type="password" autocomplete="off" placeholder="github_pat_…" aria-label="Access code">
+    <div><button class="btn primary" id="token-save">Continue</button> <span class="msg" id="token-msg"></span></div>
+  </div>
+
+  <div class="progress" id="progress" hidden>
+    <div class="p-top"><div class="p-num"><span id="p-done">0</span> <small>of <span id="p-total">0</span> recorded</small></div><div class="p-pct" id="p-pct">0%</div></div>
+    <div class="track"><i id="p-fill"></i></div>
+    <div class="p-stats"><span><b id="p-left">0</b> to go</span><span><b id="p-today">0</b> today</span><span id="p-new-wrap"><b id="p-new">0</b> new from Negin</span><span><b id="p-tips">0</b> suggestions</span></div>
+  </div>
+  <div class="panel" id="found" hidden>
+    <h2 id="found-title">Recordings waiting to be sent</h2>
+    <p id="found-text"></p>
+    <div><button class="btn primary" id="found-send">Send them to Negin</button> <span class="msg" id="found-msg"></span></div>
+  </div>
+  <p class="hint" id="hint" hidden>Tip: in Safari tap <b>Share → Add to Home Screen</b> to open this list like an app.</p>
+</header>
+
+<nav class="tabs" id="tabs" hidden aria-label="Show"><div class="wrap">
+  <button data-tab="todo" aria-pressed="true">To record<span class="n" id="n-todo"></span></button>
+  <button data-tab="done" aria-pressed="false">Done<span class="n" id="n-done"></span></button>
+  <button data-tab="all" aria-pressed="false">All<span class="n" id="n-all"></span></button>
+</div></nav>
+
+<main class="wrap" id="main" hidden></main>
+<p class="ver">Version 7 Nov, 18:14 UTC</p>
+<div class="toast" id="toast" hidden role="status"></div>
+
+<script>
+const DATA = {"sections": [{"id": "greetings", "title": "Greetings", "lead": "Hello and goodbye for every time of day.", "groups": [{"kind": "rows", "items": [{"de": "Hallo", "say": "**HAH**-loh", "fa": "هالو", "en": "Hi", "words": [], "tip": null, "speak": "Hallo", "a": "d1bf9329"}, {"de": "Guten Morgen", "say": "**GOO**-ten **MOR**-gen", "fa": "گوتن مورگن", "en": "Good morning", "words": [["guten", "good"], ["Morgen", "morning"]], "tip": null, "speak": "Guten Morgen", "a": "41a71d2d"}, {"de": "Guten Tag", "say": "**GOO**-ten **TAHK**", "fa": "گوتن تاک", "en": "Good day", "words": [["Tag", "day"]], "tip": "A g at the end of a word sounds like k.", "speak": "Guten Tag", "a": "54c22cfe"}, {"de": "Guten Abend", "say": "**GOO**-ten **AH**-bent", "fa": "گوتن آبنت", "en": "Good evening", "words": [["Abend", "evening"]], "tip": "A d at the end of a word sounds like t.", "speak": "Guten Abend", "a": "4fdb7d53"}, {"de": "Tschüss!", "say": "**CHÜSS**", "fa": "چوس", "en": "Bye", "tip": "Casual. Use with friends.", "speak": "Tschüss", "words": [], "a": "2a8f72d1"}, {"de": "Auf Wiedersehen", "say": "owf **VEE**-der-zay-en", "fa": "آوف ویدِر زِیِن", "en": "Goodbye", "words": [["wieder", "again"], ["sehen", "to see"]], "tip": "Polite. Literally “until we see again”.", "speak": "Auf Wiedersehen", "a": "719de76f"}]}]}, {"id": "numbers", "title": "Numbers 0–12", "lead": "Tap a number to hear it. Count up, then count back down.", "groups": [{"kind": "numbers", "items": [{"de": "null", "say": "**NOOL**", "fa": "نول", "en": "0", "words": [], "tip": null, "speak": "null", "a": "37a6259c"}, {"de": "eins", "say": "**AINS**", "fa": "آینس", "en": "1", "words": [], "tip": null, "speak": "eins", "a": "4c0d5d15"}, {"de": "zwei", "say": "**TSVAI**", "fa": "تسوای", "en": "2", "words": [], "tip": null, "speak": "zwei", "a": "15d55d08"}, {"de": "drei", "say": "**DRAI**", "fa": "درای", "en": "3", "words": [], "tip": null, "speak": "drei", "a": "1d8d2fd0"}, {"de": "vier", "say": "**FEER**", "fa": "فیر", "en": "4", "words": [], "tip": null, "speak": "vier", "a": "37ab88fd"}, {"de": "fünf", "say": "**FÜNF**", "fa": "فونف", "en": "5", "words": [], "tip": null, "speak": "fünf", "a": "1ecfdb80"}, {"de": "sechs", "say": "**ZEKS**", "fa": "زکس", "en": "6", "words": [], "tip": null, "speak": "sechs", "a": "60dbf8b1"}, {"de": "sieben", "say": "**ZEE**-ben", "fa": "زیبن", "en": "7", "words": [], "tip": null, "speak": "sieben", "a": "d4e99899"}, {"de": "acht", "say": "**AHKHT**", "fa": "آخت", "en": "8", "words": [], "tip": null, "speak": "acht", "a": "8bc0089f"}, {"de": "neun", "say": "**NOYN**", "fa": "نُین", "en": "9", "words": [], "tip": null, "speak": "neun", "a": "13a91a92"}, {"de": "zehn", "say": "**TSAYN**", "fa": "تسِین", "en": "10", "words": [], "tip": null, "speak": "zehn", "a": "8d34393e"}, {"de": "elf", "say": "**ELF**", "fa": "اِلف", "en": "11", "words": [], "tip": null, "speak": "elf", "a": "aab4b125"}, {"de": "zwölf", "say": "**TSVÖLF**", "fa": "تسوُلف", "en": "12", "words": [], "tip": null, "speak": "zwölf", "a": "e23a0818"}]}]}, {"id": "meeting", "title": "Meeting someone", "lead": "Say who you are and ask the other person. Use du with friends and Sie with people you should be polite to.", "groups": [{"kind": "rows", "items": [{"de": "Hallo, ich heiße Negin.", "say": "**HAH**-loh, ish **HAI**-seh Negin", "fa": "هالو، ایش هایسه نگین", "en": "Hi, I'm called Negin.", "words": [["ich", "I"], ["heiße", "am called"]], "tip": null, "speak": "Hallo, ich heiße Negin.", "a": "8c7ec1df"}, {"de": "Mein Name ist Negin.", "say": "main **NAH**-meh ist Negin", "fa": "ماین نامه ایست نگین", "en": "My name is Negin.", "words": [["mein", "my"], ["Name", "name"], ["ist", "is"]], "tip": null, "speak": "Mein Name ist Negin.", "a": "95132cbf"}, {"de": "Ich bin Negin.", "say": "ish **BIN** Negin", "fa": "ایش بین نگین", "en": "I am Negin.", "words": [["bin", "am"]], "tip": null, "speak": "Ich bin Negin.", "a": "5773f520"}, {"de": "Und wie heißt du?", "say": "oont vee **HAIST** doo", "fa": "اونت وی هایست دو", "en": "And what's your name? (friendly)", "words": [["und", "and"], ["wie", "how"], ["heißt", "are called"], ["du", "you, friendly"]], "tip": "Word for word: “and how are you called?”", "speak": "Und wie heißt du?", "a": "f6561635"}, {"de": "Und wie heißen Sie?", "say": "oont vee **HAI**-sen zee", "fa": "اونت وی هایسن زی", "en": "And what's your name? (polite)", "words": [["heißen", "are called"], ["Sie", "you, polite"]], "tip": null, "speak": "Und wie heißen Sie?", "a": "faf3bb92"}, {"de": "Wie ist dein Name?", "say": "vee ist dain **NAH**-meh", "fa": "وی ایست داین نامه", "en": "What is your name? (friendly)", "words": [["dein", "your, friendly"]], "tip": null, "speak": "Wie ist dein Name?", "a": "53d24305"}, {"de": "Wie ist Ihr Name?", "say": "vee ist eer **NAH**-meh", "fa": "وی ایست ایر نامه", "en": "What is your name? (polite)", "words": [["Ihr", "your, polite"]], "tip": null, "speak": "Wie ist Ihr Name?", "a": "07b595ff"}, {"de": "Wer bist du?", "say": "vair **BIST** doo", "fa": "وِر بیست دو", "en": "Who are you? (friendly)", "words": [["wer", "who"], ["bist", "are"]], "tip": null, "speak": "Wer bist du?", "a": "c337a1d9"}, {"de": "Wer sind Sie?", "say": "vair **ZINT** zee", "fa": "وِر زینت زی", "en": "Who are you? (polite)", "words": [["sind", "are"]], "tip": null, "speak": "Wer sind Sie?", "a": "951d2d62"}]}]}, {"id": "others", "title": "Talking about others", "lead": "Ask who someone is and introduce them.", "groups": [{"kind": "rows", "items": [{"de": "Wer ist das?", "say": "vair ist **DAS**", "fa": "وِر ایست داس", "en": "Who is that?", "words": [["das", "that, this"]], "tip": null, "speak": "Wer ist das?", "a": "4ee27f66"}, {"de": "Das ist Frau Weiß.", "say": "das ist **FROW** **VAISS**", "fa": "داس ایست فراو وایس", "en": "That is Ms Weiß.", "words": [["Frau", "Ms, Mrs"]], "tip": null, "speak": "Das ist Frau Weiß.", "a": "6a9809a7"}, {"de": "Das ist Herr Meier.", "say": "das ist **HAIR** **MAI**-a", "fa": "داس ایست هِر مایر", "en": "That is Mr Meier.", "words": [["Herr", "Mr"]], "tip": null, "speak": "Das ist Herr Meier.", "a": "887fa92d"}, {"de": "Ich weiß nicht.", "say": "ish **VAISS** nisht", "fa": "ایش وایس نیشت", "en": "I don't know.", "words": [["weiß", "know"], ["nicht", "not"]], "tip": null, "speak": "Ich weiß nicht.", "a": "b062c153"}]}, {"kind": "rows", "title": "Words", "note": "Every German noun starts with a capital letter. der = masculine word, die = feminine word.", "items": [{"de": "der Name", "say": "dair **NAH**-meh", "fa": "دِر نامه", "en": "the name", "words": [], "tip": null, "speak": "der Name", "a": "7d992d27"}, {"de": "der Vorname", "say": "dair **FOR**-nah-meh", "fa": "دِر فورنامه", "en": "the first name", "tip": "The v sounds like f.", "words": [], "speak": "der Vorname", "a": "83df7789"}, {"de": "der Nachname", "say": "dair **NAKH**-nah-meh", "fa": "دِر ناخنامه", "en": "the last name", "tip": "ch after a is a throaty خ.", "words": [], "speak": "der Nachname", "a": "71b85371"}, {"de": "der Herr", "say": "dair **HAIR**", "fa": "دِر هِر", "en": "Mr, gentleman", "words": [], "tip": null, "speak": "der Herr", "a": "54d1c041"}, {"de": "die Frau", "say": "dee **FROW**", "fa": "دی فراو", "en": "Ms, Mrs, woman, wife", "words": [], "tip": null, "speak": "die Frau", "a": "62e43be6"}, {"de": "der Mann", "say": "dair **MAN**", "fa": "دِر مان", "en": "man, husband", "words": [], "tip": null, "speak": "der Mann", "a": "522b906e"}]}]}, {"id": "grammar", "title": "Grammar", "lead": "The small words that change. Tap any line to hear it.", "groups": [{"kind": "conj", "title": "sein = to be", "items": [{"de": "ich bin", "say": "ish **BIN**", "fa": "ایش بین", "en": "I am", "words": [], "tip": null, "speak": "ich bin", "a": "87c39f3f"}, {"de": "du bist", "say": "doo **BIST**", "fa": "دو بیست", "en": "you are (friendly)", "words": [], "tip": null, "speak": "du bist", "a": "0998e93d"}, {"de": "er / sie / das ist", "say": "air / zee / das **IST**", "fa": "اِر / زی / داس ایست", "en": "he / she / that is", "speak": "er ist. sie ist. das ist.", "words": [], "tip": null, "a": "b71a7f24", "parts": [{"w": "er ist", "a": "417c97e6"}, {"w": "sie ist", "a": "3b1564c0"}, {"w": "das ist", "a": "33f6bba8"}]}, {"de": "Sie sind", "say": "zee **ZINT**", "fa": "زی زینت", "en": "you are (polite)", "words": [], "tip": null, "speak": "Sie sind", "a": "66dde6f5"}]}, {"kind": "conj", "title": "heißen = to be called", "items": [{"de": "ich heiße", "say": "ish **HAI**-seh", "fa": "ایش هایسه", "en": "I am called", "words": [], "tip": null, "speak": "ich heiße", "a": "46d66112"}, {"de": "du heißt", "say": "doo **HAIST**", "fa": "دو هایست", "en": "you are called (friendly)", "words": [], "tip": null, "speak": "du heißt", "a": "2a357b0d"}, {"de": "er / sie heißt", "say": "air / zee **HAIST**", "fa": "اِر / زی هایست", "en": "he / she is called", "speak": "er heißt. sie heißt.", "words": [], "tip": null, "a": "8ebc81d8", "parts": [{"w": "er heißt", "a": "151631c8"}, {"w": "sie heißt", "a": "9fbdf286"}]}, {"de": "Sie heißen", "say": "zee **HAI**-sen", "fa": "زی هایسن", "en": "you are called (polite)", "words": [], "tip": null, "speak": "Sie heißen", "a": "6c436b9e"}, {"de": "hieß · hat geheißen", "say": "**HEESS** · hat geh-**HAI**-sen", "fa": "هیس · هات گه‌هایسن", "en": "was called · has been called", "speak": "hieß. hat geheißen.", "words": [], "tip": null, "a": "85e84816", "parts": [{"w": "hieß", "a": "57a5dc8f"}, {"w": "hat geheißen", "a": "ffe86690"}]}]}, {"kind": "cards", "items": [{"title": "du or Sie?", "body": "<b>du</b>: friends, family, children, people your age.<br><b>Sie</b>: older people, strangers, at work, anyone you call Herr or Frau. Polite <b>Sie</b> always has a capital S."}, {"title": "der or die?", "body": "Every noun comes with its own word for “the”.<br><b>der</b>: der Mann, der Herr, der Name, der Tag<br><b>die</b>: die Frau<br>Learn the noun together with der or die."}]}]}, {"id": "sounds", "title": "Sounds", "lead": "The rules behind the pronunciation. Each line plays real example words.", "groups": [{"kind": "rows", "title": "Vowels", "items": [{"de": "a", "say": "“ah” as in father", "fa": "آ", "en": "Abend, acht", "speak": "Abend. acht.", "words": [], "tip": null, "a": "0c5e7833", "parts": [{"w": "Abend", "a": "4ce51e16"}, {"w": "acht", "a": "8bc0089f"}]}, {"de": "e", "say": "“e” as in bed", "fa": "اِ", "en": "elf", "speak": "elf. Herr.", "words": [], "tip": null, "a": "c91fd798", "parts": [{"w": "elf", "a": "aab4b125"}, {"w": "Herr", "a": "5637d9b9"}]}, {"de": "i", "say": "“ee” as in see", "fa": "ای", "en": "ich, bin", "speak": "ich. bin.", "words": [], "tip": null, "a": "9e78c0e3", "parts": [{"w": "ich", "a": "3cf49b09"}, {"w": "bin", "a": "c1111bd5"}]}, {"de": "o", "say": "“o” as in go", "fa": "او", "en": "Morgen, schon", "speak": "Morgen. schon.", "words": [], "tip": null, "a": "e0e5c799", "parts": [{"w": "Morgen", "a": "6afd1b6e"}, {"w": "schon", "a": "a679e47d"}]}, {"de": "u", "say": "“oo” as in you", "fa": "او کشیده", "en": "du, Guten", "speak": "du. Guten.", "words": [], "tip": null, "a": "a2407d33", "parts": [{"w": "du", "a": "13a014cb"}, {"w": "Guten", "a": "8a31703b"}]}, {"de": "ä", "say": "same as e, as in bed", "fa": "اِ", "en": "Käse (cheese)", "speak": "Käse.", "words": [], "tip": null, "a": "35d03aba"}, {"de": "ö", "say": "say e, then round your lips", "fa": "اِ با لب گرد", "en": "schon → schön, zwölf", "tip": "schon = already, schön = beautiful. Listen for the difference.", "speak": "schon. schön. zwölf.", "words": [], "a": "0c607794", "parts": [{"w": "schon", "a": "a679e47d"}, {"w": "schön", "a": "088c4e6c"}, {"w": "zwölf", "a": "e23a0818"}]}, {"de": "ü", "say": "say ee, then round your lips", "fa": "ای با لب گرد", "en": "Mutter → Mütter, fünf", "tip": "Mutter = mother, Mütter = mothers.", "speak": "Mutter. Mütter. fünf.", "words": [], "a": "92e0e7b7", "parts": [{"w": "Mutter", "a": "d9eece7f"}, {"w": "Mütter", "a": "e7f41b9d"}, {"w": "fünf", "a": "1ecfdb80"}]}]}, {"kind": "rows", "title": "Vowel pairs", "note": "For ei and ie, say the English name of the second letter: ei → “eye”, ie → “ee”.", "items": [{"de": "ei", "say": "“eye” as in sky", "fa": "آی", "en": "eins, zwei, heiße", "speak": "eins. zwei. heiße.", "words": [], "tip": null, "a": "46190b1d", "parts": [{"w": "eins", "a": "4c0d5d15"}, {"w": "zwei", "a": "15d55d08"}, {"w": "heiße", "a": "fecfed35"}]}, {"de": "ie", "say": "long “ee” as in cheese", "fa": "ای کشیده", "en": "vier, sieben, Sie", "speak": "vier. sieben. Sie.", "words": [], "tip": null, "a": "188f7740", "parts": [{"w": "vier", "a": "37ab88fd"}, {"w": "sieben", "a": "d4e99899"}, {"w": "Sie", "a": "f17c5d28"}]}, {"de": "eu / äu", "say": "“oy” as in boy", "fa": "اُی", "en": "neun, Deutsch", "speak": "neun. Deutsch.", "words": [], "tip": null, "a": "b3133dea", "parts": [{"w": "neun", "a": "13a91a92"}, {"w": "Deutsch", "a": "8f0ca218"}]}, {"de": "au", "say": "“ow” as in now", "fa": "آو", "en": "auf, Frau", "speak": "auf. Frau.", "words": [], "tip": null, "a": "55076223", "parts": [{"w": "auf", "a": "25f088fd"}, {"w": "Frau", "a": "86dd3534"}]}]}, {"kind": "rows", "title": "Consonants", "items": [{"de": "z", "say": "ts as in cats", "fa": "تس", "en": "zwei, zehn", "speak": "zwei. zehn.", "words": [], "tip": null, "a": "f3257bd6", "parts": [{"w": "zwei", "a": "15d55d08"}, {"w": "zehn", "a": "8d34393e"}]}, {"de": "w", "say": "v as in very", "fa": "و", "en": "wer, wie", "speak": "wer. wie.", "words": [], "tip": null, "a": "93896dcd", "parts": [{"w": "wer", "a": "22c276a0"}, {"w": "wie", "a": "3e413f53"}]}, {"de": "v", "say": "f", "fa": "ف", "en": "vier, Vorname", "speak": "vier. Vorname.", "words": [], "tip": null, "a": "836a4330", "parts": [{"w": "vier", "a": "37ab88fd"}, {"w": "Vorname", "a": "fecc7b92"}]}, {"de": "s + vowel", "say": "z, at the start of a word", "fa": "ز", "en": "sieben, sechs, Sie", "speak": "sieben. sechs. Sie.", "words": [], "tip": null, "a": "a31a9574", "parts": [{"w": "sieben", "a": "d4e99899"}, {"w": "sechs", "a": "60dbf8b1"}, {"w": "Sie", "a": "f17c5d28"}]}, {"de": "st · sp", "say": "sht · shp, at the start of a word", "fa": "اشت · اشپ", "en": "Straße, sprechen", "speak": "Straße. sprechen.", "words": [], "tip": null, "a": "6d376bb2", "parts": [{"w": "Straße", "a": "a763ca07"}, {"w": "sprechen", "a": "a34d904b"}]}, {"de": "ß · ss", "say": "ss", "fa": "س", "en": "heißen, Tschüss", "tip": "ß comes after a long vowel or ei, ss after a short vowel. No ß key? Type ss.", "speak": "heißen. Tschüss.", "words": [], "a": "7919a9a3", "parts": [{"w": "heißen", "a": "d2ac44a3"}, {"w": "Tschüss", "a": "2a8f72d1"}]}, {"de": "ch after a, o, u", "say": "hard, from the throat", "fa": "خ", "en": "acht, Nachname", "speak": "acht. Nachname.", "words": [], "tip": null, "a": "02d3543a", "parts": [{"w": "acht", "a": "8bc0089f"}, {"w": "Nachname", "a": "43895f9e"}]}, {"de": "ch after e, i", "say": "soft, like a hissing h", "fa": "ه نرم", "en": "ich, nicht", "speak": "ich. nicht.", "words": [], "tip": null, "a": "b14b3253", "parts": [{"w": "ich", "a": "3cf49b09"}, {"w": "nicht", "a": "7035ab20"}]}, {"de": "chs", "say": "ks", "fa": "کس", "en": "sechs", "speak": "sechs.", "words": [], "tip": null, "a": "c02de53f", "parts": [{"w": "sechs", "a": "60dbf8b1"}]}, {"de": "sch · tsch", "say": "sh · ch as in church", "fa": "ش · چ", "en": "Tschüss, Deutsch", "speak": "Tschüss. Deutsch.", "words": [], "tip": null, "a": "e84b72ac", "parts": [{"w": "Tschüss", "a": "2a8f72d1"}, {"w": "Deutsch", "a": "8f0ca218"}]}, {"de": "h after a vowel", "say": "silent, makes the vowel long", "fa": "—", "en": "zehn", "speak": "zehn.", "words": [], "tip": null, "a": "9146d530", "parts": [{"w": "zehn", "a": "8d34393e"}]}, {"de": "r", "say": "rolled in the throat", "fa": "غ", "en": "drei, Frau", "speak": "drei. Frau.", "words": [], "tip": null, "a": "4e413d7c", "parts": [{"w": "drei", "a": "1d8d2fd0"}, {"w": "Frau", "a": "86dd3534"}]}, {"de": "-er at the end", "say": "a soft “a”", "fa": "ا", "en": "Meier, wieder", "speak": "Meier. wieder.", "words": [], "tip": null, "a": "7170c6f7", "parts": [{"w": "Meier", "a": "3399f3b4"}, {"w": "wieder", "a": "3ae24dc3"}]}, {"de": "g · d at the end", "say": "k · t", "fa": "ک · ت", "en": "Tag, Abend", "speak": "Tag. Abend.", "words": [], "tip": null, "a": "a50497d5", "parts": [{"w": "Tag", "a": "c101058e"}, {"w": "Abend", "a": "4ce51e16"}]}]}]}], "mistakes": [["do", "du", "Say “doo” as you write it."], ["Gutten", "Guten", "One t."], ["Abbend", "Abend", "One b."], ["widersehen", "Wiedersehen", "ie makes the long “ee”."], ["hißen, heiß Sie", "heißen Sie", "ei = “eye”. With Sie the verb ends in -en."], ["Heerr", "Herr", "One e, two r."], ["mei, dei Name", "mein, dein Name", "The n at the end matters."], ["de Name, vorname", "der Name, Vorname", "der, and a capital letter on every noun."], ["wer sind sie", "wer sind Sie", "Polite Sie always has a capital S."]], "voices": {"chris": {"07b595ff": "07b595ff-270dcc9a.mp3", "0998e93d": "0998e93d-2ed9f8af.mp3", "13a91a92": "13a91a92-10bfb883.mp3", "15d55d08": "15d55d08-6a6ec33a.mp3", "1d8d2fd0": "1d8d2fd0-33696097.mp3", "1ecfdb80": "1ecfdb80-ed11dc51.mp3", "22c276a0": "22c276a0-9805909e.mp3", "2a357b0d": "2a357b0d-7bae53ad.mp3", "35d03aba": "35d03aba-16518034.mp3", "37a6259c": "37a6259c-d256c2fd.mp3", "37ab88fd": "37ab88fd-ed85bc38.mp3", "41a71d2d": "41a71d2d-b48b77b5.mp3", "54c22cfe": "54c22cfe-a08407e9.mp3", "54d1c041": "54d1c041-3a7bc40e.mp3", "57a5dc8f": "57a5dc8f-f2b8d387.mp3", "6c436b9e": "6c436b9e-5b54bc88.mp3", "b062c153": "b062c153-edc8fb54.mp3", "d1bf9329": "d1bf9329-88c6e899.mp3"}, "negin": {"2a8f72d1": "2a8f72d1-eb4ce6e7.mp3", "41a71d2d": "41a71d2d-e2726bac.mp3", "4fdb7d53": "4fdb7d53-77ff5693.mp3", "54c22cfe": "54c22cfe-fded3879.mp3", "719de76f": "719de76f-715b7e0c.mp3", "d1bf9329": "d1bf9329-6ca0aa2c.mp3"}}, "tips": {}};
+const REPO = "NeginZarbakhsh/German-review";
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const raw = {get(k){try{return localStorage.getItem(k)||''}catch(e){return ''}}, set(k,v){try{localStorage.setItem(k,v)}catch(e){}}, del(k){try{localStorage.removeItem(k)}catch(e){}}};
+const svg = d => `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="${d}"/></svg>`;
+const I = {
+  mic: svg('M12 14.5a3.5 3.5 0 0 0 3.5-3.5V5a3.5 3.5 0 0 0-7 0v6a3.5 3.5 0 0 0 3.5 3.5zm6-3.5a6 6 0 0 1-12 0H4a8 8 0 0 0 7 7.9V22h2v-3.1a8 8 0 0 0 7-7.9h-2z'),
+  stop: svg('M6 6h12v12H6z'),
+  play: svg('M7 4.5v15l13-7.5z'),
+  check: svg('M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z'),
+  redo: svg('M12 5V2L7 6l5 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z'),
+  trash: svg('M7 21a2 2 0 0 1-2-2V7h14v12a2 2 0 0 1-2 2H7zM9 4h6l1 1h4v2H4V5h4l1-1z'),
+  bulb: svg('M9 21h6v-1.5H9V21zm3-19a7 7 0 0 0-4 12.7V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.3A7 7 0 0 0 12 2z'),
+  person: svg('M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9zm0 2c-4.4 0-8.5 2.2-8.5 5.3V21h17v-1.7c0-3.1-4.1-5.3-8.5-5.3z')
+};
+function toast(t){ const el = $('toast'); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => el.hidden = true, 2600); }
+
+// ---------- who + access code ----------
+const WHO = ((new URLSearchParams(location.search).get('who') || 'chris').toLowerCase().replace(/[^a-z]/g, '')) || 'chris';
+const NAMES = {chris: 'Chris', negin: 'Negin'}, NAME = NAMES[WHO] || WHO, OTHER = WHO === 'chris' ? 'negin' : 'chris';
+if (WHO !== 'chris') { $('h1').textContent = `Hi ${NAME} 👋`; $('intro').textContent = 'Record each phrase, listen back, and save the takes you like.'; document.title = `${NAME}'s Recordings · German Daily Review`; }
+// The code can come inside the link (…#code=github_pat_…). It stays in the link on purpose, so a Home Screen shortcut keeps working.
+// This page keeps its own code, separate from the practice app, so opening it never changes who the app thinks you are.
+const TOKEN_KEY = `rec-token-${WHO}`;
+let token = (location.hash.match(/code=([A-Za-z0-9_]+)/) || [])[1] || raw.get(TOKEN_KEY) || (raw.get('whoAmI') === WHO ? raw.get('ghToken') : '');
+if (token) raw.set(TOKEN_KEY, token);
+
+// ---------- the list: every phrase once, every word once ----------
+const items = [], byKey = new Map();
+DATA.sections.forEach(s => s.groups.forEach(g => { if (g.kind === 'cards') return; g.items.forEach(it => {
+  const add = (a, text, en) => { if (byKey.has(a)) return; const o = {a, text, en, sec: s.title}; byKey.set(a, o); items.push(o); };
+  if (it.parts) it.parts.forEach(p => add(p.a, p.w, s.id === 'sounds' ? `Example word (${it.de})` : it.en));
+  else add(it.a, it.speak.replace(/[.!]$/, ''), it.en);
+}); }));
+
+// ---------- GitHub ----------
+function gh(path, opts = {}, accept = 'application/vnd.github+json'){
+  return fetch(`https://api.github.com/repos/${REPO}${path}`, {...opts, cache: 'no-store', headers: {'Authorization': `Bearer ${token}`, 'Accept': accept, 'X-GitHub-Api-Version': '2022-11-28'}});
+}
+async function listDir(path){
+  const r = await gh(`/contents/${path}`);
+  if (r.status === 404) return [];
+  if (r.status === 401) throw new Error('code');
+  if (!r.ok) throw new Error('net');
+  const j = await r.json(); return Array.isArray(j) ? j : [];
+}
+function b64(bytes){ let s = ''; const u8 = new Uint8Array(bytes); for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); }
+async function put(path, bytes, message, sha){
+  const r = await gh(`/contents/${path}`, {method: 'PUT', body: JSON.stringify({message, content: b64(bytes), ...(sha ? {sha} : {})})});
+  if (r.status === 409 || r.status === 422) { const cur = await gh(`/contents/${path}`); if (cur.ok) return put(path, bytes, message, (await cur.json()).sha); }
+  if (!r.ok) throw new Error(r.status === 401 ? 'The code has expired. Ask Negin for a new link.' : r.status === 403 || r.status === 404 ? 'This code can’t save. Ask Negin to check its permissions.' : 'Saving failed. Check your internet and try again.');
+  return (await r.json()).content.sha;
+}
+async function del(path, sha){
+  const r = await gh(`/contents/${path}`, {method: 'DELETE', body: JSON.stringify({message: `${NAME} deleted ${path.split('/').pop()}`, sha})});
+  if (!r.ok && r.status !== 404) throw new Error('Deleting failed. Try again.');
+}
+const blobCache = new Map();
+function blobUrl(sha, type = 'audio/wav'){
+  if (!blobCache.has(sha)) blobCache.set(sha, gh(`/git/blobs/${sha}`, {}, 'application/vnd.github.raw').then(r => { if (!r.ok) throw 0; return r.blob(); }).then(b => URL.createObjectURL(new Blob([b], {type}))).catch(e => { blobCache.delete(sha); throw e; }));
+  return blobCache.get(sha);
+}
+async function blobText(sha){ const r = await gh(`/git/blobs/${sha}`, {}, 'application/vnd.github.raw'); return r.ok ? r.text() : ''; }
+
+// ---------- live state (always read fresh from GitHub, so it's never out of date) ----------
+const mine = new Map(), theirs = new Map(), tips = new Map();   // key -> sha ; tips: key -> {txt, wav, text}
+async function loadState(){
+  const [m, o, t] = await Promise.all([listDir(`recordings/${WHO}`), listDir(`recordings/${OTHER}`).catch(() => []), listDir(`recordings/${WHO}/tips`)]);
+  mine.clear(); theirs.clear(); tips.clear();
+  m.filter(f => f.type === 'file' && f.name.endsWith('.wav')).forEach(f => mine.set(f.name.slice(0, -4), f.sha));
+  o.filter(f => f.type === 'file' && f.name.endsWith('.wav')).forEach(f => theirs.set(f.name.slice(0, -4), f.sha));
+  t.filter(f => f.type === 'file').forEach(f => { const [k, ext] = [f.name.replace(/\.[^.]+$/, ''), f.name.split('.').pop()]; const e = tips.get(k) || {}; e[ext] = f.sha; tips.set(k, e); });
+  await Promise.all([...tips.values()].filter(e => e.txt).map(async e => { e.text = await blobText(e.txt); }));
+}
+
+// ---------- “new” and “today” ----------
+const seenKey = `seen-${WHO}`, todayKey = `today-${WHO}`, dayStr = new Date().toLocaleDateString('en-CA');
+let seen = null; try { seen = JSON.parse(raw.get(seenKey) || 'null'); } catch (e) {}
+const isNew = new Set(seen ? items.filter(i => !seen.includes(i.a)).map(i => i.a) : []);
+raw.set(seenKey, JSON.stringify(items.map(i => i.a)));
+function todayCount(){ try { const t = JSON.parse(raw.get(todayKey) || '{}'); return t.d === dayStr ? t.n : 0; } catch (e) { return 0; } }
+function bumpToday(){ raw.set(todayKey, JSON.stringify({d: dayStr, n: todayCount() + 1})); }
+
+// ---------- recording ----------
+let actx, stream, node, chunks = [], recKey = null;
+async function startRec(k){
+  if (!stream) stream = await navigator.mediaDevices.getUserMedia({audio: {echoCancellation: false, noiseSuppression: true, autoGainControl: true}});
+  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+  await actx.resume();
+  const src = actx.createMediaStreamSource(stream);
+  node = actx.createScriptProcessor(4096, 1, 1); chunks = [];
+  node.onaudioprocess = e => { chunks.push(new Float32Array(e.inputBuffer.getChannelData(0))); e.outputBuffer.getChannelData(0).fill(0); };
+  src.connect(node); node.connect(actx.destination); node._src = src; recKey = k;
+}
+function stopRec(){
+  node.disconnect(); node._src.disconnect(); recKey = null;
+  const len = chunks.reduce((n, c) => n + c.length, 0), all = new Float32Array(len); let o = 0; chunks.forEach(c => { all.set(c, o); o += c.length; });
+  return toWav(trim(downsample(all, actx.sampleRate, 24000), 24000), 24000);
+}
+function downsample(buf, from, to){ if (from === to) return buf; const r = from / to, out = new Float32Array(Math.floor(buf.length / r));
+  for (let i = 0; i < out.length; i++) { const s = Math.floor(i * r), e = Math.floor((i + 1) * r); let sum = 0; for (let j = s; j < e; j++) sum += buf[j]; out[i] = sum / (e - s); } return out; }
+function trim(buf, rate){
+  // Find the speech by loudness over 20 ms windows. The first 80 ms and last 150 ms are ignored,
+  // because tapping Record/Stop makes a click there, and a click must never decide where the voice is.
+  const win = Math.max(1, Math.floor(rate * 0.02)), n = Math.floor(buf.length / win);
+  const skipA = Math.min(n, Math.ceil(0.08 * rate / win)), skipB = Math.min(n - skipA, Math.ceil(0.15 * rate / win));
+  const rms = []; for (let i = 0; i < n; i++) { let s = 0; for (let j = i * win; j < (i + 1) * win; j++) s += buf[j] * buf[j]; rms.push(Math.sqrt(s / win)); }
+  const core = rms.slice(skipA, n - skipB);
+  if (core.length < 5) return buf;
+  const loud = core.slice().sort((x, y) => x - y)[Math.floor(core.length * 0.9)];   // level of the voice, not of one click
+  const th = Math.max(0.004, loud * 0.12);
+  let s = skipA; while (s < n - skipB && rms[s] < th) s++;
+  let e = n - skipB - 1; while (e > s && rms[e] < th) e--;
+  const pad = Math.floor(rate * 0.15), lo = skipA * win, hi = (n - skipB) * win;
+  let out = e > s ? buf.slice(Math.max(lo, s * win - pad), Math.min(hi, (e + 1) * win + pad)) : buf.slice(lo, hi);
+  if (out.length < rate * 0.4) out = buf.slice(lo, hi);                                // too short to be speech: keep it all
+  let peak = 0; for (const v of out) peak = Math.max(peak, Math.abs(v));
+  const g = Math.min(8, 0.16 / Math.max(loud, 1e-4), 0.95 / Math.max(peak, 1e-4));   // even out the volume
+  const res = new Float32Array(out.length); for (let i = 0; i < out.length; i++) res[i] = Math.max(-1, Math.min(1, out[i] * g));
+  return res;
+}
+function toWav(f32, rate){
+  const b = new ArrayBuffer(44 + f32.length * 2), v = new DataView(b), w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  w(0,'RIFF'); v.setUint32(4,36+f32.length*2,true); w(8,'WAVE'); w(12,'fmt '); v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
+  v.setUint32(24,rate,true); v.setUint32(28,rate*2,true); v.setUint16(32,2,true); v.setUint16(34,16,true); w(36,'data'); v.setUint32(40,f32.length*2,true);
+  for (let i = 0; i < f32.length; i++) v.setInt16(44 + i * 2, Math.max(-1, Math.min(1, f32[i])) * 0x7fff, true); return b;
+}
+
+// ---------- playback (one at a time) ----------
+const player = new Audio(); let playingBtn = null, ticket = 0;
+function stopPlay(){ ticket++; player.pause(); if (playingBtn) playingBtn.classList.remove('on'); playingBtn = null; }
+player.addEventListener('ended', () => { if (playingBtn) playingBtn.classList.remove('on'); playingBtn = null; });
+async function playFrom(getUrl, btn){
+  if (btn && btn === playingBtn) { stopPlay(); return; }
+  stopPlay(); const my = ticket;
+  if (btn) { btn.classList.add('on'); playingBtn = btn; }
+  try { const url = await getUrl(); if (my !== ticket) return; player.src = url; await player.play(); }
+  catch (e) { if (btn) btn.classList.remove('on'); playingBtn = null; toast('Couldn’t play that. Check your internet.'); }
+}
+
+// ---------- cards ----------
+const draft = new Map();            // key -> unsaved take
+const tipDraft = new Map();         // key -> unsaved suggestion audio
+let tab = 'todo';
+const pb = (cls, act, icon, label, extra = '') => `<button class="pb ${cls}" data-act="${act}" ${extra}>${icon}<span>${label}</span></button>`;
+function cardHtml(it){
+  const k = it.a, saved = mine.has(k), d = draft.has(k), rec = recKey === k, tip = tips.get(k), other = theirs.has(k);
+  let badge = d && !saving.has(k) ? '<span class="badge new">Not sent yet</span>' : saved ? '<span class="badge done">Saved ✓</span>' : isNew.has(k) ? '<span class="badge new">New</span>' : '<span class="badge">To record</span>';
+  let row;
+  if (rec) row = pb('rec on', 'stop', I.stop, 'Stop') + pb('', '', '', '', 'disabled style="visibility:hidden"').repeat(3);
+  else if (d) row = pb('play', 'listen-draft', I.play, 'Listen') + (saving.has(k) ? pb('save', '', I.check, 'Saving…', 'disabled') : pb('save', 'retry', I.redo, 'Try again')) + pb('rec', 'record', I.mic, 'Re-record') + pb('sug', 'suggest', I.bulb, tip ? 'Edit tip' : 'Suggest');
+  else if (saved) row = pb('play', 'listen', I.play, 'Listen') + pb('rec', 'record', I.mic, 'Re-record') + pb('del', 'delete', I.trash, 'Delete') + pb('sug', 'suggest', I.bulb, tip ? 'Edit tip' : 'Suggest');
+  else row = pb('rec', 'record', I.mic, 'Record') + pb('play', 'listen-other', I.person, NAMES[OTHER], other ? '' : 'disabled') + pb('sug', 'suggest', I.bulb, tip ? 'Edit tip' : 'Suggest') + pb('', '', '', '', 'disabled style="visibility:hidden"');
+  const tipView = tip && (tip.text || tip.wav) ? `<div class="tipview"><span class="t"><b>💡 Your suggestion:</b> ${esc(tip.text || '(recording)')}</span>${tip.wav ? `<button class="tipplay" data-act="play-tip">▶ Play</button>` : ''}</div>` : '';
+  return `<div class="card${saved ? ' done' : ''}${rec ? ' recording' : ''}" data-k="${k}">
+    <div class="head"><div><div class="de">${esc(it.text)}</div><div class="en">${esc(it.en)}</div></div>${badge}</div>
+    ${tipView}<div class="row">${row}</div><div class="status" role="status"></div><div class="tipslot"></div></div>`;
+}
+function visibleItems(){
+  const list = items.filter(i => tab === 'all' || (tab === 'done' ? mine.has(i.a) : !mine.has(i.a)));
+  if (tab === 'todo') list.sort((x, y) => (isNew.has(y.a) - isNew.has(x.a)));
+  return list;
+}
+function render(){
+  const list = visibleItems(); let html = '', sec = '';
+  if (!list.length) html = tab === 'todo'
+    ? `<div class="empty"><b>All done! 🎉</b>Every phrase is recorded. Thank you! When Negin adds new ones, they'll show up here.</div>`
+    : `<div class="empty"><b>Nothing here yet</b>Record a phrase and it will appear here.</div>`;
+  list.forEach(it => { if (it.sec !== sec && !(tab === 'todo' && isNew.has(it.a))) { sec = it.sec; html += `<div class="sec">${esc(sec)}</div>`; } html += cardHtml(it); });
+  $('main').innerHTML = html; progress();
+}
+function rerender(k){ const el = document.querySelector(`.card[data-k="${k}"]`); if (!el) return; const tmp = document.createElement('div'); tmp.innerHTML = cardHtml(byKey.get(k)); el.replaceWith(tmp.firstElementChild); progress(); }
+function progress(){
+  const total = items.length, done = items.filter(i => mine.has(i.a)).length;
+  $('p-done').textContent = done; $('p-total').textContent = total; $('p-left').textContent = total - done;
+  $('p-pct').textContent = `${Math.round(done / total * 100)}%`; $('p-fill').style.width = `${done / total * 100}%`;
+  $('p-today').textContent = todayCount(); $('p-tips').textContent = [...tips.values()].filter(t => t.text || t.wav).length;
+  const nNew = [...isNew].filter(k => !mine.has(k)).length; $('p-new').textContent = nNew; $('p-new-wrap').hidden = !nNew;
+  $('n-todo').textContent = total - done; $('n-done').textContent = done; $('n-all').textContent = total;
+}
+function status(k, t, cls = ''){ const el = document.querySelector(`.card[data-k="${k}"] .status`); if (el) { el.textContent = t; el.className = 'status ' + cls; } }
+
+// ---------- actions ----------
+let armed = null;
+$('main').addEventListener('click', async e => {
+  const btn = e.target.closest('[data-act]'); if (!btn || btn.disabled) return;
+  const card = btn.closest('.card'), k = card.dataset.k, it = byKey.get(k), act = btn.dataset.act;
+  if (act === 'record') {
+    if (recKey) { toast('Finish the recording you started first.'); return; }
+    stopPlay();
+    try { await startRec(k); rerender(k); status(k, 'Recording… say it, then tap Stop.'); }
+    catch (err) { status(k, 'Microphone blocked. Allow the microphone for this site in Safari settings, then try again.', 'err'); }
+  }
+  else if (act === 'stop') { const wav = stopRec(); saveTake(k, wav, true); }
+  else if (act === 'retry') saveTake(k, draft.get(k), false);
+  else if (act === 'listen-draft') playFrom(async () => URL.createObjectURL(new Blob([draft.get(k)], {type: 'audio/wav'})), btn);
+  else if (act === 'listen') playFrom(() => blobUrl(mine.get(k)), btn);
+  else if (act === 'listen-other') playFrom(() => blobUrl(theirs.get(k)), btn);
+  else if (act === 'play-tip') playFrom(() => blobUrl(tips.get(k).wav), btn);
+  else if (act === 'delete') {
+    if (armed !== btn) { armed = btn; btn.classList.add('armed'); btn.lastElementChild.textContent = 'Tap again'; setTimeout(() => { if (armed === btn) { armed = null; btn.classList.remove('armed'); btn.lastElementChild.textContent = 'Delete'; } }, 3500); return; }
+    armed = null; btn.disabled = true; status(k, 'Deleting…');
+    try { await del(`recordings/${WHO}/${k}.wav`, mine.get(k)); mine.delete(k); rerender(k); status(k, 'Deleted. You can record it again any time.', 'ok'); }
+    catch (err) { btn.disabled = false; status(k, err.message, 'err'); }
+  }
+  else if (act === 'suggest') openTip(card, k);
+});
+
+// ---------- saving: Stop saves straight away; a take stays on this phone until GitHub has it ----------
+function makeIdb(name){
+  let dbp = null;
+  const open = () => dbp || (dbp = new Promise((res, rej) => { try { const r = indexedDB.open(name, 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('takes'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); } catch (e) { rej(e); } }));
+  const tx = (m, fn) => open().then(db => new Promise((res, rej) => { const t = db.transaction('takes', m); const q = fn(t.objectStore('takes')); t.oncomplete = () => res(q && q.result); t.onerror = () => rej(t.error); }));
+  return { get: k => tx('readonly', s => s.get(k)), set: (k, v) => tx('readwrite', s => s.put(v, k)), del: k => tx('readwrite', s => s.delete(k)), keys: () => tx('readonly', s => s.getAllKeys()) };
+}
+const pendingDb = makeIdb(`german-review-pending-${WHO}`);   // takes not uploaded yet
+const appDb = makeIdb('german-review');                        // takes made in the main app on this phone
+const saving = new Set();
+async function saveTake(k, wav, play){
+  const it = byKey.get(k), wasSaved = mine.has(k);
+  draft.set(k, wav); saving.add(k);
+  await pendingDb.set(k, wav).catch(() => {});
+  rerender(k); status(k, 'Saving…');
+  if (play) playFrom(async () => URL.createObjectURL(new Blob([wav], {type: 'audio/wav'})), document.querySelector(`.card[data-k="${k}"] [data-act="listen-draft"]`));
+  try {
+    const sha = await put(`recordings/${WHO}/${k}.wav`, wav, `${NAME} recorded: ${it.text}`, mine.get(k));
+    mine.set(k, sha); blobCache.set(sha, Promise.resolve(URL.createObjectURL(new Blob([wav], {type: 'audio/wav'}))));
+    draft.delete(k); saving.delete(k); pendingDb.del(k).catch(() => {});
+    if (!wasSaved) bumpToday();
+    rerender(k); status(k, wasSaved ? 'Saved ✓ The new take replaced the old one.' : 'Saved ✓ Negin can hear it now.', 'ok');
+    return true;
+  } catch (err) {
+    saving.delete(k); rerender(k);
+    status(k, `${err.message} Your take is kept on this phone. Tap “Try again”.`, 'err');
+    return false;
+  }
+}
+async function sendWaiting(){
+  // 1) takes recorded here that didn't upload last time   2) takes Chris made in the main app on this phone
+  const waiting = await pendingDb.keys().catch(() => []);
+  for (const k of waiting) if (byKey.has(k)) { const wav = await pendingDb.get(k).catch(() => null); if (wav) { draft.set(k, wav); } } else pendingDb.del(k).catch(() => {});
+  // Only on a phone confirmed as Chris's: the practice app's takes on Negin's phone are her voice, never his.
+  const fromApp = raw.get('appUser') === WHO ? (await appDb.keys().catch(() => [])).filter(k => byKey.has(k) && !mine.has(k) && !draft.has(k)) : [];
+  const retry = [...draft.keys()];
+  if (retry.length) { render(); for (const k of retry) await saveTake(k, draft.get(k), false); }
+  if (fromApp.length) {
+    $('found').hidden = false;
+    $('found-text').textContent = `${fromApp.length} recording${fromApp.length === 1 ? ' was' : 's were'} made in the practice app on this phone but never sent to Negin.`;
+    $('found-send').onclick = async () => {
+      $('found-send').disabled = true; let okN = 0;
+      for (const k of fromApp) { $('found-msg').textContent = `Sending ${okN + 1} of ${fromApp.length}…`; const wav = await appDb.get(k).catch(() => null); if (wav && await saveTake(k, wav, false)) okN++; }
+      $('found-msg').textContent = okN === fromApp.length ? `All ${okN} sent ✓` : `${okN} of ${fromApp.length} sent. Try again later for the rest.`;
+      $('found-msg').className = 'msg'; if (okN === fromApp.length) setTimeout(() => $('found').hidden = true, 2500); else $('found-send').disabled = false;
+      render();
+    };
+  }
+}
+
+// ---------- suggestions ----------
+function openTip(card, k){
+  const slot = card.querySelector('.tipslot');
+  if (slot.innerHTML) { slot.innerHTML = ''; return; }
+  const t = tips.get(k) || {};
+  slot.innerHTML = `<div class="tipedit">
+    <label for="tip-${k}">Your suggestion for Negin</label>
+    <textarea id="tip-${k}" placeholder="For example: In everyday German we usually say … / The r is softer here …">${esc(t.text || '')}</textarea>
+    <div class="btns">
+      <button class="btn" data-tip="rec">● Record how you'd say it</button>
+      <button class="btn" data-tip="listen" ${t.wav || tipDraft.has(k) ? '' : 'hidden'}>▶ Listen</button>
+    </div>
+    <div class="btns">
+      <button class="btn tip" data-tip="save">Save suggestion</button>
+      ${t.txt || t.wav ? '<button class="btn" data-tip="delete">Delete suggestion</button>' : ''}
+      <button class="btn" data-tip="close">Cancel</button>
+    </div>
+    <span class="msg" data-tipmsg></span></div>`;
+  slot.querySelector('textarea').focus();
+}
+$('main').addEventListener('click', async e => {
+  const b = e.target.closest('[data-tip]'); if (!b) return;
+  const card = b.closest('.card'), k = card.dataset.k, it = byKey.get(k), slot = card.querySelector('.tipslot'), msg = slot.querySelector('[data-tipmsg]'), t = tips.get(k) || {};
+  const say = (x, cls = '') => { msg.textContent = x; msg.className = 'msg ' + cls; };
+  const act = b.dataset.tip;
+  if (act === 'close') { slot.innerHTML = ''; return; }
+  if (act === 'rec') {
+    if (recKey === 'tip:' + k) { tipDraft.set(k, stopRec()); b.textContent = '● Record again'; slot.querySelector('[data-tip="listen"]').hidden = false; say('Recorded. Listen, then Save suggestion.');
+      playFrom(async () => URL.createObjectURL(new Blob([tipDraft.get(k)], {type: 'audio/wav'}))); return; }
+    if (recKey) { toast('Finish the recording you started first.'); return; }
+    stopPlay(); try { await startRec('tip:' + k); b.textContent = '■ Stop'; say('Recording… tap Stop when done.'); } catch (err) { say('Microphone blocked.', 'err'); }
+    return;
+  }
+  if (act === 'listen') { playFrom(tipDraft.has(k) ? async () => URL.createObjectURL(new Blob([tipDraft.get(k)], {type: 'audio/wav'})) : () => blobUrl(t.wav)); return; }
+  if (act === 'save') {
+    if (recKey === 'tip:' + k) tipDraft.set(k, stopRec());
+    const text = slot.querySelector('textarea').value.trim();
+    if (!text && !tipDraft.has(k) && !t.wav) { say('Write a note or record how you would say it.', 'err'); return; }
+    b.disabled = true; say('Saving…');
+    try {
+      const e2 = {...t};
+      if (text !== (t.text || '')) {
+        if (text) { e2.txt = await put(`recordings/${WHO}/tips/${k}.txt`, new TextEncoder().encode(text), `${NAME} suggested for “${it.text}”`, t.txt); e2.text = text; }
+        else if (t.txt) { await del(`recordings/${WHO}/tips/${k}.txt`, t.txt); delete e2.txt; delete e2.text; }
+      }
+      if (tipDraft.has(k)) { e2.wav = await put(`recordings/${WHO}/tips/${k}.wav`, tipDraft.get(k), `${NAME} recorded a suggestion for “${it.text}”`, t.wav);
+        blobCache.set(e2.wav, Promise.resolve(URL.createObjectURL(new Blob([tipDraft.get(k)], {type: 'audio/wav'})))); tipDraft.delete(k); }
+      tips.set(k, e2); rerender(k); status(k, 'Suggestion saved ✓ Negin will see it under this phrase.', 'ok');
+    } catch (err) { b.disabled = false; say(err.message, 'err'); }
+    return;
+  }
+  if (act === 'delete') {
+    b.disabled = true; say('Deleting…');
+    try { if (t.txt) await del(`recordings/${WHO}/tips/${k}.txt`, t.txt); if (t.wav) await del(`recordings/${WHO}/tips/${k}.wav`, t.wav);
+      tips.delete(k); tipDraft.delete(k); rerender(k); status(k, 'Suggestion deleted.', 'ok'); }
+    catch (err) { b.disabled = false; say(err.message, 'err'); }
+  }
+});
+
+// ---------- tabs + start ----------
+document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => {
+  tab = b.dataset.tab; document.querySelectorAll('[data-tab]').forEach(x => x.setAttribute('aria-pressed', x === b)); render(); scrollTo({top: $('tabs').offsetTop - 4, behavior: 'smooth'});
+});
+async function start(){
+  $('setup').hidden = true;
+  $('main').hidden = false; $('main').innerHTML = '<div class="empty">Loading your list…</div>';
+  try { await loadState(); }
+  catch (e) {
+    if (e.message === 'code') { raw.del(TOKEN_KEY); token = ''; $('main').hidden = true; $('setup').hidden = false; $('token-msg').textContent = 'That code didn’t work. Paste a new one from Negin.'; $('token-msg').className = 'msg err'; return; }
+    Object.keys((DATA.voices || {})[WHO] || {}).forEach(k => mine.set(k, null)); toast('Offline: showing the last saved list.');
+  }
+  $('progress').hidden = false; $('tabs').hidden = false; $('hint').hidden = navigator.standalone === true;
+  render();
+  sendWaiting();
+}
+$('token-save').onclick = () => {
+  const v = $('token').value.trim();
+  if (!/^(github_pat_|gh[pousr]_)/.test(v)) { $('token-msg').textContent = 'That doesn’t look like the code. It starts with github_pat_.'; $('token-msg').className = 'msg err'; return; }
+  token = v; raw.set(TOKEN_KEY, v); start();
+};
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && token && !recKey && !draft.size) loadState().then(render).catch(() => {}); });
+if (token) start(); else $('setup').hidden = false;
+// ---------- always run the newest version ----------
+// Safari may keep an old copy of this page for a few minutes. Ask the server which version is current,
+// and if this copy is older, reload once with a new address so the newest page loads.
+(() => { const BUILD = '6fe1eae947';
+  fetch('version.json?t=' + Date.now(), {cache: 'no-store'}).then(r => r.json()).then(v => {
+    const u = new URL(location.href);
+    if (v.build && v.build !== BUILD && u.searchParams.get('v') !== v.build) { u.searchParams.set('v', v.build); location.replace(u.toString()); }
+  }).catch(() => {}); })();
+</script>
+</body></html>
