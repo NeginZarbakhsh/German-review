@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Vazirmatn:wght@400;500&display=swap">
 <style>
 html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)} body{margin:0} [hidden]{display:none!important}
-/* Layout: one reading column. Sticky bar = section chips + mode / speed / starred.
+/* Layout: one reading column. Sticky bar = section dropdown + mode / speed / starred.
    Every phrase card: the German on top, then the same 5-button player row in the same order everywhere:
    Standard · Anna (phone) · Chris · Me · Record. */
 :root{
@@ -48,10 +48,13 @@ h1{font-family:var(--display);font-weight:700;font-size:2.1rem;line-height:1.05;
 
 .bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line);margin-top:18px}
 .bar .wrap{display:flex;flex-direction:column;gap:8px;padding-block:10px}
-.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:0 16px}
-.chips::-webkit-scrollbar{display:none}
-.chips a{flex:none;text-decoration:none;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:.86rem;font-weight:700;white-space:nowrap}
-.chips a.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.secpick{position:relative;display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:0 12px;height:44px}
+.secpick .lbl{flex:none;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.secpick .cur{flex:1;min-width:0;font-family:var(--display);font-weight:700;font-size:1.02rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.secpick .pos{flex:none;font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.secpick svg{flex:none;width:18px;height:18px;color:var(--muted)}
+.secpick select{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:16px}
+.secpick:focus-within{outline:3px solid var(--stress);outline-offset:2px}
 .controls{display:flex;gap:6px;align-items:center}
 .seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:3px}
 .seg button{border:0;background:transparent;color:var(--muted);font:700 .84rem var(--body);padding:6px 10px;border-radius:7px;cursor:pointer}
@@ -218,7 +221,9 @@ html{scroll-behavior:smooth}
 </div></header>
 
 <div class="bar"><div class="wrap">
-  <nav class="chips" id="chips" aria-label="Sections"></nav>
+  <div class="secpick"><span class="lbl">Section</span><span class="cur" id="sec-cur">Greetings</span><span class="pos" id="sec-pos"></span>
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
+    <select id="secsel" aria-label="Go to section"></select></div>
   <div class="controls">
     <div class="seg" role="group" aria-label="Mode">
       <button id="m-learn" data-mode="learn" aria-pressed="true">Learn</button>
@@ -320,7 +325,7 @@ const hasMe = a => local.has(a) || !!(ME && hasRec(ME, a));
 let speed = store.get('speed','s'), mode = store.get('mode','learn'), hardOnly = false;
 let starred = new Set(store.get('starred', []));
 const A2T = {}; DATA.sections.forEach(s => s.groups.forEach(g => { if (g.kind !== 'cards') g.items.forEach(it => { A2T[it.a] = it.speak; ITEM[it.a] = it; }); }));
-const main = $('main'), chips = $('chips');
+const main = $('main'), secsel = $('secsel'), SECS = [];
 
 // ---------- phone voice (best German voice on the device, e.g. Anna Premium) ----------
 const HAS_TTS = 'speechSynthesis' in window;
@@ -369,7 +374,8 @@ function numCard(it, id){
 }
 const sequences = {};
 DATA.sections.forEach(s => {
-  chips.insertAdjacentHTML('beforeend', `<a href="#${s.id}" data-sec="${s.id}">${esc(s.title)}</a>`);
+  const n = s.groups.reduce((t, g) => t + (g.kind === 'cards' ? 0 : g.items.length), 0);
+  SECS.push({id: s.id, title: s.title, n});
   let html = `<section id="${s.id}"><div class="sec-head"><h2>${esc(s.title)}</h2><button class="playall" data-seq="${s.id}">${I.play}Play all</button></div><p class="lead">${esc(s.lead)}</p>`;
   const ids = [];
   s.groups.forEach((g, gi) => {
@@ -386,7 +392,12 @@ DATA.sections.forEach(s => {
 });
 main.insertAdjacentHTML('beforeend', `<section id="mistakes"><div class="sec-head"><h2>Watch out</h2></div><p class="lead">Common spelling slips. Read these before you write.</p>
   <div class="mist"><div class="mhead"><span>Not this</span><span>Write this</span></div>${DATA.mistakes.map(([a,b,c])=>`<div class="mrow"><s>${esc(a)}</s><span class="ok">${esc(b)}</span><span class="why">${esc(c)}</span></div>`).join('')}</div></section>`);
-chips.insertAdjacentHTML('beforeend', `<a href="#mistakes" data-sec="mistakes">Watch out</a><a href="#share" data-sec="share">Share</a>`);
+SECS.push({id: 'mistakes', title: 'Watch out'}, {id: 'share', title: 'Share & recordings'});
+secsel.innerHTML = SECS.map((x, i) => `<option value="${x.id}">${i + 1}. ${esc(x.title)}${x.n ? ` (${x.n})` : ''}</option>`).join('');
+function showSec(id){ const i = SECS.findIndex(x => x.id === id); if (i < 0) return;
+  $('sec-cur').textContent = SECS[i].title; $('sec-pos').textContent = `${i + 1}/${SECS.length}`; secsel.value = id; }
+secsel.onchange = () => { const el = $(secsel.value); showSec(secsel.value); if (el) el.scrollIntoView({behavior: 'smooth'}); secsel.blur(); };
+showSec(SECS[0].id);
 if (HAS_TTS) { pickPhone(); speechSynthesis.onvoiceschanged = pickPhone; setTimeout(pickPhone, 800); setTimeout(pickPhone, 2500); }
 
 // ---------- playback ----------
@@ -670,8 +681,7 @@ $('hard').onclick = function(){ hardOnly = !hardOnly; this.setAttribute('aria-pr
 setMode(mode); setSpeed(speed);
 
 const obs = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) {
-  chips.querySelectorAll('a').forEach(a => a.classList.toggle('on', a.dataset.sec === en.target.id));
-  const on = chips.querySelector('a.on'); if (on) chips.scrollTo({left: on.offsetLeft - 16, behavior: 'smooth'}); } }), {rootMargin:'-40% 0px -55% 0px'});
+  showSec(en.target.id); } }), {rootMargin:'-40% 0px -55% 0px'});
 document.querySelectorAll('section[id]').forEach(s => obs.observe(s));
 
 // ---------- share & recordings ----------
