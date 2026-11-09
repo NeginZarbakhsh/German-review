@@ -204,7 +204,7 @@ sections:
       - [nicht, not]
   - kind: rows
     title: Words
-    note: Every German noun starts with a capital letter. der = masculine word, die = feminine word.
+    note: Every German noun starts with a capital letter. der = masculine, die = feminine, das = neuter.
     items:
     - de: der Name
       say: dair **NAH**-meh
@@ -232,6 +232,73 @@ sections:
       say: dair **MAN**
       fa: دِر مان
       en: man, husband
+- id: origin
+  title: Where are you from?
+  lead: Ask where someone comes from and say where you come from. aus = from.
+  groups:
+  - kind: rows
+    items:
+    - de: Woher kommst du?
+      say: voh-**HAIR** **KOMST** doo
+      fa: وُهِر کُمست دو
+      en: Where are you from? (friendly)
+      words:
+      - [woher, where from]
+      - [kommst, come]
+      tip: 'Word for word: “where from come you?”'
+    - de: Woher kommen Sie?
+      say: voh-**HAIR** **KOM**-men zee
+      fa: وُهِر کُمن زی
+      en: Where are you from? (polite)
+      words:
+      - [kommen, come]
+    - de: Ich komme aus Iran.
+      say: ish **KOM**-meh owss ee-**RAHN**
+      fa: ایش کُمه آوس ایران
+      en: I'm from Iran.
+      words:
+      - [komme, come]
+      - [aus, from]
+    - de: Und du?
+      say: oont **DOO**
+      fa: اونت دو
+      en: And you?
+      tip: The quickest way to ask the same question back.
+    - de: Ich komme aus Deutschland.
+      say: ish **KOM**-meh owss **DOYTCH**-lant
+      fa: ایش کُمه آوس دُیچلانت
+      en: I'm from Germany.
+      tip: The d at the end of Deutschland sounds like t.
+  - kind: rows
+    title: Countries with der or den
+    note: 'Most countries need no extra word: aus Iran, aus Deutschland, aus Irland. A few always have one. After aus it becomes der (one country) or den (a plural name).'
+    items:
+    - de: aus den Vereinigten Staaten
+      say: owss dayn fer-**AI**-nish-ten **SHTAH**-ten
+      fa: آوس دِن فِرآینیشتِن اشتاتِن
+      en: from the United States
+      words:
+      - [vereinigt, united]
+      - [Staaten, states]
+      tip: st at the start of Staaten sounds like sht.
+    - de: aus der Türkei
+      say: owss dair tür-**KAI**
+      fa: آوس دِر تورکای
+      en: from Türkiye
+      tip: ü = say ee with round lips.
+    - de: aus den Niederlanden
+      say: owss dayn **NEE**-der-lan-den
+      fa: آوس دِن نیدِرلاندِن
+      en: from the Netherlands
+    - de: aus der Schweiz
+      say: owss dair **SHVAITS**
+      fa: آوس دِر شوایتس
+      en: from Switzerland
+      tip: sch = sh, w = v, z = ts.
+    - de: aus den Arabischen Emiraten
+      say: owss dayn ah-**RAH**-bi-shen eh-mee-**RAH**-ten
+      fa: آوس دِن آرابیشِن اِمیراتِن
+      en: from the United Arab Emirates
 - id: grammar
   title: Grammar
   lead: The small words that change. Tap any line to hear it.
@@ -281,12 +348,32 @@ sections:
       fa: هیس · هات گه‌هایسن
       en: was called · has been called
       speak: hieß. hat geheißen.
+  - kind: conj
+    title: kommen = to come
+    items:
+    - de: ich komme
+      say: ish **KOM**-meh
+      fa: ایش کُمه
+      en: I come
+    - de: du kommst
+      say: doo **KOMST**
+      fa: دو کُمست
+      en: you come (friendly)
+    - de: er / sie kommt
+      say: air / zee **KOMT**
+      fa: اِر / زی کُمت
+      en: he / she comes
+      speak: er kommt. sie kommt.
+    - de: Sie kommen
+      say: zee **KOM**-men
+      fa: زی کُمن
+      en: you come (polite)
   - kind: cards
     items:
     - title: du or Sie?
       body: '<b>du</b>: friends, family, children, people your age.<br><b>Sie</b>: older people, strangers, at work, anyone you call Herr or Frau. Polite <b>Sie</b> always has a capital S.'
-    - title: der or die?
-      body: 'Every noun comes with its own word for “the”.<br><b>der</b>: der Mann, der Herr, der Name, der Tag<br><b>die</b>: die Frau<br>Learn the noun together with der or die.'
+    - title: der, die or das?
+      body: 'Every noun comes with its own word for “the”.<br><b>der</b> (masculine): der Mann, der Herr, der Name, der Tag<br><b>die</b> (feminine): die Frau, die Schweiz, die Türkei<br><b>das</b> (neuter): das Land (the country)<br>Learn each noun together with its der, die or das.'
 - id: sounds
   title: Sounds
   lead: The rules behind the pronunciation. Each line plays real example words.
@@ -444,3 +531,6 @@ mistakes:
 - ['mei, dei Name', 'mein, dein Name', The n at the end matters.]
 - ['de Name, vorname', 'der Name, Vorname', 'der, and a capital letter on every noun.']
 - [wer sind sie, wer sind Sie, Polite Sie always has a capital S.]
+- [verenisten Staaten, Vereinigten Staaten, '“vereinigt” = united: ver-EI-nigt.']
+- ['türkei, schweiz, niederlanden', 'Türkei, Schweiz, Niederlanden', 'Countries are nouns, so they start with a capital letter.']
+- [Arabischden, Arabischen, 'sch + en, no d.']
