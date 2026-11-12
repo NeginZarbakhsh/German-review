@@ -43,7 +43,7 @@ cd site && python -m http.server 8000                               # open http:
 - `python -c "import yaml;yaml.safe_load(open('phrases.yml'))"` must pass (quote values that start with `**` or contain `: `).
 - On Chris's page (`record.html?who=chris`, “All” tab) no phrase or word may appear twice.
 - Layout: a home screen (Today's review, stats, search, Lessons list, More) and one lesson per page with Back, a lesson picker, and Previous/Next at the bottom. The address keeps the place (`#numbers`). Each section in `phrases.yml` is one lesson, in file order.
-- App extras (don't remove): search, tap-a-word, My progress (practice calendar, known per lesson), listening cards in the daily review, pauses after each phrase in Play all.
+- App extras (don't remove): search, tap-a-word, Quiz button per lesson, My words (A–Z glossary from `words`), My progress (practice calendar, known per lesson), listening cards and keyboard keys in the daily review, pauses after each phrase in Play all.
 - Every phrase card shows the same 5 buttons: Standard · Phone · Chris · Me · Record. Practice mode shows only Me · Record.
 - Don't change the UI unless asked; Negin cares a lot about a clean, consistent layout.
 

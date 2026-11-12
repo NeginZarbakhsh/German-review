@@ -72,6 +72,8 @@ h3{font-family:var(--display);font-weight:500;font-size:1.05rem;margin:24px 0 8p
 .note{color:var(--muted);font-size:.92rem;margin:-2px 0 12px;max-width:58ch}
 .playall{flex:none;border:0;background:transparent;color:var(--accent);font:700 .9rem var(--body);cursor:pointer;padding:4px 0;display:inline-flex;gap:6px;align-items:center}
 .playall svg{width:14px;height:14px}
+.acts{flex:none;display:inline-flex;gap:16px}
+.searching .sec-head .acts{display:none}
 
 /* phrase cards */
 .list{display:flex;flex-direction:column;gap:10px}
@@ -199,6 +201,10 @@ footer{padding-block:28px 48px;color:var(--muted);font-size:.85rem;text-align:ce
 .rv-done{text-align:center;align-items:center}
 .rv-done .rv-en{font-size:2rem}
 .rv-done p{color:var(--muted);margin:0}
+.rv-big{font-size:3rem;line-height:1}
+.rv-sum{display:flex;gap:10px;margin-top:10px}
+.rv-sum span{background:var(--tap);border-radius:14px;padding:10px 16px;font-size:.82rem;color:var(--muted);display:flex;flex-direction:column;align-items:center}
+.rv-sum b{font-family:var(--display);font-size:1.4rem;color:var(--fg)}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:11px 18px;border-radius:999px;font-weight:700;font-size:.9rem;z-index:60;max-width:calc(100% - 32px);text-align:center}
 
 /* progress strip under today's review */
@@ -299,6 +305,18 @@ main section{padding-top:22px}
 .howto .wd{cursor:default}
 .secpick .lbl{display:none}
 @media (min-width:520px){.secpick .lbl{display:inline}}
+.wfilter{width:100%;height:44px;font:inherit;font-size:16px;padding:0 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--fg);margin-bottom:6px}
+.vocab{display:flex;flex-direction:column}
+.vl{font-family:var(--display);font-weight:700;color:var(--accent);font-size:1.05rem;padding:16px 4px 6px}
+.vw{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 22px;gap:12px;align-items:center;width:100%;border:0;border-top:1px solid var(--line);background:var(--surface);color:var(--fg);font:inherit;text-align:left;padding:11px 14px;cursor:pointer}
+.vl + .vw{border-top:0;border-radius:14px 14px 0 0}
+.vw:has(+ .vl),.vw:last-child{border-radius:0 0 14px 14px}
+.vl + .vw:has(+ .vl),.vl + .vw:last-child{border-radius:14px}
+.vw b{font-family:var(--display);font-size:1.02rem}
+.vw span{color:var(--muted);font-size:.92rem}
+.vw svg{width:20px;height:20px;color:var(--accent)}
+.vw:disabled{cursor:default;color:var(--fg)}
+.vw.on{background:var(--accent-soft)}
 .ver{text-align:center;font-size:.78rem;color:var(--muted);margin:0 0 24px;opacity:.8}
 button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--stress);outline-offset:2px}
 @media (max-width:480px){h1{font-size:1.8rem}.de{font-size:1.22rem}}
@@ -404,6 +422,7 @@ const I = {
   me: svg('M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 3.8a3.6 3.6 0 1 1 0 7.2 3.6 3.6 0 0 1 0-7.2zM12 20a8 8 0 0 1-6.1-2.8c.6-1.9 3.6-3 6.1-3s5.5 1.1 6.1 3A8 8 0 0 1 12 20z'),
   mic: svg('M12 14.5a3.5 3.5 0 0 0 3.5-3.5V5a3.5 3.5 0 0 0-7 0v6a3.5 3.5 0 0 0 3.5 3.5zm6-3.5a6 6 0 0 1-12 0H4a8 8 0 0 0 7 7.9V22h2v-3.1a8 8 0 0 0 7-7.9h-2z'),
   stop: svg('M6 6h12v12H6z'),
+  quiz: svg('M4 4h16v12H7l-3 3V4zm7.1 9.5h1.8v-1.8h-1.8v1.8zM12 5.5a3 3 0 0 0-3 3h1.7a1.3 1.3 0 1 1 2.1 1c-.9.6-1.7 1.1-1.7 2.4h1.8c0-.8.4-1.1 1.1-1.6A3 3 0 0 0 12 5.5z'),
   star: svg('M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z')
 };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -458,6 +477,7 @@ function pickPhone(){
 // Every German word has its own recording (built by make.py). Tap one to hear it and see its meaning.
 const WA = DATA.wordAudio || {};
 const WRE = /[A-Za-zÄÖÜäöüß]+(?:['’][A-Za-z]+)?/g;
+const norm = s => String(s).toLowerCase().replace(/\*\*/g, '').replace(/ß/g, 'ss').replace(/ä|ae/g, 'a').replace(/ö|oe/g, 'o').replace(/ü|ue/g, 'u').replace(/[^a-z0-9\u0600-\u06ff ]+/g, ' ').replace(/\s+/g, ' ').trim();
 const DICT = {};
 DATA.sections.forEach(s => s.groups.forEach(g => { if (g.kind === 'cards') return; g.items.forEach(it => {
   (it.words || []).forEach(([d, e]) => { const k = String(d).toLowerCase(); if (!(k in DICT)) DICT[k] = e; });
@@ -512,7 +532,7 @@ const sequences = {};
 DATA.sections.forEach(s => {
   const n = s.groups.reduce((t, g) => t + (g.kind === 'cards' ? 0 : g.items.length), 0);
   SECS.push({id: s.id, title: s.title, n});
-  let html = `<section id="${s.id}"><div class="sec-head"><h2>${esc(s.title)}</h2><button class="playall" data-seq="${s.id}">${I.play}Play all</button></div><p class="lead">${esc(s.lead)}</p>`;
+  let html = `<section id="${s.id}"><div class="sec-head"><h2>${esc(s.title)}</h2><span class="acts">${s.id !== 'sounds' ? `<button class="playall" data-quiz="${s.id}">${I.quiz}Quiz</button>` : ''}<button class="playall" data-seq="${s.id}">${I.play}Play all</button></span></div><p class="lead">${esc(s.lead)}</p>`;
   const ids = [];
   s.groups.forEach((g, gi) => {
     if (g.title) html += `<h3>${esc(g.title)}</h3>`;
@@ -535,7 +555,21 @@ main.insertAdjacentHTML('beforeend', `<section id="mistakes"><div class="sec-hea
   <div class="mist"><div class="mhead"><span>Not this</span><span>Write this</span></div>${DATA.mistakes.map(([a,b,c])=>`<div class="mrow"><s>${esc(a)}</s><span class="ok">${esc(b)}</span><span class="why">${esc(c)}</span></div>`).join('')}</div></section>`);
 main.appendChild($('share'));
 const LESSONS = SECS.slice();                     // the real lessons, in course order
-SECS.push({id: 'mistakes', title: 'Watch out'}, {id: 'progress', title: 'My progress'}, {id: 'share', title: 'Share & recordings'});
+// every word with its meaning, A to Z
+const VOCAB = (() => { const m = new Map(), add = (d, e) => { d = String(d).trim(); const k = d.toLowerCase(); if (d && e && !m.has(k)) m.set(k, {d, e: String(e)}); };
+  DATA.sections.forEach(s => s.groups.forEach(g => { if (g.kind === 'cards') return; g.items.forEach(it => (it.words || []).forEach(([d, e]) => add(d, e))); }));
+  DATA.sections.forEach(s => { if (s.id === 'sounds') return; s.groups.forEach(g => { if (g.kind === 'cards') return; g.items.forEach(it => {
+    const ws = String(it.de).match(WRE) || []; if (ws.length === 1) add(ws[0], g.kind === 'numbers' ? it.en : it.en.replace(/[!.]$/, '')); }); }); });
+  const key = d => d.toLowerCase().replace(/^(der|die|das|ein|eine) /, '');
+  return [...m.values()].sort((x, y) => key(x.d).localeCompare(key(y.d), 'de')); })();
+const firstL = d => d.toLowerCase().replace(/^(der|die|das|ein|eine) /, '').charAt(0).toUpperCase().replace('Ä', 'A').replace('Ö', 'O').replace('Ü', 'U');
+main.insertAdjacentHTML('beforeend', `<section id="words"><div class="sec-head"><h2>My words</h2></div><p class="lead">Every word from your lessons, A to Z. Tap a word to hear it.</p>
+  <input class="wfilter" id="wfilter" type="search" placeholder="Filter words" aria-label="Filter words" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <div class="vocab" id="vocab">${VOCAB.map((v, i) => { const L = firstL(v.d), head = i === 0 || firstL(VOCAB[i - 1].d) !== L;
+    const k = WA[v.d.toLowerCase()];
+    return `${head ? `<div class="vl" data-l="${L}">${L}</div>` : ''}<button class="vw" data-l="${L}" data-v="${esc(norm(v.d + ' ' + v.e))}"${k ? ` data-vk="${k}"` : ' disabled'}><b>${esc(v.d)}</b><span>${esc(v.e)}</span>${k ? I.std : ''}</button>`; }).join('')}</div>
+  <p class="note" id="wnone" hidden>No word matches.</p></section>`);
+SECS.push({id: 'mistakes', title: 'Watch out'}, {id: 'words', title: 'My words'}, {id: 'progress', title: 'My progress'}, {id: 'share', title: 'Share & recordings'});
 secsel.innerHTML = `<optgroup label="Lessons">${LESSONS.map((x, i) => `<option value="${x.id}">${i + 1}. ${esc(x.title)}</option>`).join('')}</optgroup>
   <optgroup label="More">${SECS.slice(LESSONS.length).map(x => `<option value="${x.id}">${esc(x.title)}</option>`).join('')}</optgroup>`;
 function showSec(id){ const i = SECS.findIndex(x => x.id === id); if (i < 0) return;
@@ -557,7 +591,7 @@ function render(v){
   if (view === v) return;
   pos[view] = scrollY; if (typeof stopAll === 'function') stopAll();
   view = v; document.body.dataset.view = v;
-  document.body.classList.toggle('page', ['mistakes', 'progress', 'share', 'search'].includes(v) && v !== 'search');
+  document.body.classList.toggle('page', ['mistakes', 'words', 'progress', 'share', 'search'].includes(v) && v !== 'search');
   document.querySelectorAll('main > section').forEach(sec => sec.classList.toggle('active', sec.id === v));
   if (v !== 'search' && typeof closeSearch === 'function') closeSearch(true);
   if (SECS.some(x => x.id === v)) { showSec(v); if (LESSONS.some(x => x.id === v)) store.set('lastSec', v); }
@@ -839,6 +873,9 @@ document.addEventListener('click', e => {
     stopAll(); showPop(wd, w); bump();
     playKind(hasRec(PARTNER, k) ? PARTNER : 'std', k, wd, () => setTimeout(() => { if (pop.dataset.w === w) hidePop(); }, 1600)); return; }
   hidePop();
+  const vw = t.closest('[data-vk]');
+  if (vw) { if (vw.classList.contains('on')) { stopAll(); return; } stopAll(); bump(); const k = vw.dataset.vk;
+    playKind(hasRec(PARTNER, k) ? PARTNER : 'std', k, vw); return; }
   const st = t.closest('[data-star]');
   if (st) { const a = st.dataset.star, on = !starred.has(a); on ? starred.add(a) : starred.delete(a);
     document.querySelectorAll(`[data-a="${a}"]`).forEach(el => el.classList.toggle('hard', on));
@@ -856,6 +893,7 @@ document.addEventListener('click', e => {
     return;
   }
   const rv = t.closest('[data-reveal]'); if (rv) { const el = $(rv.dataset.reveal); reveal(el); stopAll(); playKind('std', el.dataset.a, el.querySelector('[data-std]')); return; }
+  const qz = t.closest('[data-quiz]'); if (qz) { openReview(qz.dataset.quiz); return; }
   const sq = t.closest('[data-seq]'); if (sq) { playSeq(sequences[sq.dataset.seq]); return; }
 });
 
@@ -874,7 +912,6 @@ setMode(mode); setSpeed(speed);
 
 
 // ---------- search ----------
-const norm = s => String(s).toLowerCase().replace(/\*\*/g, '').replace(/ß/g, 'ss').replace(/ä|ae/g, 'a').replace(/ö|oe/g, 'o').replace(/ü|ue/g, 'u').replace(/[^a-z0-9\u0600-\u06ff ]+/g, ' ').replace(/\s+/g, ' ').trim();
 const HAY = {};
 document.querySelectorAll('main .card[data-a]').forEach(c => { const it = ITEM[c.dataset.a];
   HAY[c.id] = norm([it.de, it.en, it.say, it.fa || '', ...(it.words || []).flat()].join(' ')); });
@@ -890,6 +927,10 @@ function runSearch(){
 function closeSearch(keepView){ $('q').value = ''; runSearch(); if (!keepView && view === 'search') $('back').click(); }
 $('q').addEventListener('input', () => { runSearch(); scrollTo({top: 0, behavior: 'instant'}); });
 $('q').addEventListener('keydown', e => { if (e.key === 'Escape') closeSearch(); if (e.key === 'Enter') $('q').blur(); });
+
+$('wfilter').addEventListener('input', () => { const q = norm($('wfilter').value); const ls = new Set(); let n = 0;
+  document.querySelectorAll('.vw').forEach(b => { const hit = !q || q.split(' ').every(w => b.dataset.v.includes(w)); b.hidden = !hit; if (hit) { ls.add(b.dataset.l); n++; } });
+  document.querySelectorAll('.vl').forEach(h => h.hidden = !ls.has(h.dataset.l)); $('wnone').hidden = n > 0; });
 
 // ---------- share & recordings ----------
 const BASE = SITE.startsWith('http') ? SITE : location.href.split('#')[0].replace(/[^/]*$/, '');
@@ -953,10 +994,11 @@ function refreshToday(){
   $('t-sub').textContent = [nDue && `${nDue} to repeat`, nNew && `${nNew} new`].filter(Boolean).join(' · ') + '. Say each answer out loud.';
   btn.textContent = 'Start';
 }
-let rq = [], ri = 0, total = 0, stats = {good: 0, again: 0}, lapsed = new Set();
+let rq = [], ri = 0, total = 0, stats = {good: 0, again: 0}, lapsed = new Set(), quiz = '';
 const rv = $('rv'), card = $('rv-card'), ractions = $('rv-actions');
-function openReview(){
-  let q = buildQueue();
+function openReview(lesson){
+  quiz = typeof lesson === 'string' ? lesson : '';
+  let q = quiz ? pool.filter(it => it.sec === quiz).sort(() => Math.random() - .5) : buildQueue();
   if (!q.length) q = pool.filter(it => starred.has(it.a)).concat(pool.slice().sort(() => Math.random() - .5)).filter((v, i, a) => a.findIndex(x => x.a === v.a) === i).slice(0, 10);
   // phrases you already know sometimes come as a listening card: hear the German, say what it means
   q = q.map(it => ({...it, listen: !!(srs[it.a] && srs[it.a].b >= 2 && Math.random() < 0.5)}));
@@ -965,7 +1007,8 @@ function openReview(){
 }
 function finishRec(){ if (recA && recBtn) recBtn.click(); }
 function closeReview(){ finishRec(); rv.hidden = true; document.body.style.overflow = ''; stopAll(); hidePop(); refreshToday(); renderProgress(); if (view === 'home') renderHome(); }
-function rprogress(){ $('rv-prog').textContent = `${Math.min(stats.good + 1, total)} of ${total}`; $('rv-fill').style.width = `${Math.round(100 * stats.good / Math.max(total, 1))}%`; }
+function rprogress(){ const sec = quiz && DATA.sections.find(x => x.id === quiz);
+  $('rv-prog').textContent = `${sec ? sec.title + ' · ' : ''}${Math.min(stats.good + 1, total)} of ${total}`; $('rv-fill').style.width = `${Math.round(100 * stats.good / Math.max(total, 1))}%`; }
 function showFront(){
   if (ri >= rq.length) return showDone();
   const it = rq[ri]; rprogress();
@@ -1000,15 +1043,19 @@ function answer(ok){
   finishRec();
   const it = rq[ri], cur = srs[it.a];
   if (!cur && !lapsed.has(it.a)) store.set('newDay', {d: today(), n: newToday() + 1});
-  if (ok) { const b = lapsed.has(it.a) ? 1 : Math.min((cur ? cur.b : 0) + 1, GAPS.length - 1); srs[it.a] = {b, d: addDays(GAPS[b])}; stats.good++; }
+  if (quiz && cur && cur.d > today() && !lapsed.has(it.a)) {
+    if (ok) stats.good++; else { srs[it.a] = {b: 0, d: addDays(1)}; lapsed.add(it.a); stats.again++; rq.push(it); }
+  } else if (ok) { const b = lapsed.has(it.a) ? 1 : Math.min((cur ? cur.b : 0) + 1, GAPS.length - 1); srs[it.a] = {b, d: addDays(GAPS[b])}; stats.good++; }
   else { srs[it.a] = {b: 0, d: addDays(1)}; lapsed.add(it.a); stats.again++; rq.push(it); }
   store.set('srs', srs); bump(); ri++; stopAll(); showFront();
 }
 function showDone(){
   rprogress(); $('rv-fill').style.width = '100%';
   card.className = 'rv-card rv-done';
-  card.innerHTML = `<div class="rv-en">Gut gemacht!</div><p>Well done. You reviewed ${total} phrase${total === 1 ? '' : 's'}.</p>
-    <p>${!lapsed.size ? 'You knew every one.' : lapsed.size === 1 ? '1 phrase needed another try. It will come back tomorrow.' : `${lapsed.size} phrases needed another try. They will come back tomorrow.`}</p>`;
+  const st = streak(), nk = pool.filter(it => srs[it.a] && srs[it.a].b >= 2).length;
+  card.innerHTML = `<div class="rv-big" aria-hidden="true">${lapsed.size ? '👏' : '🎉'}</div><div class="rv-en">Gut gemacht!</div><p>Well done. You ${quiz ? 'practised' : 'reviewed'} ${total} phrase${total === 1 ? '' : 's'}.</p>
+    <p>${!lapsed.size ? 'You knew every one.' : lapsed.size === 1 ? '1 phrase needed another try. It will come back tomorrow.' : `${lapsed.size} phrases needed another try. They will come back tomorrow.`}</p>
+    <div class="rv-sum"><span><b>${st}</b>day${st === 1 ? '' : 's'} in a row</span><span><b>${nk}</b>phrases known</span></div>`;
   ractions.innerHTML = `<button class="wide" id="rv-end">Finish</button>`;
   $('rv-end').onclick = closeReview;
 }
@@ -1050,6 +1097,7 @@ function renderHome(){
       <span class="t">${esc(x.title)}${x.id === last ? '<span class="pill">Continue</span>' : ''}</span><span class="l">${esc(s.lead)}</span>${pr}${CHEV}</button>`; }).join('');
   const nst = starred.size;
   $('more').innerHTML = [['mistakes', '✍️', 'Watch out', `${DATA.mistakes.length} spelling slips to avoid`],
+    ['words', '📖', 'My words', `${VOCAB.length} words with their meanings, A to Z`],
     ['progress', '📈', 'My progress', 'Your practice calendar and what you know'],
     ['share', '🎙', 'Share & recordings', 'Chris’s recordings, sharing and saving online']]
     .map(([id, ic, t, d]) => `<button class="mrow2" data-nav="${id}"><span class="ic" aria-hidden="true">${ic}</span><b>${t}</b><span class="d">${d}</span>${CHEV}</button>`).join('');
@@ -1061,7 +1109,12 @@ render(location.hash.slice(1) || 'home');
 
 $('t-start').onclick = openReview;
 $('rv-close').onclick = closeReview;
-document.addEventListener('keydown', e => { if (!rv.hidden && e.key === 'Escape') closeReview(); });
+document.addEventListener('keydown', e => { if (rv.hidden || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.key === 'Escape') return closeReview();
+  const b = id => { const el = $(id); if (el) { e.preventDefault(); el.click(); } };
+  if (e.key === ' ' || e.key === 'Enter') { if ($('rv-show')) b('rv-show'); else if ($('rv-end')) b('rv-end'); }
+  else if (e.key === 'ArrowLeft' || e.key === '1') b('rv-again');
+  else if (e.key === 'ArrowRight' || e.key === '2') b('rv-good'); });
 refreshToday();
 
 // ---------- offline ----------
