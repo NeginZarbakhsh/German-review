@@ -225,7 +225,6 @@ footer{padding-block:28px 48px;color:var(--muted);font-size:.85rem;text-align:ce
 .wpop{position:fixed;z-index:40;max-width:min(320px,calc(100vw - 32px));background:var(--fg);color:var(--bg);border-radius:12px;padding:9px 13px;font-size:.95rem;box-shadow:0 6px 24px rgba(0,0,0,.18);pointer-events:none}
 .wpop b{font-family:var(--display)}
 .wpop span{opacity:.75}
-.newtag{display:inline-block;vertical-align:middle;margin-left:8px;font:700 .66rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--ok);border:1.5px solid currentColor;border-radius:999px;padding:1px 7px 0}
 /* my progress */
 .heat{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;max-width:260px}
 .heat .dn{font-size:.7rem;color:var(--muted);text-align:center;font-weight:700}
@@ -243,16 +242,6 @@ footer{padding-block:28px 48px;color:var(--muted);font-size:.85rem;text-align:ce
 .sbar .k{background:var(--ok)} .sbar .s{background:color-mix(in srgb,var(--ok) 35%,var(--line))}
 .keyline{display:flex;gap:14px;font-size:.82rem;color:var(--muted)}
 .keyline i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
-.tl{display:flex;flex-direction:column;gap:0;margin:0;padding:0;list-style:none}
-.tl li{position:relative;padding:0 0 16px 22px}
-.tl li::before{content:"";position:absolute;left:5px;top:8px;bottom:-8px;width:2px;background:var(--line)}
-.tl li:last-child::before{display:none}
-.tl li::after{content:"";position:absolute;left:0;top:5px;width:12px;height:12px;border-radius:50%;background:var(--accent)}
-.tl .dt{font-weight:700}
-.tl .dt span{color:var(--muted);font-weight:400;font-size:.86rem}
-.tl .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
-.tl .chips button{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:999px;padding:4px 11px;font:inherit;font-size:.86rem;cursor:pointer}
-.tl .chips b{color:var(--ok)}
 /* review: listening cards */
 .rv-play{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;border:0;background:var(--accent);color:var(--accent-ink);font:700 1rem var(--body);border-radius:999px;padding:12px 20px;cursor:pointer;margin-top:4px}
 .rv-play svg{width:18px;height:18px}
@@ -422,8 +411,6 @@ function tapWords(s){
   return out + esc(s.slice(last));
 }
 const ymd = d => { const [y, m, dd] = d.split('-').map(Number); return new Date(y, m - 1, dd); };
-const daysAgo = d => Math.round((ymd(today()) - ymd(d)) / 864e5);
-const isNew = it => it.added && daysAgo(it.added) < 7;
 const fmtDay = d => ymd(d).toLocaleDateString('en-GB', {weekday: 'short', day: 'numeric', month: 'short'});
 
 // ---------- rendering ----------
@@ -442,7 +429,7 @@ function words(it){ return it.words.length ? `<div class="words hide">${it.words
 function rowCard(it, id, sound){
   return `<div class="card${sound?' sound':''}${starred.has(it.a)?' hard':''}" id="${id}" data-a="${it.a}">
     <div class="body">
-      <div class="de hide">${sound ? esc(it.de) : tapWords(it.de)}${isNew(it) ? '<span class="newtag">New</span>' : ''}</div>
+      <div class="de hide">${sound ? esc(it.de) : tapWords(it.de)}</div>
       <div class="say hide">${stress(it.say)}</div>
       <div class="en">${esc(it.en)}</div>
       ${it.fa ? `<div class="fa hide" dir="rtl" lang="fa">${esc(it.fa)}</div>` : ''}
@@ -454,15 +441,14 @@ function rowCard(it, id, sound){
 }
 function numCard(it, id){
   return `<div class="card num${starred.has(it.a)?' hard':''}" id="${id}" data-a="${it.a}">
-    <div class="body"><div class="numrow"><span class="n">${esc(it.en)}</span><div><div class="tw hide">${esc(it.de)}${isNew(it) ? '<span class="newtag">New</span>' : ''}</div><div class="ts hide">${stress(it.say)}</div></div></div>
+    <div class="body"><div class="numrow"><span class="n">${esc(it.en)}</span><div><div class="tw hide">${esc(it.de)}</div><div class="ts hide">${stress(it.say)}</div></div></div>
       <div class="tips hide" data-tips="${it.a}"></div>
       <button class="reveal" data-reveal="${id}">Say it, then tap to check</button></div>${starBtn(it.a)}${pbar(it, id)}</div>`;
 }
 const sequences = {};
 DATA.sections.forEach(s => {
   const n = s.groups.reduce((t, g) => t + (g.kind === 'cards' ? 0 : g.items.length), 0);
-  const fresh = s.groups.some(g => g.kind !== 'cards' && g.items.some(isNew));
-  SECS.push({id: s.id, title: s.title, n, fresh});
+  SECS.push({id: s.id, title: s.title, n});
   let html = `<section id="${s.id}"><div class="sec-head"><h2>${esc(s.title)}</h2><button class="playall" data-seq="${s.id}">${I.play}Play all</button></div><p class="lead">${esc(s.lead)}</p>`;
   const ids = [];
   s.groups.forEach((g, gi) => {
@@ -477,15 +463,14 @@ DATA.sections.forEach(s => {
   sequences[s.id] = ids;
   main.insertAdjacentHTML('beforeend', html);
 });
-main.insertAdjacentHTML('beforeend', `<section id="progress"><div class="sec-head"><h2>My progress</h2></div><p class="lead">What you've practised, what you know, and when you added it.</p>
+main.insertAdjacentHTML('beforeend', `<section id="progress"><div class="sec-head"><h2>My progress</h2></div><p class="lead">What you've practised and what you know.</p>
   <div class="panel"><h3>Last 5 weeks</h3><div class="heat" id="heat"></div><p id="heat-line"></p></div>
   <div class="panel"><h3>By section</h3><div class="keyline"><span><i style="background:var(--ok)"></i>Known</span><span><i style="background:color-mix(in srgb,var(--ok) 35%,var(--line))"></i>Learning</span></div><div class="secbars" id="secbars"></div>
-    <p>A phrase is <b>known</b> after you get it right in the daily review on two different days.</p></div>
-  <div class="panel"><h3>Timeline</h3><p id="tl-line"></p><ul class="tl" id="tl"></ul></div></section>`);
+    <p>A phrase is <b>known</b> after you get it right in the daily review on two different days.</p></div></section>`);
 main.insertAdjacentHTML('beforeend', `<section id="mistakes"><div class="sec-head"><h2>Watch out</h2></div><p class="lead">Common spelling slips. Read these before you write.</p>
   <div class="mist"><div class="mhead"><span>Not this</span><span>Write this</span></div>${DATA.mistakes.map(([a,b,c])=>`<div class="mrow"><s>${esc(a)}</s><span class="ok">${esc(b)}</span><span class="why">${esc(c)}</span></div>`).join('')}</div></section>`);
 SECS.push({id: 'progress', title: 'My progress'}, {id: 'mistakes', title: 'Watch out'}, {id: 'share', title: 'Share & recordings'});
-secsel.innerHTML = SECS.map((x, i) => `<option value="${x.id}">${i + 1}. ${esc(x.title)}${x.n ? ` (${x.n})` : ''}${x.fresh ? ' · new' : ''}</option>`).join('');
+secsel.innerHTML = SECS.map((x, i) => `<option value="${x.id}">${i + 1}. ${esc(x.title)}${x.n ? ` (${x.n})` : ''}</option>`).join('');
 function showSec(id){ const i = SECS.findIndex(x => x.id === id); if (i < 0) return;
   $('sec-cur').textContent = SECS[i].title; $('sec-pos').textContent = `${i + 1}/${SECS.length}`; secsel.value = id; }
 secsel.onchange = () => { const el = $(secsel.value); showSec(secsel.value); if (el) el.scrollIntoView({behavior: 'smooth'}); secsel.blur(); };
@@ -947,30 +932,21 @@ function streak(){ let n = 0; const d = new Date(); if (!act[today()]) d.setDate
 function renderProgress(){
   const known = it => srs[it.a] && srs[it.a].b >= 2;
   const nKnown = pool.filter(known).length, st = streak();
-  const all = []; DATA.sections.forEach(s => s.groups.forEach(g => { if (g.kind !== 'cards') g.items.forEach(it => all.push({...it, sec: s.id})); }));
-  const week = all.filter(it => it.added && daysAgo(it.added) < 7).length;
+  const days = Object.keys(act).filter(k => act[k]).length;
   $('stats').innerHTML = `<button class="stat" data-go="progress"><b>${st}</b><span>day${st === 1 ? '' : 's'} in a row</span></button>
     <button class="stat" data-go="progress"><b>${nKnown}<small style="font-size:.6em;color:var(--muted)">/${pool.length}</small></b><span>phrases known</span></button>
-    <button class="stat" data-go="progress"><b>${week}</b><span>added this week</span></button>`;
+    <button class="stat" data-go="progress"><b>${days}</b><span>day${days === 1 ? '' : 's'} practised</span></button>`;
   // calendar: the last 5 weeks, Monday to Sunday
   const d0 = new Date(); d0.setDate(d0.getDate() - ((d0.getDay() + 6) % 7) - 28);
   let h = 'MTWTFSS'.split('').map(c => `<span class="dn">${c}</span>`).join('');
   for (let i = 0; i < 35; i++) { const d = new Date(d0); d.setDate(d0.getDate() + i); const k = d.toLocaleDateString('en-CA'), n = act[k] || 0;
     h += `<i class="${k > today() ? 'fut' : n >= 30 ? 'l3' : n >= 10 ? 'l2' : n ? 'l1' : ''}${k === today() ? ' now' : ''}" title="${fmtDay(k)}: ${n}"></i>`; }
   $('heat').innerHTML = h;
-  const days = Object.keys(act).filter(k => act[k]).length;
   $('heat-line').textContent = days ? `You practised on ${days} day${days === 1 ? '' : 's'}${st > 1 ? `, ${st} in a row` : ''}. ${act[today()] ? 'Done today ✓' : 'Nothing yet today.'}` : 'Each day you listen, record or review, a square fills in.';
   // by section
   $('secbars').innerHTML = DATA.sections.filter(s => s.id !== 'sounds').map(s => { const its = pool.filter(it => it.sec === s.id); if (!its.length) return '';
     const k = its.filter(known).length, l = its.filter(it => srs[it.a] && !known(it)).length, pc = x => (100 * x / its.length).toFixed(1);
     return `<button class="sbar" data-go="${s.id}"><span class="nm">${esc(s.title)}</span><span class="ct">${k} / ${its.length}</span><span class="tr"><i class="k" style="width:${pc(k)}%"></i><i class="s" style="width:${pc(l)}%"></i></span></button>`; }).join('');
-  // timeline: what you added, and when
-  const by = {}; all.forEach(it => { if (!it.added) return; ((by[it.added] = by[it.added] || {})[it.sec] = (by[it.added][it.sec] || 0) + 1); });
-  const dates = Object.keys(by).sort().reverse(), title = id => (DATA.sections.find(s => s.id === id) || {}).title || id;
-  if (dates.length) { const first = dates[dates.length - 1], ago = daysAgo(first);
-    $('tl-line').textContent = `You started on ${fmtDay(first)}${ago ? `, ${ago} day${ago === 1 ? '' : 's'} ago` : ''}. ${all.length} phrases so far.`; }
-  $('tl').innerHTML = dates.map(d => `<li><div class="dt">${fmtDay(d)} <span>· ${Object.values(by[d]).reduce((a, b) => a + b, 0)} new</span></div><div class="chips">${
-    Object.entries(by[d]).map(([id, n]) => `<button data-go="${id}">${esc(title(id))} <b>+${n}</b></button>`).join('')}</div></li>`).join('');
 }
 document.addEventListener('click', e => { const g = e.target.closest('[data-go]'); if (!g) return; const el = $(g.dataset.go); if (el) { showSec(g.dataset.go); el.scrollIntoView({behavior: 'smooth'}); } });
 renderProgress();

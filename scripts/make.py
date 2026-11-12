@@ -5,7 +5,7 @@ and writes the finished site to the output folder.
 
 Usage: python scripts/make.py <voice.onnx> <phrases.yml> <out-folder>
 """
-import sys, os, json, hashlib, unicodedata, wave, shutil, re, subprocess, datetime
+import sys, os, json, hashlib, unicodedata, wave, shutil, re, datetime
 import yaml, lameenc
 from piper.voice import PiperVoice
 from piper.config import SynthesisConfig
@@ -104,26 +104,6 @@ for w, k in word_keys.values():
         count += 1
 shutil.rmtree(tmp)
 
-# When was each phrase added? Read the history of phrases.yml (needs the full git history; skipped if missing).
-added = {}
-try:
-    log = subprocess.run(["git", "log", "--reverse", "-p", "--format=@@DATE %as", "--", os.path.relpath(PHRASES, f"{HERE}/..")],
-                         cwd=f"{HERE}/..", capture_output=True, text=True, check=True).stdout
-    day = None
-    for line in log.splitlines():
-        if line.startswith("@@DATE "):
-            day = line[7:].strip()
-        elif line.startswith("+") and "- de:" in line and day:
-            de = line.split("- de:", 1)[1].strip().strip("'\"")
-            added.setdefault(de, day)
-except Exception as e:
-    print(f"No history for phrase dates: {e}")
-today = datetime.date.today().isoformat()
-for sec in data["sections"]:
-    for g in sec["groups"]:
-        if g["kind"] != "cards":
-            for it in g["items"]:
-                it["added"] = added.get(str(it["de"]).strip(), today)
 
 # Lines that read several words one by one (e.g. "Abend. acht.") are split into parts, so a person records
 # each word only once. A part that is also a phrase of its own (e.g. "acht") reuses that phrase's recording.
