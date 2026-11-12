@@ -245,6 +245,60 @@ footer{padding-block:28px 48px;color:var(--muted);font-size:.85rem;text-align:ce
 /* review: listening cards */
 .rv-play{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;border:0;background:var(--accent);color:var(--accent-ink);font:700 1rem var(--body);border-radius:999px;padding:12px 20px;cursor:pointer;margin-top:4px}
 .rv-play svg{width:18px;height:18px}
+/* views: home (lessons), one lesson, search, and the extra pages */
+body[data-view="home"] .bar,body[data-view="home"] main,body[data-view="home"] #share{display:none}
+body:not([data-view="home"]) header.top{display:none}
+body:not([data-view="share"]) #share{display:none}
+body:not([data-view="home"]):not([data-view="share"]) footer{display:none}
+body:not(.searching) main > section:not(.active){display:none}
+body[data-view="search"] .secpick,body[data-view="search"] #find,body:not([data-view="search"]) .srch{display:none!important}
+body[data-view="search"] .srch{flex:1;min-width:0}
+body[data-view="search"]:not(.searching) main{display:none}
+body.page .controls{display:none}
+.bar{margin-top:0}
+.secrow{align-items:center}
+.secrow .srch{order:1}
+#find{order:2}
+main section{padding-top:22px}
+.secnav{display:grid;grid-template-columns:1fr 1.4fr;gap:10px;margin-top:28px}
+.secnav button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:16px;padding:12px 14px;font:inherit;cursor:pointer;text-align:left}
+.secnav button span{font-size:.76rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.secnav button b{font-family:var(--display);font-size:1.02rem;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.secnav .nx{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);align-items:flex-end;text-align:right;grid-column:2}
+.secnav .nx span{color:inherit;opacity:.8}
+.searching .secnav{display:none}
+.fakesearch{display:flex;align-items:center;gap:10px;width:100%;margin-top:10px;height:46px;padding:0 14px;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--muted);font:inherit;cursor:pointer;text-align:left}
+.fakesearch svg{width:18px;height:18px;flex:none}
+.home-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:30px 0 10px}
+.home-h h2{font-size:1.3rem}
+.home-h span{color:var(--muted);font-size:.86rem}
+.lessons{display:flex;flex-direction:column;gap:10px}
+.lesson{position:relative;display:grid;grid-template-columns:46px 1fr 18px;gap:3px 14px;align-items:center;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;text-align:left;font:inherit;color:var(--fg);cursor:pointer;transition:border-color .15s}
+@media (hover:hover){.lesson:hover,.mrow2:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}}
+.lesson .no{grid-row:1/4;width:46px;height:46px;border-radius:14px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:1.15rem}
+.lesson.done .no{background:var(--ok);color:#fff}
+.lesson .t{font-family:var(--display);font-weight:700;font-size:1.08rem;line-height:1.25;display:flex;align-items:center;gap:8px;min-width:0}
+.lesson .l{color:var(--muted);font-size:.86rem;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.lesson .pr{display:flex;align-items:center;gap:10px;font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:4px}
+.lesson .pr .tr{flex:1;max-width:160px;height:6px;border-radius:3px;background:var(--line);overflow:hidden;display:flex}
+.lesson .pr .k{background:var(--ok)} .lesson .pr .s{background:color-mix(in srgb,var(--ok) 35%,var(--line))}
+.lesson .chev,.mrow2 .chev{grid-column:3;grid-row:1/4;width:18px;height:18px;color:var(--muted)}
+.lesson.cont{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.pill{flex:none;font:700 .66rem var(--body);letter-spacing:.06em;text-transform:uppercase;background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:3px 8px}
+.more{display:flex;flex-direction:column;gap:8px}
+.mrow2{display:grid;grid-template-columns:40px 1fr 18px;gap:0 12px;align-items:center;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:10px 14px 10px 10px;text-align:left;font:inherit;color:var(--fg);cursor:pointer}
+.mrow2 .ic{grid-row:1/3;width:40px;height:40px;border-radius:12px;background:var(--tap);display:grid;place-items:center;font-size:1.15rem}
+.mrow2 b{font-weight:700}
+.mrow2 .ic{grid-column:1}
+.mrow2 b{grid-column:2}
+.mrow2 .d{grid-column:2;color:var(--muted);font-size:.84rem}
+.howto{margin-top:30px;background:var(--accent-soft);border-radius:18px;padding:16px 18px}
+.howto h3{margin:0 0 8px}
+.howto p{margin:4px 0;font-size:.92rem}
+.howto .o{color:var(--stress)}
+.howto .wd{cursor:default}
+.secpick .lbl{display:none}
+@media (min-width:520px){.secpick .lbl{display:inline}}
 .ver{text-align:center;font-size:.78rem;color:var(--muted);margin:0 0 24px;opacity:.8}
 button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--stress);outline-offset:2px}
 @media (max-width:480px){h1{font-size:1.8rem}.de{font-size:1.22rem}}
@@ -264,15 +318,24 @@ html{scroll-behavior:smooth}
     <button id="t-start">Start</button>
   </div>
   <div class="stats" id="stats"></div>
-  <p class="legend">Orange <b>CAPITALS</b> show the stressed part of a word. Tap any German word to hear it on its own and see what it means. Phone voice not playing? Turn off <b>Silent mode</b>.</p>
+  <button class="fakesearch" data-nav="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></svg><span>Search all phrases, German or English</span></button>
+  <div class="home-h"><h2>Lessons</h2><span id="home-n"></span></div>
+  <div class="lessons" id="lessons"></div>
+  <div class="home-h"><h2>More</h2></div>
+  <div class="more" id="more"></div>
+  <div class="howto"><h3>How it works</h3>
+    <p><b class="o">CAPITALS</b> in orange show the stressed part of a word.</p>
+    <p>Tap any <span class="wd">German</span> word to hear it on its own and see what it means.</p>
+    <p><b>Learn</b> shows everything. <b>Practice</b> hides the German so you can test yourself.</p>
+    <p>Phone voice not playing? Turn off <b>Silent mode</b>.</p></div>
 </div></header>
 
 <div class="bar"><div class="wrap">
-  <div class="secrow"><div class="secpick"><span class="lbl">Section</span><span class="cur" id="sec-cur">Greetings</span><span class="pos" id="sec-pos"></span>
+  <div class="secrow"><button class="iconbtn" id="back" aria-label="Back to lessons"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="secpick"><span class="lbl">Lesson</span><span class="cur" id="sec-cur">Greetings</span><span class="pos" id="sec-pos"></span>
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
     <select id="secsel" aria-label="Go to section"></select></div>
-    <button class="iconbtn" id="find" aria-pressed="false" aria-label="Search phrases"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></svg></button></div>
-  <div class="srch" id="srch" hidden><input id="q" type="search" placeholder="Search German or English" aria-label="Search German or English" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><span class="msg" id="q-n"></span></div>
+    <div class="srch" id="srch"><input id="q" type="search" placeholder="Search German or English" aria-label="Search German or English" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><span class="msg" id="q-n"></span></div>
+    <button class="iconbtn" id="find" data-nav="search" aria-label="Search phrases"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></svg></button></div>
   <div class="controls">
     <div class="seg" role="group" aria-label="Mode">
       <button id="m-learn" data-mode="learn" aria-pressed="true">Learn</button>
@@ -288,7 +351,7 @@ html{scroll-behavior:smooth}
 
 <main class="wrap" id="main"></main>
 
-<section class="wrap" id="share">
+<section class="wrap view" id="share">
   <div class="sec-head"><h2>Share &amp; recordings</h2></div>
   <p class="lead">Send the app to friends, and choose where recordings are kept.</p>
   <div class="panel" id="p-invite" hidden>
@@ -459,22 +522,52 @@ DATA.sections.forEach(s => {
     if (g.kind === 'numbers') html += `<div class="grid">${g.items.map((it,i)=>{ids.push(idOf(i));return numCard(it, idOf(i))}).join('')}</div>`;
     if (g.kind === 'cards') html += `<div class="cards">${g.items.map(c=>`<div class="info"><h4>${esc(c.title)}</h4><p>${c.body}</p></div>`).join('')}</div>`;
   });
-  html += `<p class="group-empty">Nothing starred here yet.</p></section>`;
+  html += `<p class="group-empty">Nothing starred here yet.</p><nav class="secnav" data-secnav="${s.id}"></nav></section>`;
   sequences[s.id] = ids;
   main.insertAdjacentHTML('beforeend', html);
 });
+main.appendChild($('share')); $('share').classList.remove('wrap');
 main.insertAdjacentHTML('beforeend', `<section id="progress"><div class="sec-head"><h2>My progress</h2></div><p class="lead">What you've practised and what you know.</p>
   <div class="panel"><h3>Last 5 weeks</h3><div class="heat" id="heat"></div><p id="heat-line"></p></div>
-  <div class="panel"><h3>By section</h3><div class="keyline"><span><i style="background:var(--ok)"></i>Known</span><span><i style="background:color-mix(in srgb,var(--ok) 35%,var(--line))"></i>Learning</span></div><div class="secbars" id="secbars"></div>
+  <div class="panel"><h3>By lesson</h3><div class="keyline"><span><i style="background:var(--ok)"></i>Known</span><span><i style="background:color-mix(in srgb,var(--ok) 35%,var(--line))"></i>Learning</span></div><div class="secbars" id="secbars"></div>
     <p>A phrase is <b>known</b> after you get it right in the daily review on two different days.</p></div></section>`);
 main.insertAdjacentHTML('beforeend', `<section id="mistakes"><div class="sec-head"><h2>Watch out</h2></div><p class="lead">Common spelling slips. Read these before you write.</p>
   <div class="mist"><div class="mhead"><span>Not this</span><span>Write this</span></div>${DATA.mistakes.map(([a,b,c])=>`<div class="mrow"><s>${esc(a)}</s><span class="ok">${esc(b)}</span><span class="why">${esc(c)}</span></div>`).join('')}</div></section>`);
-SECS.push({id: 'progress', title: 'My progress'}, {id: 'mistakes', title: 'Watch out'}, {id: 'share', title: 'Share & recordings'});
-secsel.innerHTML = SECS.map((x, i) => `<option value="${x.id}">${i + 1}. ${esc(x.title)}${x.n ? ` (${x.n})` : ''}</option>`).join('');
+main.appendChild($('share'));
+const LESSONS = SECS.slice();                     // the real lessons, in course order
+SECS.push({id: 'mistakes', title: 'Watch out'}, {id: 'progress', title: 'My progress'}, {id: 'share', title: 'Share & recordings'});
+secsel.innerHTML = `<optgroup label="Lessons">${LESSONS.map((x, i) => `<option value="${x.id}">${i + 1}. ${esc(x.title)}</option>`).join('')}</optgroup>
+  <optgroup label="More">${SECS.slice(LESSONS.length).map(x => `<option value="${x.id}">${esc(x.title)}</option>`).join('')}</optgroup>`;
 function showSec(id){ const i = SECS.findIndex(x => x.id === id); if (i < 0) return;
-  $('sec-cur').textContent = SECS[i].title; $('sec-pos').textContent = `${i + 1}/${SECS.length}`; secsel.value = id; }
-secsel.onchange = () => { const el = $(secsel.value); showSec(secsel.value); if (el) el.scrollIntoView({behavior: 'smooth'}); secsel.blur(); };
-showSec(SECS[0].id);
+  $('sec-cur').textContent = SECS[i].title; $('sec-pos').textContent = i < LESSONS.length ? `${i + 1}/${LESSONS.length}` : ''; secsel.value = id; }
+secsel.onchange = () => { go(secsel.value, true); secsel.blur(); };
+LESSONS.forEach((x, i) => { const p = LESSONS[i - 1], n = LESSONS[i + 1];
+  document.querySelector(`[data-secnav="${x.id}"]`).innerHTML = (p ? `<button data-nav="${p.id}"><span>← Previous</span><b>${esc(p.title)}</b></button>` : '')
+    + (n ? `<button class="nx" data-nav="${n.id}"><span>Next lesson →</span><b>${esc(n.title)}</b></button>` : `<button class="nx" data-nav="home"><span>All done →</span><b>Back to lessons</b></button>`); });
+
+// ---------- views: home → one lesson at a time (the address keeps the place: …/#numbers) ----------
+let view = 'home', navved = false;
+const pos = {};                                    // where you were on each page
+function go(v, push){
+  if (push) { navved = true; if (location.hash.slice(1) !== (v === 'home' ? '' : v)) history.pushState(null, '', v === 'home' ? location.pathname + location.search : '#' + v); }
+  render(v);
+}
+function render(v){
+  if (!(v === 'home' || v === 'search' || SECS.some(x => x.id === v))) v = 'home';
+  if (view === v) return;
+  pos[view] = scrollY; if (typeof stopAll === 'function') stopAll();
+  view = v; document.body.dataset.view = v;
+  document.body.classList.toggle('page', ['mistakes', 'progress', 'share', 'search'].includes(v) && v !== 'search');
+  document.querySelectorAll('main > section').forEach(sec => sec.classList.toggle('active', sec.id === v));
+  if (v !== 'search' && typeof closeSearch === 'function') closeSearch(true);
+  if (SECS.some(x => x.id === v)) { showSec(v); if (LESSONS.some(x => x.id === v)) store.set('lastSec', v); }
+  if (v === 'home' && typeof renderHome === 'function') renderHome();
+  if (v === 'search') setTimeout(() => $('q').focus(), 30);
+  scrollTo({top: pos[v] || 0, behavior: 'instant'});
+}
+addEventListener('popstate', () => render(location.hash.slice(1) || 'home'));
+document.addEventListener('click', e => { const n = e.target.closest('[data-nav]'); if (!n) return; go(n.dataset.nav, true); });
+$('back').onclick = () => { if (navved && history.length > 1) history.back(); else go('home', true); };
 if (HAS_TTS) { pickPhone(); speechSynthesis.onvoiceschanged = pickPhone; setTimeout(pickPhone, 800); setTimeout(pickPhone, 2500); }
 
 // ---------- playback ----------
@@ -719,8 +812,7 @@ liveSync();
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') liveSync(); });
 
 // ---------- reopen where you left off ----------
-(() => { const y = +raw.get('scrollY'); if (y && !location.hash) requestAnimationFrame(() => scrollTo({top: y, behavior: 'instant'})); })();
-let sTimer; addEventListener('scroll', () => { clearTimeout(sTimer); sTimer = setTimeout(() => raw.set('scrollY', String(Math.round(scrollY))), 300); }, {passive: true});
+
 
 // ---------- taps ----------
 function reveal(el){ if (el) el.classList.add('shown'); }
@@ -779,9 +871,7 @@ $('hard').onclick = function(){ hardOnly = !hardOnly; this.setAttribute('aria-pr
   document.querySelectorAll('main section').forEach(sec => { const empty = sec.querySelector('.group-empty'); if (empty) empty.hidden = !!sec.querySelector('.hard'); }); };
 setMode(mode); setSpeed(speed);
 
-const obs = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) {
-  showSec(en.target.id); } }), {rootMargin:'-40% 0px -55% 0px'});
-document.querySelectorAll('section[id]').forEach(s => obs.observe(s));
+
 
 // ---------- search ----------
 const norm = s => String(s).toLowerCase().replace(/\*\*/g, '').replace(/ß/g, 'ss').replace(/ä|ae/g, 'a').replace(/ö|oe/g, 'o').replace(/ü|ue/g, 'u').replace(/[^a-z0-9\u0600-\u06ff ]+/g, ' ').replace(/\s+/g, ' ').trim();
@@ -795,14 +885,10 @@ function runSearch(){
   let n = 0;
   document.querySelectorAll('main .card[data-a]').forEach(c => { const hit = q.split(' ').every(w => HAY[c.id].includes(w)); c.classList.toggle('hit', hit); if (hit) n++; });
   document.querySelectorAll('main section').forEach(sec => sec.classList.toggle('hit', !!sec.querySelector('.card.hit')));
-  $('q-n').textContent = n ? `${n} found` : 'Nothing found';
+  $('q-n').textContent = n ? `${n} found` : 'None';
 }
-function closeSearch(){ $('q').value = ''; $('srch').hidden = true; $('find').setAttribute('aria-pressed', 'false'); runSearch(); }
-$('find').onclick = () => { if (!$('srch').hidden) return closeSearch();
-  $('srch').hidden = false; $('find').setAttribute('aria-pressed', 'true'); $('q').focus();
-  toResults(); };
-const toResults = () => { const y = main.offsetTop - document.querySelector('.bar').offsetHeight; if (scrollY < y) scrollTo({top: y, behavior: 'instant'}); };
-$('q').addEventListener('input', () => { runSearch(); const y = main.offsetTop - document.querySelector('.bar').offsetHeight; scrollTo({top: Math.max(0, y), behavior: 'instant'}); });
+function closeSearch(keepView){ $('q').value = ''; runSearch(); if (!keepView && view === 'search') $('back').click(); }
+$('q').addEventListener('input', () => { runSearch(); scrollTo({top: 0, behavior: 'instant'}); });
 $('q').addEventListener('keydown', e => { if (e.key === 'Escape') closeSearch(); if (e.key === 'Enter') $('q').blur(); });
 
 // ---------- share & recordings ----------
@@ -878,7 +964,7 @@ function openReview(){
   rv.hidden = false; document.body.style.overflow = 'hidden'; showFront();
 }
 function finishRec(){ if (recA && recBtn) recBtn.click(); }
-function closeReview(){ finishRec(); rv.hidden = true; document.body.style.overflow = ''; stopAll(); hidePop(); refreshToday(); renderProgress(); }
+function closeReview(){ finishRec(); rv.hidden = true; document.body.style.overflow = ''; stopAll(); hidePop(); refreshToday(); renderProgress(); if (view === 'home') renderHome(); }
 function rprogress(){ $('rv-prog').textContent = `${Math.min(stats.good + 1, total)} of ${total}`; $('rv-fill').style.width = `${Math.round(100 * stats.good / Math.max(total, 1))}%`; }
 function showFront(){
   if (ri >= rq.length) return showDone();
@@ -948,9 +1034,30 @@ function renderProgress(){
     const k = its.filter(known).length, l = its.filter(it => srs[it.a] && !known(it)).length, pc = x => (100 * x / its.length).toFixed(1);
     return `<button class="sbar" data-go="${s.id}"><span class="nm">${esc(s.title)}</span><span class="ct">${k} / ${its.length}</span><span class="tr"><i class="k" style="width:${pc(k)}%"></i><i class="s" style="width:${pc(l)}%"></i></span></button>`; }).join('');
 }
-document.addEventListener('click', e => { const g = e.target.closest('[data-go]'); if (!g) return; const el = $(g.dataset.go); if (el) { showSec(g.dataset.go); el.scrollIntoView({behavior: 'smooth'}); } });
+document.addEventListener('click', e => { const g = e.target.closest('[data-go]'); if (g) go(g.dataset.go, true); });
+
+// ---------- home: the lessons ----------
+const CHEV = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
+function renderHome(){
+  const known = it => srs[it.a] && srs[it.a].b >= 2, last = store.get('lastSec', '');
+  $('home-n').textContent = `${LESSONS.length} lessons · ${pool.length} phrases`;
+  $('lessons').innerHTML = LESSONS.map((x, i) => { const s = DATA.sections.find(z => z.id === x.id), its = pool.filter(it => it.sec === x.id);
+    const k = its.filter(known).length, l = its.filter(it => srs[it.a] && !known(it)).length, pc = v => (100 * v / Math.max(its.length, 1)).toFixed(1);
+    const done = its.length && k === its.length;
+    const pr = its.length ? `<span class="pr"><span class="tr"><i class="k" style="width:${pc(k)}%"></i><i class="s" style="width:${pc(l)}%"></i></span>${k} of ${its.length} known</span>`
+                          : `<span class="pr">${x.n} sounds to practise</span>`;
+    return `<button class="lesson${done ? ' done' : ''}${x.id === last ? ' cont' : ''}" data-nav="${x.id}"><span class="no">${done ? '✓' : i + 1}</span>
+      <span class="t">${esc(x.title)}${x.id === last ? '<span class="pill">Continue</span>' : ''}</span><span class="l">${esc(s.lead)}</span>${pr}${CHEV}</button>`; }).join('');
+  const nst = starred.size;
+  $('more').innerHTML = [['mistakes', '✍️', 'Watch out', `${DATA.mistakes.length} spelling slips to avoid`],
+    ['progress', '📈', 'My progress', 'Your practice calendar and what you know'],
+    ['share', '🎙', 'Share & recordings', 'Chris’s recordings, sharing and saving online']]
+    .map(([id, ic, t, d]) => `<button class="mrow2" data-nav="${id}"><span class="ic" aria-hidden="true">${ic}</span><b>${t}</b><span class="d">${d}</span>${CHEV}</button>`).join('');
+}
 renderProgress();
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { refreshToday(); renderProgress(); } });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { refreshToday(); renderProgress(); if (view === 'home') renderHome(); } });
+document.body.dataset.view = 'home'; view = '';
+render(location.hash.slice(1) || 'home');
 
 $('t-start').onclick = openReview;
 $('rv-close').onclick = closeReview;
