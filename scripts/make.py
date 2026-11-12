@@ -5,7 +5,7 @@ and writes the finished site to the output folder.
 
 Usage: python scripts/make.py <voice.onnx> <phrases.yml> <out-folder>
 """
-import sys, os, json, hashlib, unicodedata, wave, shutil
+import sys, os, json, hashlib, unicodedata, wave, shutil, re, subprocess, datetime
 import yaml, lameenc
 from piper.voice import PiperVoice
 from piper.config import SynthesisConfig
@@ -75,7 +75,55 @@ for sec in data["sections"]:
                 enc.set_bit_rate(48); enc.set_in_sample_rate(rate); enc.set_channels(1); enc.set_quality(2)
                 open(mp3, "wb").write(enc.encode(pcm) + enc.flush())
                 count += 1
+
+# Every single German word gets its own recording too, so tapping a word in the app plays just that word.
+# A word that is already a phrase of its own (e.g. "Hallo") has the same key and reuses that recording.
+WORD_RE = re.compile(r"[A-Za-zÄÖÜäöüß]+(?:['’][A-Za-z]+)?")
+word_keys = {}
+for sec in data["sections"]:
+    for g in sec["groups"]:
+        if g["kind"] == "cards" or sec["id"] == "sounds":   # Sounds shows single letters, not words
+            continue
+        for it in g["items"]:
+            for w in WORD_RE.findall(it["de"]):
+                word_keys.setdefault(w.lower(), (w, key(w)))
+for w, k in word_keys.values():
+    for name, ls in (("n", 1.0), ("s", 1.4)):
+        mp3 = f"{OUT}/audio/{k}_{name}.mp3"
+        if os.path.exists(mp3):
+            continue
+        wav = f"{tmp}/{k}_{name}.wav"
+        with wave.open(wav, "wb") as wf:
+            voice.synthesize_wav(w, wf, syn_config=SynthesisConfig(length_scale=ls, noise_scale=0.5, noise_w_scale=0.6))
+        with wave.open(wav, "rb") as wf:
+            rate, pcm = wf.getframerate(), wf.readframes(wf.getnframes())
+        pcm += b"\x00\x00" * int(rate * 0.15)
+        enc = lameenc.Encoder()
+        enc.set_bit_rate(48); enc.set_in_sample_rate(rate); enc.set_channels(1); enc.set_quality(2)
+        open(mp3, "wb").write(enc.encode(pcm) + enc.flush())
+        count += 1
 shutil.rmtree(tmp)
+
+# When was each phrase added? Read the history of phrases.yml (needs the full git history; skipped if missing).
+added = {}
+try:
+    log = subprocess.run(["git", "log", "--reverse", "-p", "--format=@@DATE %as", "--", os.path.relpath(PHRASES, f"{HERE}/..")],
+                         cwd=f"{HERE}/..", capture_output=True, text=True, check=True).stdout
+    day = None
+    for line in log.splitlines():
+        if line.startswith("@@DATE "):
+            day = line[7:].strip()
+        elif line.startswith("+") and "- de:" in line and day:
+            de = line.split("- de:", 1)[1].strip().strip("'\"")
+            added.setdefault(de, day)
+except Exception as e:
+    print(f"No history for phrase dates: {e}")
+today = datetime.date.today().isoformat()
+for sec in data["sections"]:
+    for g in sec["groups"]:
+        if g["kind"] != "cards":
+            for it in g["items"]:
+                it["added"] = added.get(str(it["de"]).strip(), today)
 
 # Lines that read several words one by one (e.g. "Abend. acht.") are split into parts, so a person records
 # each word only once. A part that is also a phrase of its own (e.g. "acht") reuses that phrase's recording.
@@ -133,11 +181,11 @@ if os.path.isdir(rec_root):
 for person, recs in voices.items():
     print(f"{person} has recorded {len(recs)} phrases and {len(tips.get(person, {}))} suggestions.")
 
-page_data = json.dumps({"sections": data["sections"], "mistakes": data["mistakes"], "voices": voices, "tips": tips}, ensure_ascii=False)
+page_data = json.dumps({"sections": data["sections"], "mistakes": data["mistakes"], "voices": voices, "tips": tips,
+                        "wordAudio": {w.lower(): k for w, k in word_keys.values()}}, ensure_ascii=False)
 repo = os.environ.get("GITHUB_REPOSITORY", "NeginZarbakhsh/German-review")
 owner, name = repo.split("/")
 site = f"https://{owner.lower()}.github.io/{name}/"
-import datetime
 BUILD = hashlib.md5((page_data + open(f"{HERE}/template.html", encoding="utf-8").read() + open(f"{HERE}/record.html", encoding="utf-8").read()).encode("utf-8")).hexdigest()[:10]
 STAMP = datetime.datetime.now(datetime.timezone.utc).strftime("%d %b, %H:%M UTC").lstrip("0")
 open(f"{OUT}/version.json", "w").write(json.dumps({"build": BUILD, "stamp": STAMP}))

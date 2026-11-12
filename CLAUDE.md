@@ -10,7 +10,8 @@ Live at https://neginzarbakhsh.github.io/German-review/ — every push to `main`
 - `scripts/record.html` — Chris's recording page (`record.html?who=chris`). Chris is German; he records native audio.
 - `scripts/make.py` — the build: records every phrase with the Piper German voice (slow + normal), converts people's recordings, writes `site/`.
 - `scripts/sw.js` — offline support. `version.json` makes open pages reload when a newer build exists.
-- `.github/workflows/publish.yml` — builds on push to `main` and publishes to the `gh-pages` branch.
+- `.github/workflows/publish.yml` — builds on push to `main` and publishes to the `gh-pages` branch. It checks out the full git history: the build reads when each phrase was first added (shown as “New” badges, “added this week” and the Timeline in My progress).
+- Every German word in a phrase also gets its own recording automatically (tap a word in the app to hear it and see its meaning from `words`). Nothing to add in `phrases.yml` for this.
 - `recordings/chris/`, `recordings/negin/` — real recordings saved from the pages (WAV). `recordings/<person>/tips/` = Chris's suggestions (`.txt` note and/or `.wav`).
   **Never add, delete or overwrite files here unless Negin asks.** They are real voices.
 
@@ -41,6 +42,7 @@ cd site && python -m http.server 8000                               # open http:
 
 - `python -c "import yaml;yaml.safe_load(open('phrases.yml'))"` must pass (quote values that start with `**` or contain `: `).
 - On Chris's page (`record.html?who=chris`, “All” tab) no phrase or word may appear twice.
+- App extras (don't remove): search (magnifier), tap-a-word, My progress section (streak calendar, known per section, timeline), listening cards in the daily review, pauses after each phrase in Play all.
 - Every phrase card shows the same 5 buttons: Standard · Phone · Chris · Me · Record. Practice mode shows only Me · Record.
 - Don't change the UI unless asked; Negin cares a lot about a clean, consistent layout.
 

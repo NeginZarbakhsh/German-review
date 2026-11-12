@@ -201,9 +201,66 @@ footer{padding-block:28px 48px;color:var(--muted);font-size:.85rem;text-align:ce
 .rv-done p{color:var(--muted);margin:0}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:11px 18px;border-radius:999px;font-weight:700;font-size:.9rem;z-index:60;max-width:calc(100% - 32px);text-align:center}
 
+/* progress strip under today's review */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px;text-align:left;font:inherit;color:var(--fg);cursor:pointer;min-width:0}
+.stat b{display:block;font-family:var(--display);font-size:1.4rem;line-height:1.15;font-variant-numeric:tabular-nums}
+.stat span{display:block;font-size:.78rem;color:var(--muted);line-height:1.3}
+/* search */
+.secrow{display:flex;gap:8px}
+.secrow .secpick{flex:1;min-width:0}
+.iconbtn{flex:none;width:44px;height:44px;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:12px;display:grid;place-items:center;cursor:pointer;padding:0}
+.iconbtn svg{width:20px;height:20px}
+.iconbtn[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.srch{display:flex;gap:8px;align-items:center}
+.srch input{flex:1;min-width:0;height:44px;font:inherit;font-size:16px;padding:0 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--fg)}
+.srch .msg{flex:none;font-variant-numeric:tabular-nums}
+.searching main section:not(.hit),.searching #share,.searching .sec-head .playall,.searching .lead,.searching h3,.searching .note,.searching .cards,.searching .group-empty,.searching .card:not(.hit){display:none!important}
+.searching .card.hit{display:grid!important}
+.searching .list:not(:has(.hit)),.searching .grid:not(:has(.hit)){display:none}
+.searching .list,.searching .grid{margin-top:10px}
+/* tap a German word: hear it and see its meaning */
+.wd{cursor:pointer;text-decoration:underline dotted color-mix(in srgb,var(--fg) 28%,transparent);text-decoration-thickness:2px;text-underline-offset:5px;border-radius:4px}
+.wd.on{color:var(--accent);text-decoration-color:var(--accent)}
+.wpop{position:fixed;z-index:40;max-width:min(320px,calc(100vw - 32px));background:var(--fg);color:var(--bg);border-radius:12px;padding:9px 13px;font-size:.95rem;box-shadow:0 6px 24px rgba(0,0,0,.18);pointer-events:none}
+.wpop b{font-family:var(--display)}
+.wpop span{opacity:.75}
+.newtag{display:inline-block;vertical-align:middle;margin-left:8px;font:700 .66rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--ok);border:1.5px solid currentColor;border-radius:999px;padding:1px 7px 0}
+/* my progress */
+.heat{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;max-width:260px}
+.heat .dn{font-size:.7rem;color:var(--muted);text-align:center;font-weight:700}
+.heat i{aspect-ratio:1;border-radius:6px;background:var(--line)}
+.heat i.l1{background:color-mix(in srgb,var(--accent) 35%,var(--line))}
+.heat i.l2{background:color-mix(in srgb,var(--accent) 65%,var(--line))}
+.heat i.l3{background:var(--accent)}
+.heat i.fut{background:transparent;border:1px dashed var(--line)}
+.heat i.now{outline:2px solid var(--stress);outline-offset:1px}
+.secbars{display:flex;flex-direction:column;gap:12px}
+.sbar{display:grid;grid-template-columns:1fr auto;gap:4px 12px;border:0;background:transparent;padding:0;font:inherit;color:var(--fg);text-align:left;cursor:pointer}
+.sbar .nm{font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sbar .ct{color:var(--muted);font-size:.86rem;font-variant-numeric:tabular-nums}
+.sbar .tr{grid-column:1/-1;height:8px;border-radius:4px;background:var(--line);overflow:hidden;display:flex}
+.sbar .k{background:var(--ok)} .sbar .s{background:color-mix(in srgb,var(--ok) 35%,var(--line))}
+.keyline{display:flex;gap:14px;font-size:.82rem;color:var(--muted)}
+.keyline i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.tl{display:flex;flex-direction:column;gap:0;margin:0;padding:0;list-style:none}
+.tl li{position:relative;padding:0 0 16px 22px}
+.tl li::before{content:"";position:absolute;left:5px;top:8px;bottom:-8px;width:2px;background:var(--line)}
+.tl li:last-child::before{display:none}
+.tl li::after{content:"";position:absolute;left:0;top:5px;width:12px;height:12px;border-radius:50%;background:var(--accent)}
+.tl .dt{font-weight:700}
+.tl .dt span{color:var(--muted);font-weight:400;font-size:.86rem}
+.tl .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.tl .chips button{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:999px;padding:4px 11px;font:inherit;font-size:.86rem;cursor:pointer}
+.tl .chips b{color:var(--ok)}
+/* review: listening cards */
+.rv-play{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;border:0;background:var(--accent);color:var(--accent-ink);font:700 1rem var(--body);border-radius:999px;padding:12px 20px;cursor:pointer;margin-top:4px}
+.rv-play svg{width:18px;height:18px}
 .ver{text-align:center;font-size:.78rem;color:var(--muted);margin:0 0 24px;opacity:.8}
 button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--stress);outline-offset:2px}
 @media (max-width:480px){h1{font-size:1.8rem}.de{font-size:1.22rem}}
+.controls .seg{flex:1 1 auto}.controls .seg button{flex:1}
+@media (max-width:430px){.toggle .tl-lbl{display:none}.toggle{padding:7px 9px}.seg button{padding:6px 9px}.stat b{font-size:1.25rem}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 html{scroll-behavior:smooth}
 </style>
@@ -217,13 +274,16 @@ html{scroll-behavior:smooth}
     <div><b id="t-count">Today's review</b><span id="t-sub">About 5 minutes. Say each answer out loud.</span></div>
     <button id="t-start">Start</button>
   </div>
-  <p class="legend">Orange <b>CAPITALS</b> show the stressed part of a word. Phone voice not playing? Turn off <b>Silent mode</b>.</p>
+  <div class="stats" id="stats"></div>
+  <p class="legend">Orange <b>CAPITALS</b> show the stressed part of a word. Tap any German word to hear it on its own and see what it means. Phone voice not playing? Turn off <b>Silent mode</b>.</p>
 </div></header>
 
 <div class="bar"><div class="wrap">
-  <div class="secpick"><span class="lbl">Section</span><span class="cur" id="sec-cur">Greetings</span><span class="pos" id="sec-pos"></span>
+  <div class="secrow"><div class="secpick"><span class="lbl">Section</span><span class="cur" id="sec-cur">Greetings</span><span class="pos" id="sec-pos"></span>
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
     <select id="secsel" aria-label="Go to section"></select></div>
+    <button class="iconbtn" id="find" aria-pressed="false" aria-label="Search phrases"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></svg></button></div>
+  <div class="srch" id="srch" hidden><input id="q" type="search" placeholder="Search German or English" aria-label="Search German or English" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><span class="msg" id="q-n"></span></div>
   <div class="controls">
     <div class="seg" role="group" aria-label="Mode">
       <button id="m-learn" data-mode="learn" aria-pressed="true">Learn</button>
@@ -233,7 +293,7 @@ html{scroll-behavior:smooth}
       <button id="s-slow" data-speed="s" aria-pressed="true">Slow</button>
       <button id="s-normal" data-speed="n" aria-pressed="false">Normal</button>
     </div>
-    <button class="toggle" id="hard" aria-pressed="false" aria-label="Show starred only"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/></svg>Starred</button>
+    <button class="toggle" id="hard" aria-pressed="false" aria-label="Show starred only"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/></svg><span class="tl-lbl">Starred</span></button>
   </div>
 </div></div>
 
@@ -277,6 +337,7 @@ html{scroll-behavior:smooth}
   </div>
 </div>
 <div class="toast" id="toast" hidden role="status"></div>
+<div class="wpop" id="wpop" hidden role="status"></div>
 
 <script>
 const DATA = __DATA__;
@@ -322,6 +383,7 @@ const hasRec = (p, k) => LIVE[p] ? LIVE[p].has(k) : !!(VOICES[p] && VOICES[p][k]
 const hasPartner = a => hasRec(PARTNER, a) || !!(ITEM[a] && ITEM[a].parts && ITEM[a].parts.every(x => hasRec(PARTNER, x.a)));
 const hasMe = a => local.has(a) || !!(ME && hasRec(ME, a));
 
+function today(){ return new Date().toLocaleDateString('en-CA'); }
 let speed = store.get('speed','s'), mode = store.get('mode','learn'), hardOnly = false;
 let starred = new Set(store.get('starred', []));
 const A2T = {}; DATA.sections.forEach(s => s.groups.forEach(g => { if (g.kind !== 'cards') g.items.forEach(it => { A2T[it.a] = it.speak; ITEM[it.a] = it; }); }));
@@ -340,6 +402,30 @@ function pickPhone(){
   document.querySelectorAll('.ph-name').forEach(el => el.textContent = phName);
 }
 
+// ---------- words you can tap ----------
+// Every German word has its own recording (built by make.py). Tap one to hear it and see its meaning.
+const WA = DATA.wordAudio || {};
+const WRE = /[A-Za-zÄÖÜäöüß]+(?:['’][A-Za-z]+)?/g;
+const DICT = {};
+DATA.sections.forEach(s => s.groups.forEach(g => { if (g.kind === 'cards') return; g.items.forEach(it => {
+  (it.words || []).forEach(([d, e]) => { const k = String(d).toLowerCase(); if (!(k in DICT)) DICT[k] = e; });
+}); }));
+DATA.sections.forEach(s => { if (s.id === 'sounds') return; s.groups.forEach(g => { if (g.kind === 'cards') return; g.items.forEach(it => {
+  const ws = String(it.de).match(WRE) || [];
+  if (ws.length === 1 && !(ws[0].toLowerCase() in DICT)) DICT[ws[0].toLowerCase()] = it.en;
+}); }); });
+function meaning(w){ const k = w.toLowerCase(); return DICT[k] || DICT[k.replace(/['’]s$/, '')] || ''; }
+function tapWords(s){
+  s = String(s); let out = '', last = 0;
+  for (const m of s.matchAll(WRE)) { const w = m[0];
+    out += esc(s.slice(last, m.index)) + (WA[w.toLowerCase()] ? `<span class="wd" data-w="${esc(w)}">${esc(w)}</span>` : esc(w)); last = m.index + w.length; }
+  return out + esc(s.slice(last));
+}
+const ymd = d => { const [y, m, dd] = d.split('-').map(Number); return new Date(y, m - 1, dd); };
+const daysAgo = d => Math.round((ymd(today()) - ymd(d)) / 864e5);
+const isNew = it => it.added && daysAgo(it.added) < 7;
+const fmtDay = d => ymd(d).toLocaleDateString('en-GB', {weekday: 'short', day: 'numeric', month: 'short'});
+
 // ---------- rendering ----------
 function pbar(it, id){
   const p = PARTNER, hp = hasPartner(it.a);
@@ -356,7 +442,7 @@ function words(it){ return it.words.length ? `<div class="words hide">${it.words
 function rowCard(it, id, sound){
   return `<div class="card${sound?' sound':''}${starred.has(it.a)?' hard':''}" id="${id}" data-a="${it.a}">
     <div class="body">
-      <div class="de hide">${esc(it.de)}</div>
+      <div class="de hide">${sound ? esc(it.de) : tapWords(it.de)}${isNew(it) ? '<span class="newtag">New</span>' : ''}</div>
       <div class="say hide">${stress(it.say)}</div>
       <div class="en">${esc(it.en)}</div>
       ${it.fa ? `<div class="fa hide" dir="rtl" lang="fa">${esc(it.fa)}</div>` : ''}
@@ -368,14 +454,15 @@ function rowCard(it, id, sound){
 }
 function numCard(it, id){
   return `<div class="card num${starred.has(it.a)?' hard':''}" id="${id}" data-a="${it.a}">
-    <div class="body"><div class="numrow"><span class="n">${esc(it.en)}</span><div><div class="tw hide">${esc(it.de)}</div><div class="ts hide">${stress(it.say)}</div></div></div>
+    <div class="body"><div class="numrow"><span class="n">${esc(it.en)}</span><div><div class="tw hide">${esc(it.de)}${isNew(it) ? '<span class="newtag">New</span>' : ''}</div><div class="ts hide">${stress(it.say)}</div></div></div>
       <div class="tips hide" data-tips="${it.a}"></div>
       <button class="reveal" data-reveal="${id}">Say it, then tap to check</button></div>${starBtn(it.a)}${pbar(it, id)}</div>`;
 }
 const sequences = {};
 DATA.sections.forEach(s => {
   const n = s.groups.reduce((t, g) => t + (g.kind === 'cards' ? 0 : g.items.length), 0);
-  SECS.push({id: s.id, title: s.title, n});
+  const fresh = s.groups.some(g => g.kind !== 'cards' && g.items.some(isNew));
+  SECS.push({id: s.id, title: s.title, n, fresh});
   let html = `<section id="${s.id}"><div class="sec-head"><h2>${esc(s.title)}</h2><button class="playall" data-seq="${s.id}">${I.play}Play all</button></div><p class="lead">${esc(s.lead)}</p>`;
   const ids = [];
   s.groups.forEach((g, gi) => {
@@ -390,10 +477,15 @@ DATA.sections.forEach(s => {
   sequences[s.id] = ids;
   main.insertAdjacentHTML('beforeend', html);
 });
+main.insertAdjacentHTML('beforeend', `<section id="progress"><div class="sec-head"><h2>My progress</h2></div><p class="lead">What you've practised, what you know, and when you added it.</p>
+  <div class="panel"><h3>Last 5 weeks</h3><div class="heat" id="heat"></div><p id="heat-line"></p></div>
+  <div class="panel"><h3>By section</h3><div class="keyline"><span><i style="background:var(--ok)"></i>Known</span><span><i style="background:color-mix(in srgb,var(--ok) 35%,var(--line))"></i>Learning</span></div><div class="secbars" id="secbars"></div>
+    <p>A phrase is <b>known</b> after you get it right in the daily review on two different days.</p></div>
+  <div class="panel"><h3>Timeline</h3><p id="tl-line"></p><ul class="tl" id="tl"></ul></div></section>`);
 main.insertAdjacentHTML('beforeend', `<section id="mistakes"><div class="sec-head"><h2>Watch out</h2></div><p class="lead">Common spelling slips. Read these before you write.</p>
   <div class="mist"><div class="mhead"><span>Not this</span><span>Write this</span></div>${DATA.mistakes.map(([a,b,c])=>`<div class="mrow"><s>${esc(a)}</s><span class="ok">${esc(b)}</span><span class="why">${esc(c)}</span></div>`).join('')}</div></section>`);
-SECS.push({id: 'mistakes', title: 'Watch out'}, {id: 'share', title: 'Share & recordings'});
-secsel.innerHTML = SECS.map((x, i) => `<option value="${x.id}">${i + 1}. ${esc(x.title)}${x.n ? ` (${x.n})` : ''}</option>`).join('');
+SECS.push({id: 'progress', title: 'My progress'}, {id: 'mistakes', title: 'Watch out'}, {id: 'share', title: 'Share & recordings'});
+secsel.innerHTML = SECS.map((x, i) => `<option value="${x.id}">${i + 1}. ${esc(x.title)}${x.n ? ` (${x.n})` : ''}${x.fresh ? ' · new' : ''}</option>`).join('');
 function showSec(id){ const i = SECS.findIndex(x => x.id === id); if (i < 0) return;
   $('sec-cur').textContent = SECS[i].title; $('sec-pos').textContent = `${i + 1}/${SECS.length}`; secsel.value = id; }
 secsel.onchange = () => { const el = $(secsel.value); showSec(secsel.value); if (el) el.scrollIntoView({behavior: 'smooth'}); secsel.blur(); };
@@ -479,9 +571,15 @@ function playNext(){
   if (!el || el.offsetParent === null) return playNext();
   el.classList.add('playing');
   const q = queue;
-  playKind('std', el.dataset.a, el.querySelector('[data-std]'), () => { if (queue === q) setTimeout(playNext, queue.length ? 350 : 0); });
+  // after each phrase, a pause as long as the phrase itself, so you can say it after the voice
+  playKind('std', el.dataset.a, el.querySelector('[data-std]'), () => { if (queue === q) setTimeout(playNext, queue.length ? Math.min(5000, 600 + 1100 * (player.duration || 1)) : 0); });
 }
-function playSeq(ids){ stopAll(); queue = ids.slice(); playNext(); }
+function playSeq(ids){ stopAll(); queue = ids.slice(); bump(); playNext();
+  if (!store.get('seqTold', false)) { store.set('seqTold', true); toast('Say each phrase out loud in the pause after it.'); } }
+
+// ---------- activity: what you did each day (kept on this phone) ----------
+let act = store.get('act', {}), actT;
+function bump(n = 1){ const t = today(); act[t] = (act[t] || 0) + n; store.set('act', act); clearTimeout(actT); actT = setTimeout(() => renderProgress(), 400); }
 
 // ---------- recording ----------
 const idb = (() => {
@@ -563,7 +661,7 @@ async function onRec(btn){
   if (recA === a) {                                   // stop, then compare: your take → Chris (or the standard voice)
     const wav = stopRec();
     setRecLook(btn, false); host && host.classList.remove('recording');
-    local.add(a); takeUrls.set(a, URL.createObjectURL(new Blob([wav], {type: 'audio/wav'}))); enableMe(a);
+    local.add(a); takeUrls.set(a, URL.createObjectURL(new Blob([wav], {type: 'audio/wav'}))); enableMe(a); bump();
     idb.set(a, wav).catch(() => {});
     const inPractice = mode === 'practice' && !btn.closest('.rv-card');
     if (inPractice) reveal(host);                     // in Practice: show the answer and compare with the standard voice
@@ -641,6 +739,16 @@ let sTimer; addEventListener('scroll', () => { clearTimeout(sTimer); sTimer = se
 
 // ---------- taps ----------
 function reveal(el){ if (el) el.classList.add('shown'); }
+const pop = $('wpop');
+function showPop(el, w){
+  const m = meaning(w);
+  pop.innerHTML = `<b>${esc(w)}</b>${m ? ` = ${esc(m)}` : ' <span>· listen</span>'}`; pop.dataset.w = w; pop.hidden = false;
+  const r = el.getBoundingClientRect(), pw = pop.offsetWidth, ph = pop.offsetHeight;
+  pop.style.left = Math.max(16, Math.min(innerWidth - pw - 16, r.left + r.width / 2 - pw / 2)) + 'px';
+  pop.style.top = (r.top - ph - 10 > 70 ? r.top - ph - 10 : r.bottom + 10) + 'px';
+}
+function hidePop(){ pop.hidden = true; pop.dataset.w = ''; }
+addEventListener('scroll', () => { if (!pop.hidden) hidePop(); }, {passive: true});
 document.addEventListener('click', e => {
   const t = e.target;
   const rec = t.closest('[data-rec]'); if (rec) { onRec(rec); return; }
@@ -648,6 +756,12 @@ document.addEventListener('click', e => {
   if (tb) { if (tb.classList.contains('on')) { stopAll(); return; } stopAll(); const my = ++ticket; tb.classList.add('on'); onBtn = tb;
     tipUrl(tb.dataset.tipp, tb.dataset.tipk).then(url => { if (my !== ticket) return; player.src = url; player.playbackRate = 1; onEnd = () => tb.classList.remove('on'); return player.play(); })
       .catch(() => { tb.classList.remove('on'); toast('Couldn’t play the tip. Check your internet.'); }); return; }
+  const wd = t.closest('[data-w]');
+  if (wd) { const w = wd.dataset.w, k = WA[w.toLowerCase()];
+    if (wd.classList.contains('on')) { stopAll(); hidePop(); return; }
+    stopAll(); showPop(wd, w); bump();
+    playKind(hasRec(PARTNER, k) ? PARTNER : 'std', k, wd, () => setTimeout(() => { if (pop.dataset.w === w) hidePop(); }, 1600)); return; }
+  hidePop();
   const st = t.closest('[data-star]');
   if (st) { const a = st.dataset.star, on = !starred.has(a); on ? starred.add(a) : starred.delete(a);
     document.querySelectorAll(`[data-a="${a}"]`).forEach(el => el.classList.toggle('hard', on));
@@ -657,7 +771,7 @@ document.addEventListener('click', e => {
   if (pb && !pb.disabled) {
     if (pb.classList.contains('on')) { stopAll(); return; }          // tap a playing button to stop it
     if (mode === 'practice') reveal(pb.closest('.card'));
-    stopAll();
+    stopAll(); bump();
     if (pb.dataset.std) playKind('std', pb.dataset.std, pb);
     else if (pb.dataset.ph) playKind('ph', pb.dataset.ph, pb);
     else if (pb.dataset.vs) playKind(pb.dataset.vs, pb.dataset.va, pb);
@@ -683,6 +797,28 @@ setMode(mode); setSpeed(speed);
 const obs = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) {
   showSec(en.target.id); } }), {rootMargin:'-40% 0px -55% 0px'});
 document.querySelectorAll('section[id]').forEach(s => obs.observe(s));
+
+// ---------- search ----------
+const norm = s => String(s).toLowerCase().replace(/\*\*/g, '').replace(/ß/g, 'ss').replace(/ä|ae/g, 'a').replace(/ö|oe/g, 'o').replace(/ü|ue/g, 'u').replace(/[^a-z0-9\u0600-\u06ff ]+/g, ' ').replace(/\s+/g, ' ').trim();
+const HAY = {};
+document.querySelectorAll('main .card[data-a]').forEach(c => { const it = ITEM[c.dataset.a];
+  HAY[c.id] = norm([it.de, it.en, it.say, it.fa || '', ...(it.words || []).flat()].join(' ')); });
+function runSearch(){
+  const q = norm($('q').value), on = !!q;
+  document.body.classList.toggle('searching', on);
+  if (!on) { $('q-n').textContent = ''; return; }
+  let n = 0;
+  document.querySelectorAll('main .card[data-a]').forEach(c => { const hit = q.split(' ').every(w => HAY[c.id].includes(w)); c.classList.toggle('hit', hit); if (hit) n++; });
+  document.querySelectorAll('main section').forEach(sec => sec.classList.toggle('hit', !!sec.querySelector('.card.hit')));
+  $('q-n').textContent = n ? `${n} found` : 'Nothing found';
+}
+function closeSearch(){ $('q').value = ''; $('srch').hidden = true; $('find').setAttribute('aria-pressed', 'false'); runSearch(); }
+$('find').onclick = () => { if (!$('srch').hidden) return closeSearch();
+  $('srch').hidden = false; $('find').setAttribute('aria-pressed', 'true'); $('q').focus();
+  toResults(); };
+const toResults = () => { const y = main.offsetTop - document.querySelector('.bar').offsetHeight; if (scrollY < y) scrollTo({top: y, behavior: 'instant'}); };
+$('q').addEventListener('input', () => { runSearch(); const y = main.offsetTop - document.querySelector('.bar').offsetHeight; scrollTo({top: Math.max(0, y), behavior: 'instant'}); });
+$('q').addEventListener('keydown', e => { if (e.key === 'Escape') closeSearch(); if (e.key === 'Enter') $('q').blur(); });
 
 // ---------- share & recordings ----------
 const BASE = SITE.startsWith('http') ? SITE : location.href.split('#')[0].replace(/[^/]*$/, '');
@@ -726,12 +862,11 @@ document.addEventListener('click', e => { const b = e.target.closest('[data-who]
 
 // ---------- today's review (spaced repetition) ----------
 const NEW_PER_DAY = 10, MAX_DUE = 25, GAPS = [1, 1, 3, 7, 14, 30];
-const today = () => new Date().toLocaleDateString('en-CA');
 const addDays = n => { const d = new Date(); d.setDate(d.getDate() + n); return d.toLocaleDateString('en-CA'); };
 let srs = store.get('srs', {});
 const pool = []; const seen = new Set();
 DATA.sections.forEach(s => { if (s.id === 'sounds') return; s.groups.forEach(g => { if (g.kind === 'cards') return;
-  g.items.forEach(it => { if (seen.has(it.a)) return; seen.add(it.a); pool.push({...it, kind: g.kind}); }); }); });
+  g.items.forEach(it => { if (seen.has(it.a)) return; seen.add(it.a); pool.push({...it, kind: g.kind, sec: s.id}); }); }); });
 function newToday(){ const n = store.get('newDay', {}); return n.d === today() ? n.n : 0; }
 function buildQueue(){
   const t = today();
@@ -752,18 +887,25 @@ const rv = $('rv'), card = $('rv-card'), ractions = $('rv-actions');
 function openReview(){
   let q = buildQueue();
   if (!q.length) q = pool.filter(it => starred.has(it.a)).concat(pool.slice().sort(() => Math.random() - .5)).filter((v, i, a) => a.findIndex(x => x.a === v.a) === i).slice(0, 10);
+  // phrases you already know sometimes come as a listening card: hear the German, say what it means
+  q = q.map(it => ({...it, listen: !!(srs[it.a] && srs[it.a].b >= 2 && Math.random() < 0.5)}));
   rq = q; ri = 0; total = q.length; stats = {good: 0, again: 0}; lapsed = new Set();
   rv.hidden = false; document.body.style.overflow = 'hidden'; showFront();
 }
 function finishRec(){ if (recA && recBtn) recBtn.click(); }
-function closeReview(){ finishRec(); rv.hidden = true; document.body.style.overflow = ''; stopAll(); refreshToday(); }
+function closeReview(){ finishRec(); rv.hidden = true; document.body.style.overflow = ''; stopAll(); hidePop(); refreshToday(); renderProgress(); }
 function rprogress(){ $('rv-prog').textContent = `${Math.min(stats.good + 1, total)} of ${total}`; $('rv-fill').style.width = `${Math.round(100 * stats.good / Math.max(total, 1))}%`; }
 function showFront(){
   if (ri >= rq.length) return showDone();
   const it = rq[ri]; rprogress();
   const isNew = !srs[it.a] && !lapsed.has(it.a);
   card.className = 'rv-card';
-  card.innerHTML = it.kind === 'numbers'
+  if (it.listen) {
+    card.innerHTML = `<div class="rv-q">Listen · ${it.kind === 'numbers' ? 'Which number is it?' : 'What does it mean?'}</div>
+      <button class="rv-play" id="rv-play">${I.play}Play again</button>`;
+    const best = hasPartner(it.a) ? PARTNER : 'std', go = () => { stopAll(); playKind(best, it.a, null); };
+    $('rv-play').onclick = go; go();
+  } else card.innerHTML = it.kind === 'numbers'
     ? `<div class="rv-q">${isNew ? 'New · ' : ''}Say this number in German</div><div class="rv-num">${esc(it.en)}</div>`
     : `<div class="rv-q">${isNew ? 'New · ' : ''}How do you say it in German?</div><div class="rv-en">${esc(it.en)}</div>`;
   ractions.innerHTML = `<button class="wide" id="rv-show">Show answer</button>`;
@@ -772,7 +914,9 @@ function showFront(){
 function showBack(){
   const it = rq[ri];
   const w = (it.words || []).length ? `<div class="words">${it.words.map(([d,e]) => `<span class="w"><b>${esc(d)}</b> <span>= ${esc(e)}</span></span>`).join('')}</div>` : '';
-  card.insertAdjacentHTML('beforeend', `<div class="rv-ans"><div class="rv-de">${esc(it.de)}</div>
+  if (it.listen) { const pl = $('rv-play'); if (pl) pl.remove();
+    card.insertAdjacentHTML('beforeend', it.kind === 'numbers' ? `<div class="rv-num">${esc(it.en)}</div>` : `<div class="rv-en">${esc(it.en)}</div>`); }
+  card.insertAdjacentHTML('beforeend', `<div class="rv-ans"><div class="rv-de">${it.kind === 'numbers' ? esc(it.de) : tapWords(it.de)}</div>
     <div class="say">${stress(it.say)}</div>${it.fa ? `<div class="fa" dir="rtl" lang="fa">${esc(it.fa)}</div>` : ''}${w}
     ${it.tip ? `<div class="tip">${esc(it.tip)}</div>` : ''}</div>${pbar(it)}`);
   stopAll();
@@ -787,7 +931,7 @@ function answer(ok){
   if (!cur && !lapsed.has(it.a)) store.set('newDay', {d: today(), n: newToday() + 1});
   if (ok) { const b = lapsed.has(it.a) ? 1 : Math.min((cur ? cur.b : 0) + 1, GAPS.length - 1); srs[it.a] = {b, d: addDays(GAPS[b])}; stats.good++; }
   else { srs[it.a] = {b: 0, d: addDays(1)}; lapsed.add(it.a); stats.again++; rq.push(it); }
-  store.set('srs', srs); ri++; stopAll(); showFront();
+  store.set('srs', srs); bump(); ri++; stopAll(); showFront();
 }
 function showDone(){
   rprogress(); $('rv-fill').style.width = '100%';
@@ -797,6 +941,41 @@ function showDone(){
   ractions.innerHTML = `<button class="wide" id="rv-end">Finish</button>`;
   $('rv-end').onclick = closeReview;
 }
+// ---------- my progress ----------
+function streak(){ let n = 0; const d = new Date(); if (!act[today()]) d.setDate(d.getDate() - 1);
+  while (act[d.toLocaleDateString('en-CA')]) { n++; d.setDate(d.getDate() - 1); } return n; }
+function renderProgress(){
+  const known = it => srs[it.a] && srs[it.a].b >= 2;
+  const nKnown = pool.filter(known).length, st = streak();
+  const all = []; DATA.sections.forEach(s => s.groups.forEach(g => { if (g.kind !== 'cards') g.items.forEach(it => all.push({...it, sec: s.id})); }));
+  const week = all.filter(it => it.added && daysAgo(it.added) < 7).length;
+  $('stats').innerHTML = `<button class="stat" data-go="progress"><b>${st}</b><span>day${st === 1 ? '' : 's'} in a row</span></button>
+    <button class="stat" data-go="progress"><b>${nKnown}<small style="font-size:.6em;color:var(--muted)">/${pool.length}</small></b><span>phrases known</span></button>
+    <button class="stat" data-go="progress"><b>${week}</b><span>added this week</span></button>`;
+  // calendar: the last 5 weeks, Monday to Sunday
+  const d0 = new Date(); d0.setDate(d0.getDate() - ((d0.getDay() + 6) % 7) - 28);
+  let h = 'MTWTFSS'.split('').map(c => `<span class="dn">${c}</span>`).join('');
+  for (let i = 0; i < 35; i++) { const d = new Date(d0); d.setDate(d0.getDate() + i); const k = d.toLocaleDateString('en-CA'), n = act[k] || 0;
+    h += `<i class="${k > today() ? 'fut' : n >= 30 ? 'l3' : n >= 10 ? 'l2' : n ? 'l1' : ''}${k === today() ? ' now' : ''}" title="${fmtDay(k)}: ${n}"></i>`; }
+  $('heat').innerHTML = h;
+  const days = Object.keys(act).filter(k => act[k]).length;
+  $('heat-line').textContent = days ? `You practised on ${days} day${days === 1 ? '' : 's'}${st > 1 ? `, ${st} in a row` : ''}. ${act[today()] ? 'Done today ✓' : 'Nothing yet today.'}` : 'Each day you listen, record or review, a square fills in.';
+  // by section
+  $('secbars').innerHTML = DATA.sections.filter(s => s.id !== 'sounds').map(s => { const its = pool.filter(it => it.sec === s.id); if (!its.length) return '';
+    const k = its.filter(known).length, l = its.filter(it => srs[it.a] && !known(it)).length, pc = x => (100 * x / its.length).toFixed(1);
+    return `<button class="sbar" data-go="${s.id}"><span class="nm">${esc(s.title)}</span><span class="ct">${k} / ${its.length}</span><span class="tr"><i class="k" style="width:${pc(k)}%"></i><i class="s" style="width:${pc(l)}%"></i></span></button>`; }).join('');
+  // timeline: what you added, and when
+  const by = {}; all.forEach(it => { if (!it.added) return; ((by[it.added] = by[it.added] || {})[it.sec] = (by[it.added][it.sec] || 0) + 1); });
+  const dates = Object.keys(by).sort().reverse(), title = id => (DATA.sections.find(s => s.id === id) || {}).title || id;
+  if (dates.length) { const first = dates[dates.length - 1], ago = daysAgo(first);
+    $('tl-line').textContent = `You started on ${fmtDay(first)}${ago ? `, ${ago} day${ago === 1 ? '' : 's'} ago` : ''}. ${all.length} phrases so far.`; }
+  $('tl').innerHTML = dates.map(d => `<li><div class="dt">${fmtDay(d)} <span>· ${Object.values(by[d]).reduce((a, b) => a + b, 0)} new</span></div><div class="chips">${
+    Object.entries(by[d]).map(([id, n]) => `<button data-go="${id}">${esc(title(id))} <b>+${n}</b></button>`).join('')}</div></li>`).join('');
+}
+document.addEventListener('click', e => { const g = e.target.closest('[data-go]'); if (!g) return; const el = $(g.dataset.go); if (el) { showSec(g.dataset.go); el.scrollIntoView({behavior: 'smooth'}); } });
+renderProgress();
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { refreshToday(); renderProgress(); } });
+
 $('t-start').onclick = openReview;
 $('rv-close').onclick = closeReview;
 document.addEventListener('keydown', e => { if (!rv.hidden && e.key === 'Escape') closeReview(); });

@@ -22,7 +22,11 @@ self.addEventListener('fetch', e => {
       e.respondWith(fetch(req, {cache: 'no-store'}).catch(() => caches.match(req, {ignoreSearch: true}).then(r => r || caches.match('./')).then(r => r || caches.match('index.html'))));
       return;
     }
-    e.respondWith(caches.match(req, {ignoreSearch: true}).then(r => r || fetch(req)));
+    // single-word recordings aren't saved up front; keep each one after its first play so it works offline
+    e.respondWith(caches.match(req, {ignoreSearch: true}).then(r => r || fetch(req).then(res => {
+      if (res.ok && url.pathname.includes('/audio/')) { const copy = res.clone(); caches.open(VERSION).then(c => c.put(req, copy)); }
+      return res;
+    })));
     return;
   }
   if (url.hostname.endsWith('fonts.googleapis.com') || url.hostname.endsWith('fonts.gstatic.com')) {

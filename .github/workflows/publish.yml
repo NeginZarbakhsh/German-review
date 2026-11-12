@@ -18,6 +18,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history: the app shows when each phrase was added
 
       - uses: actions/setup-python@v5
         with:
