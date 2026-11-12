@@ -44,6 +44,151 @@ sections:
       - [wieder, again]
       - [sehen, to see]
       tip: Polite. Literally “until we see again”.
+- id: howareyou
+  title: How are you?
+  lead: Ask how someone is and answer. Use dir with friends and Ihnen with people you say Sie to.
+  groups:
+  - kind: rows
+    items:
+    - de: Wie geht's?
+      say: vee **GAYTS**
+      fa: وی گِیتس
+      en: How's it going? (casual)
+      words:
+      - [wie, how]
+      - [geht's, it goes]
+      tip: geht's is short for geht es.
+    - de: Wie geht es dir?
+      say: vee **GAYT** es deer
+      fa: وی گِیت اِس دیر
+      en: How are you? (friendly)
+      words:
+      - [es, it]
+      - [dir, you (friendly)]
+      tip: 'Word for word: “how goes it for you?”'
+    - de: Wie geht es Ihnen?
+      say: vee **GAYT** es **EE**-nen
+      fa: وی گِیت اِس ایـنِن
+      en: How are you? (polite)
+      words:
+      - [Ihnen, you (polite)]
+      tip: Polite Ihnen always has a capital I, like Sie.
+  - kind: rows
+    title: Answers
+    note: From best to worst. Add danke (thanks) to sound friendly.
+    items:
+    - de: Super!
+      say: '**ZOO**-per'
+      fa: زوپِر
+      en: Great!
+      tip: s at the start sounds like z.
+    - de: Prima!
+      say: '**PREE**-mah'
+      fa: پریما
+      en: Great!
+    - de: Sehr gut.
+      say: zair **GOOT**
+      fa: زِر گوت
+      en: Very good.
+      words:
+      - [sehr, very]
+      - [gut, good]
+    - de: Gut, danke.
+      say: goot, **DAHN**-keh
+      fa: گوت، دانکه
+      en: Good, thanks.
+      words:
+      - [danke, thanks]
+    - de: Es geht.
+      say: es **GAYT**
+      fa: اِس گِیت
+      en: It's okay. / So-so.
+      tip: 'Word for word: “it goes”.'
+    - de: So so.
+      say: '**ZOH** zoh'
+      fa: زو زو
+      en: So-so.
+    - de: Nicht schlecht.
+      say: nisht **SHLESHT**
+      fa: نیشت شلِشت
+      en: Not bad.
+      words:
+      - [nicht, not]
+      - [schlecht, bad]
+    - de: Schlecht.
+      say: '**SHLESHT**'
+      fa: شلِشت
+      en: Bad.
+      tip: ch after e is the soft, hissing sound.
+    - de: Sehr schlecht.
+      say: zair **SHLESHT**
+      fa: زِر شلِشت
+      en: Very bad.
+    - de: Auch sehr gut!
+      say: owkh zair **GOOT**
+      fa: آوخ زِر گوت
+      en: Also very good!
+      words:
+      - [auch, also]
+      tip: ch after au is the hard, throaty خ.
+  - kind: rows
+    title: Ask back
+    items:
+    - de: Und dir?
+      say: oont **DEER**
+      fa: اونت دیر
+      en: And you? (friendly)
+    - de: Und Ihnen?
+      say: oont **EE**-nen
+      fa: اونت ایـنِن
+      en: And you? (polite)
+  - kind: rows
+    title: 'Dialogue 1 · friendly (du)'
+    note: Two friends meet. Play each line, then say it yourself.
+    items:
+    - de: Hallo! Wie geht's?
+      say: '**HAH**-loh! vee **GAYTS**'
+      en: Hi! How's it going?
+      speak: Hallo. Wie geht's?
+    - de: Super, danke! Und dir?
+      say: '**ZOO**-per, **DAHN**-keh! oont **DEER**'
+      en: Great, thanks! And you?
+      speak: Super, danke. Und dir?
+    - de: Nicht schlecht. Wie heißt du?
+      say: nisht **SHLESHT**. vee **HAIST** doo
+      en: Not bad. What's your name?
+      speak: Nicht schlecht. Wie heißt du?
+    - de: Ich heiße Tim. Und du?
+      say: ish **HAI**-seh Tim. oont **DOO**
+      en: I'm Tim. And you?
+      speak: Ich heiße Tim. Und du?
+    - de: Mein Name ist Nina.
+      say: main **NAH**-meh ist **NEE**-nah
+      en: My name is Nina.
+  - kind: rows
+    title: 'Dialogue 2 · polite (Sie)'
+    note: Two people meet for the first time.
+    items:
+    - de: Guten Morgen! Wie heißen Sie?
+      say: '**GOO**-ten **MOR**-gen! vee **HAI**-sen zee'
+      en: Good morning! What's your name?
+      speak: Guten Morgen. Wie heißen Sie?
+    - de: Mein Name ist Olga Meier. Und wie heißen Sie?
+      say: main **NAH**-meh ist Olga **MAI**-a. oont vee **HAI**-sen zee
+      en: My name is Olga Meier. And what's your name?
+      speak: Mein Name ist Olga Meier. Und wie heißen Sie?
+    - de: Ich bin Herr Gruber. Wie geht es Ihnen?
+      say: ish bin hair **GROO**-ber. vee **GAYT** es **EE**-nen
+      en: I'm Mr Gruber. How are you?
+      speak: Ich bin Herr Gruber. Wie geht es Ihnen?
+    - de: Prima, danke. Und wie geht es Ihnen?
+      say: '**PREE**-mah, **DAHN**-keh. oont vee **GAYT** es **EE**-nen'
+      en: Great, thanks. And how are you?
+      speak: Prima, danke. Und wie geht es Ihnen?
+    - de: Auch sehr gut!
+      say: owkh zair **GOOT**
+      en: Also very good!
+      speak: Auch sehr gut.
 - id: numbers
   title: Numbers 0–12
   lead: Tap a number to hear it. Count up, then count back down.
@@ -534,3 +679,9 @@ mistakes:
 - [verenisten Staaten, Vereinigten Staaten, '“vereinigt” = united: ver-EI-nigt.']
 - ['türkei, schweiz, niederlanden', 'Türkei, Schweiz, Niederlanden', 'Countries are nouns, so they start with a capital letter.']
 - [Arabischden, Arabischen, 'sch + en, no d.']
+- ['schecht, Nicht schecht', 'schlecht, Nicht schlecht', 'schl-: s, c, h, l… schlecht.']
+- ['Nam ist', 'Name ist', 'Name ends in e: NAH-meh.']
+- ['her Gruber', 'Herr Gruber', 'Herr has two r.']
+- ['Prim, danke', 'Prima, danke', 'Prima ends in a.']
+- ['wie geht es ihnen', 'wie geht es Ihnen', 'Polite Ihnen has a capital I, like Sie.']
+- ['Goten morgen', 'Guten Morgen', 'u, not o: GOO-ten. Morgen is a noun, so capital M.']
