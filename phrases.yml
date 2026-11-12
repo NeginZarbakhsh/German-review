@@ -444,6 +444,150 @@ sections:
       say: owss dayn ah-**RAH**-bi-shen eh-mee-**RAH**-ten
       fa: آوس دِن آرابیشِن اِمیراتِن
       en: from the United Arab Emirates
+- id: wwords
+  title: Question words
+  lead: In German they're called W-Wörter, because almost every question starts with one. The w always sounds like v.
+  groups:
+  - kind: cards
+    items:
+    - title: The W-words
+      body: '<b>wer</b> = who · <b>wie</b> = how · <b>was</b> = what<br><b>wo</b> = where · <b>woher</b> = where from<br>Careful: <b>wer</b> means <b>who</b>, not where. Where is <b>wo</b>.'
+    - title: Why “Wie heißt du?”
+      body: 'German asks <i>how</i> you are called: <b>Wie heißt du?</b> or <b>Wie ist dein Name?</b> In English we say “what”, so it feels strange at first. <b>Was ist dein Name?</b> is also understood, but <b>wie</b> is what Germans usually say.'
+  - kind: rows
+    title: The words
+    items:
+    - de: wer?
+      say: '**VAIR**'
+      fa: وِر
+      en: who?
+      speak: wer
+    - de: wie?
+      say: '**VEE**'
+      fa: وی
+      en: how?
+      speak: wie
+    - de: was?
+      say: '**VAS**'
+      fa: واس
+      en: what?
+      speak: was
+    - de: wo?
+      say: '**VOH**'
+      fa: وُ
+      en: where?
+      speak: wo
+    - de: woher?
+      say: voh-**HAIR**
+      fa: وُهِر
+      en: where from?
+      speak: woher
+  - kind: rows
+    title: wer · wie · was
+    items:
+    - de: Wer kommt zur Party?
+      say: vair komt tsoor **PAR**-tee
+      fa: وِر کُمت تسور پارتی
+      en: Who is coming to the party?
+      words:
+      - [kommt, comes]
+      - [zur, to the]
+    - de: Wie bitte?
+      say: vee **BIT**-teh
+      fa: وی بیته
+      en: Sorry? / Pardon? (when you didn't hear)
+      tip: A polite way to ask someone to repeat.
+    - de: Was ist das?
+      say: vas ist **DAS**
+      fa: واس ایست داس
+      en: What is that?
+    - de: Was machst du?
+      say: vas **MAKHST** doo
+      fa: واس ماخست دو
+      en: What are you doing?
+      words:
+      - [machst, do / make]
+      tip: ch after a is the throaty خ.
+    - de: Was machst du heute?
+      say: vas makhst doo **HOY**-teh
+      fa: واس ماخست دو هُیته
+      en: What are you doing today?
+      words:
+      - [heute, today]
+      tip: eu sounds like oy.
+  - kind: rows
+    title: wo · liegen
+    note: For cities and countries, Germans say liegt (lies) instead of ist. “Wo liegt Berlin?” = Where is Berlin?
+    items:
+    - de: Wo bist du?
+      say: voh **BIST** doo
+      fa: وُ بیست دو
+      en: Where are you?
+    - de: Wo liegt Berlin?
+      say: voh **LEEKT** ber-**LEEN**
+      fa: وُ لیکت بِرلین
+      en: Where is Berlin?
+      words:
+      - [liegt, lies / is located]
+      tip: The g at the end of liegt sounds like k.
+    - de: Berlin liegt in Deutschland.
+      say: ber-**LEEN** leekt in **DOYTCH**-lant
+      fa: بِرلین لیکت این دُیچلانت
+      en: Berlin is in Germany.
+  - kind: rows
+    title: 'Talking about someone: er (he)'
+    note: 'Use er for a man and sie for a woman. The verb ends in -t: er heißt, er kommt, er liegt.'
+    items:
+    - de: Das ist Leonardo DiCaprio.
+      say: das ist leh-oh-**NAR**-doh dee-**KAH**-pree-oh
+      fa: داس ایست لئوناردو دیکاپریو
+      en: That is Leonardo DiCaprio.
+    - de: Wie heißt er?
+      say: vee **HAIST** air
+      fa: وی هایست اِر
+      en: What's his name?
+      words:
+      - [er, he]
+    - de: Er heißt Leonardo.
+      say: air **HAIST** leh-oh-**NAR**-doh
+      fa: اِر هایست لئوناردو
+      en: His name is Leonardo.
+    - de: Woher kommt er?
+      say: voh-**HAIR** **KOMT** air
+      fa: وُهِر کُمت اِر
+      en: Where is he from?
+    - de: Er kommt aus Los Angeles.
+      say: air komt owss los **AN**-djeh-les
+      fa: اِر کُمت آوس لس آنجلس
+      en: He's from Los Angeles.
+    - de: Wo liegt Los Angeles?
+      say: voh **LEEKT** los **AN**-djeh-les
+      fa: وُ لیکت لس آنجلس
+      en: Where is Los Angeles?
+    - de: Los Angeles liegt in Kalifornien.
+      say: los **AN**-djeh-les leekt in kah-lee-**FOR**-nee-en
+      fa: لس آنجلس لیکت این کالیفُرنیِن
+      en: Los Angeles is in California.
+      tip: 'Longer: Los Angeles liegt im US-Bundesstaat Kalifornien (in the US state of California). im = in dem.'
+    - de: Das ist die Titanic.
+      say: das ist dee tee-**TAH**-nik
+      fa: داس ایست دی تیتانیک
+      en: That is the Titanic.
+      tip: Ships are die in German.
+  - kind: rows
+    title: a / an = ein, eine
+    note: ein for der-words, eine for die-words.
+    items:
+    - de: ein Mann
+      say: ain **MAN**
+      fa: آین مان
+      en: a man
+      tip: der Mann → ein Mann
+    - de: eine Frau
+      say: '**AI**-neh **FROW**'
+      fa: آینه فراو
+      en: a woman
+      tip: die Frau → eine Frau
 - id: grammar
   title: Grammar
   lead: The small words that change. Tap any line to hear it.
@@ -685,3 +829,11 @@ mistakes:
 - ['Prim, danke', 'Prima, danke', 'Prima ends in a.']
 - ['wie geht es ihnen', 'wie geht es Ihnen', 'Polite Ihnen has a capital I, like Sie.']
 - ['Goten morgen', 'Guten Morgen', 'u, not o: GOO-ten. Morgen is a noun, so capital M.']
+- ['wer = where', 'wer = who, wo = where', 'Easy to mix up: wer sounds like “where” but means who.']
+- ['Zor Party', 'zur Party', 'u, not o: tsoor.']
+- ['wohr kommen Sie', 'woher kommen Sie', 'wo + her: voh-HAIR.']
+- ['Er heißis', 'Er heißt', 'With er the verb ends in -t.']
+- ['woher kommet er', 'woher kommt er', 'No e: kommt.']
+- ['leiest', 'liegt', 'ie (long ee) and g: liegt.']
+- ['in dem US-stat kalifornien', 'im US-Bundesstaat Kalifornien', 'in dem → im. Staat has two a. Kalifornien is a name: capital K.']
+- ['heote', 'heute', 'eu sounds like oy: HOY-teh.']
