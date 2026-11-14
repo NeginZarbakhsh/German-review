@@ -360,6 +360,61 @@ main section{padding-top:22px}
 .bub.me .wd{text-decoration-color:color-mix(in srgb,var(--accent-ink) 45%,transparent)}
 .bub.ask{background:transparent;color:var(--fg);border:1.5px dashed var(--accent)}
 .chat-end{align-self:center;font-weight:700;color:var(--ok);padding:8px}
+/* review exercises */
+.rv-card.ex{justify-content:flex-start;padding-top:22px;min-height:360px}
+.rv-tb{display:inline-flex;gap:8px}
+.tag{display:inline-block;background:var(--tip-soft);color:var(--tip);border-radius:999px;padding:3px 10px;letter-spacing:.06em}
+.rv-de.big{font-size:2rem;line-height:1.15}
+.rv-de .rv-num{font-size:2rem;margin-right:6px;color:var(--muted)}
+.rv-mean{font-size:1.1rem;color:var(--muted)}
+.ch kbd{display:none}
+@media (hover:hover) and (pointer:fine){.ch kbd{display:inline-grid;place-items:center;width:22px;height:22px;margin-right:10px;border:1px solid var(--line);border-radius:6px;font:700 .75rem var(--body);color:var(--muted)}}
+.ch.de{font-family:var(--display);font-size:1.12rem}
+.ch.sel{border-color:var(--accent);background:var(--accent-soft)}
+.ch.sel.right,.ch.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--surface));opacity:1}
+.ch.sel.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,var(--surface));opacity:1}
+.playrow{display:flex;align-items:center;gap:14px;margin:4px 0}
+.rv-play.big{width:76px;height:76px;border-radius:22px;padding:0;justify-content:center;margin:0;flex:none}
+.rv-play.big svg{width:34px;height:34px}
+.rv-play.slow{width:52px;height:52px;border-radius:16px;padding:0;justify-content:center;margin:0;background:var(--accent-soft);color:var(--accent);font-size:1.4rem;flex:none}
+.rv-play.on{opacity:.75}
+.ans{min-height:56px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start;padding:8px 0 10px;border-bottom:2px solid var(--line);margin-top:8px}
+.bank{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
+.tile{border:1.5px solid var(--line);border-bottom-width:3px;background:var(--surface);color:var(--fg);border-radius:12px;padding:8px 13px;font:700 1.05rem var(--display);cursor:pointer}
+.tile.used{background:var(--line);color:transparent;border-color:var(--line);cursor:default}
+.tile:disabled{cursor:default}
+.rv-actions .fbk,.rv-actions .hint,.rv-actions .wide{grid-column:1/-1}
+.chk{background:var(--accent)!important;color:var(--accent-ink)!important}
+.fbk{display:flex;flex-direction:column;gap:10px;position:fixed;z-index:55;left:0;right:0;bottom:0;max-width:560px;margin:0 auto;border-radius:24px 24px 0 0;padding:18px max(16px,env(safe-area-inset-left,0px)) calc(16px + env(safe-area-inset-bottom,0px));box-shadow:0 -8px 30px rgba(0,0,0,.12);animation:up .18s ease-out}
+.rv.fbopen .rv-in{padding-bottom:240px}
+.quiet2{background:var(--surface)!important;color:var(--muted)!important;border:1px solid var(--line)!important}
+@keyframes up{from{transform:translateY(40px)}}
+.fbk.ok{background:color-mix(in srgb,var(--ok) 14%,var(--surface))}
+.fbk.bad{background:color-mix(in srgb,var(--bad) 12%,var(--surface))}
+.fbk-h{display:flex;justify-content:space-between;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:1.3rem}
+.fbk.ok .fbk-h{color:var(--ok)} .fbk.bad .fbk-h{color:var(--bad)}
+.combo{font-family:var(--body);font-size:.85rem;color:var(--stress)}
+.fbk-n{font-size:.92rem;color:var(--muted)}
+.fbk-a{display:flex;gap:12px;align-items:center;justify-content:space-between}
+.fbk-a > div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.fbk-a b{font-family:var(--display);font-size:1.2rem}
+.fbk-a span{font-size:.92rem;color:var(--muted)}
+.fbk-a .say{color:var(--fg)}
+.spk{flex:none;width:46px;height:46px;border-radius:14px;border:0;background:var(--surface);color:var(--accent);display:grid;place-items:center;cursor:pointer}
+.spk svg{width:22px;height:22px}
+.spk.on{background:var(--accent);color:var(--accent-ink)}
+.fbk.ok .wide{background:var(--ok);color:#fff}
+.fbk.bad .wide{background:var(--bad);color:#fff}
+.seg.mini{align-self:flex-start}
+.seg.mini button{font-size:.8rem;padding:5px 10px}
+.hidetxt{filter:blur(9px);user-select:none}
+.hint.left{text-align:left;margin:0}
+.mic-sm{display:inline-flex!important;align-items:center;justify-content:center;gap:8px}
+.mic-sm svg{width:20px;height:20px}
+.mic-sm.on{background:var(--rec)!important;animation:pulse 1s infinite}
+.bub-r{font-size:.85rem;opacity:.85}
+.bub-r:empty{display:none}
+.marked.sm{font-size:1rem}
 .ver{text-align:center;font-size:.78rem;color:var(--muted);margin:0 0 24px;opacity:.8}
 button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--stress);outline-offset:2px}
 @media (max-width:480px){h1{font-size:1.8rem}.de{font-size:1.22rem}}
@@ -445,7 +500,7 @@ html{scroll-behavior:smooth}
 
 <div class="rv" id="rv" hidden role="dialog" aria-modal="true" aria-label="Today's review">
   <div class="rv-in">
-    <div class="rv-top"><span id="rv-prog"></span><button class="rv-x" id="rv-close" aria-label="Close review">×</button></div>
+    <div class="rv-top"><span id="rv-prog"></span><span class="rv-tb"><button class="rv-x" id="rv-sfx" aria-label="Sounds on">🔊</button><button class="rv-x" id="rv-close" aria-label="Close review">×</button></span></div>
     <div class="rv-bar"><i id="rv-fill"></i></div>
     <div class="rv-card" id="rv-card"></div>
     <div class="rv-actions" id="rv-actions"></div>
@@ -1046,74 +1101,229 @@ function refreshToday(){
   const nNew = q.filter(it => !srs[it.a]).length, nDue = q.length - nNew;
   if (!q.length) { $('t-count').textContent = 'All done for today'; $('t-sub').textContent = 'Come back tomorrow for your next review.'; btn.textContent = 'Again'; return; }
   $('t-count').textContent = `${q.length} to review today`;
-  $('t-sub').textContent = [nDue && `${nDue} to repeat`, nNew && `${nNew} new`].filter(Boolean).join(' · ') + '. Say each answer out loud.';
+  $('t-sub').textContent = [nDue && `${nDue} to repeat`, nNew && `${nNew} new`].filter(Boolean).join(' · ') + ` · about ${Math.max(2, Math.round(q.length * 0.4))} min`;
   btn.textContent = 'Start';
 }
-let rq = [], ri = 0, total = 0, stats = {good: 0, again: 0}, lapsed = new Set(), quiz = '';
+// ---------- the review: a mix of exercises the app checks for you (like a lesson in a language app) ----------
+// New phrases are introduced first, then tested a few cards later. A mistake comes back at the end until you get it right.
+let rq = [], ri = 0, total = 0, passed = new Set(), lapsed = new Set(), quiz = '', combo = 0, bestCombo = 0, firstOK = 0, tStart = 0;
 const rv = $('rv'), card = $('rv-card'), ractions = $('rv-actions');
+const toks = s => String(s).replace(/[.,!?¿¡;:"“”„]/g, ' ').split(/\s+/).filter(Boolean);
+const bankable = it => !/[\/…()]/.test(it.de) && toks(it.de).length >= 2 && toks(it.de).length <= 9;
+function pickEx(it, easy){
+  const lvl = srs[it.a] ? srs[it.a].b : 0, ex = [];
+  const canSpeak = SR && Date.now() > store.get('noSpeak', 0) && !/[\/…()]/.test(it.de);
+  if (it.kind === 'numbers') { ex.push('choose', 'listen'); if (!easy && lvl >= 1) ex.push('type'); if (canSpeak) ex.push('speak'); }
+  else {
+    ex.push('choose', 'listen');
+    if (bankable(it)) { ex.push('bank', 'bank'); if (!easy) ex.push('hearbank'); }
+    if (!easy && lvl >= 2 && toks(it.de).length <= 6 && !/[\/…()]/.test(it.de)) ex.push('type');
+    if (canSpeak) ex.push('speak');
+  }
+  return ex[Math.floor(Math.random() * ex.length)];
+}
 function openReview(lesson){
   quiz = typeof lesson === 'string' ? lesson : '';
   let q = quiz ? pool.filter(it => it.sec === quiz).sort(() => Math.random() - .5) : buildQueue();
   if (!q.length) q = pool.filter(it => starred.has(it.a)).concat(pool.slice().sort(() => Math.random() - .5)).filter((v, i, a) => a.findIndex(x => x.a === v.a) === i).slice(0, 10);
-  // phrases you already know sometimes come as a listening card: hear the German, say what it means
-  q = q.map(it => ({...it, listen: !!(srs[it.a] && srs[it.a].b >= 2 && Math.random() < 0.5)}));
-  rq = q; ri = 0; total = q.length; stats = {good: 0, again: 0}; lapsed = new Set();
-  rv.hidden = false; document.body.style.overflow = 'hidden'; showFront();
+  rq = []; const later = [];
+  q.forEach(it => {
+    if (!quiz && !srs[it.a]) { rq.push({it, ex: 'intro'}); later.push({it, ex: pickEx(it, true)}); }
+    else rq.push({it, ex: pickEx(it)});
+    if (later.length && rq.length % 3 === 0) rq.push(later.shift());
+  });
+  rq.push(...later);
+  ri = 0; total = q.length; passed = new Set(); lapsed = new Set(); combo = 0; bestCombo = 0; firstOK = 0; tStart = Date.now();
+  rv.hidden = false; document.body.style.overflow = 'hidden'; showEx();
 }
 function finishRec(){ if (recA && recBtn) recBtn.click(); }
-function closeReview(){ finishRec(); rv.hidden = true; document.body.style.overflow = ''; stopAll(); hidePop(); refreshToday(); renderProgress(); if (view === 'home') renderHome(); }
+function closeReview(){ finishRec(); stopListening(); rv.classList.remove('fbopen'); rv.hidden = true; document.body.style.overflow = ''; stopAll(); hidePop(); refreshToday(); renderProgress(); if (view === 'home') renderHome(); }
 function rprogress(){ const sec = quiz && DATA.sections.find(x => x.id === quiz);
-  $('rv-prog').textContent = `${sec ? sec.title + ' · ' : ''}${Math.min(stats.good + 1, total)} of ${total}`; $('rv-fill').style.width = `${Math.round(100 * stats.good / Math.max(total, 1))}%`; }
-function showFront(){
+  $('rv-prog').textContent = `${sec ? sec.title + ' · ' : ''}${Math.min(passed.size + 1, total)} of ${total}`;
+  $('rv-fill').style.width = `${Math.round(100 * passed.size / Math.max(total, 1))}%`; }
+
+// sounds and a little buzz for right and wrong (can be turned off in the review)
+let sfxCtx = null;
+function sfx(ok){
+  if (!store.get('sfx', true)) return;
+  try { sfxCtx = sfxCtx || new (window.AudioContext || window.webkitAudioContext)(); const c = sfxCtx; c.resume();
+    (ok ? [[660, 0], [990, .1]] : [[200, 0], [160, .13]]).forEach(([f, t]) => { const o = c.createOscillator(), g = c.createGain(), at = c.currentTime + t;
+      o.type = ok ? 'sine' : 'triangle'; o.frequency.value = f; g.gain.setValueAtTime(.0001, at); g.gain.exponentialRampToValueAtTime(ok ? .22 : .16, at + .012);
+      g.gain.exponentialRampToValueAtTime(.0001, at + .2); o.connect(g); g.connect(c.destination); o.start(at); o.stop(at + .22); }); } catch (e) {}
+  try { if (navigator.vibrate) navigator.vibrate(ok ? 12 : [25, 40, 25]); } catch (e) {}
+}
+function setSfxBtn(){ const on = store.get('sfx', true); $('rv-sfx').textContent = on ? '🔊' : '🔈'; $('rv-sfx').setAttribute('aria-label', on ? 'Sounds on' : 'Sounds off'); }
+$('rv-sfx').onclick = () => { store.set('sfx', !store.get('sfx', true)); setSfxBtn(); };
+setSfxBtn();
+
+const best = a => hasPartner(a) ? PARTNER : 'std';
+const playIt = (it, btn, end) => { stopAll(); playKind(best(it.a), it.a, btn || null, end); };
+const big = (it, tag = 'div') => `<${tag} class="${it.kind === 'numbers' ? 'rv-num' : 'rv-en'}">${esc(it.en)}</${tag}>`;
+const spk = id => `<button class="spk" id="${id}" aria-label="Play">${I.std}</button>`;
+function showEx(){
+  stopAll(); stopListening(); hidePop(); rv.classList.remove('fbopen'); rv.scrollTop = 0;
   if (ri >= rq.length) return showDone();
-  const it = rq[ri]; rprogress();
-  const isNew = !srs[it.a] && !lapsed.has(it.a);
-  card.className = 'rv-card';
-  if (it.listen) {
-    card.innerHTML = `<div class="rv-q">Listen · ${it.kind === 'numbers' ? 'Which number is it?' : 'What does it mean?'}</div>
-      <button class="rv-play" id="rv-play">${I.play}Play again</button>`;
-    const best = hasPartner(it.a) ? PARTNER : 'std', go = () => { stopAll(); playKind(best, it.a, null); };
-    $('rv-play').onclick = go; go();
-  } else card.innerHTML = it.kind === 'numbers'
-    ? `<div class="rv-q">${isNew ? 'New · ' : ''}Say this number in German</div><div class="rv-num">${esc(it.en)}</div>`
-    : `<div class="rv-q">${isNew ? 'New · ' : ''}How do you say it in German?</div><div class="rv-en">${esc(it.en)}</div>`;
-  ractions.innerHTML = `<button class="wide" id="rv-show">Show answer</button>`;
-  $('rv-show').onclick = showBack; $('rv-show').focus();
+  const {it, ex} = rq[ri]; rprogress();
+  card.className = 'rv-card ex'; ractions.innerHTML = '';
+  ({intro: exIntro, choose: exChoose, listen: exListen, bank: exBank, hearbank: exBank, type: exType, speak: exSpeak})[ex](it, ex);
 }
-function showBack(){
-  const it = rq[ri];
-  const w = (it.words || []).length ? `<div class="words">${it.words.map(([d,e]) => `<span class="w"><b>${esc(d)}</b> <span>= ${esc(e)}</span></span>`).join('')}</div>` : '';
-  if (it.listen) { const pl = $('rv-play'); if (pl) pl.remove();
-    card.insertAdjacentHTML('beforeend', it.kind === 'numbers' ? `<div class="rv-num">${esc(it.en)}</div>` : `<div class="rv-en">${esc(it.en)}</div>`); }
-  card.insertAdjacentHTML('beforeend', `<div class="rv-ans"><div class="rv-de">${it.kind === 'numbers' ? esc(it.de) : tapWords(it.de)}</div>
-    <div class="say">${stress(it.say)}</div>${it.fa ? `<div class="fa" dir="rtl" lang="fa">${esc(it.fa)}</div>` : ''}${w}
-    ${it.tip ? `<div class="tip">${esc(it.tip)}</div>` : ''}</div>${pbar(it)}`);
-  stopAll();
-  const best = hasPartner(it.a) ? PARTNER : 'std';
-  playKind(best, it.a, card.querySelector(best === 'std' ? '[data-std]' : '[data-vs]'));
-  ractions.innerHTML = `<button class="rv-again" id="rv-again">Again</button><button class="rv-good" id="rv-good">Got it</button>`;
-  $('rv-again').onclick = () => answer(false); $('rv-good').onclick = () => answer(true);
+function checkBar(enabled, onCheck, extra = ''){
+  ractions.innerHTML = `${extra}<button class="wide chk" id="rv-check"${enabled ? '' : ' disabled'}>Check</button>`;
+  $('rv-check').onclick = onCheck;
 }
-function answer(ok){
-  finishRec();
-  const it = rq[ri], cur = srs[it.a];
-  if (!cur && !lapsed.has(it.a)) store.set('newDay', {d: today(), n: newToday() + 1});
-  if (quiz && cur && cur.d > today() && !lapsed.has(it.a)) {
-    if (ok) stats.good++; else { srs[it.a] = {b: 0, d: addDays(1)}; lapsed.add(it.a); stats.again++; rq.push(it); }
-  } else if (ok) { const b = lapsed.has(it.a) ? 1 : Math.min((cur ? cur.b : 0) + 1, GAPS.length - 1); srs[it.a] = {b, d: addDays(GAPS[b])}; stats.good++; }
-  else { srs[it.a] = {b: 0, d: addDays(1)}; lapsed.add(it.a); stats.again++; rq.push(it); }
-  store.set('srs', srs); bump(); ri++; stopAll(); showFront();
+// the feedback sheet: green when right, red with the answer when wrong
+function feedback(ok, it, note = ''){
+  const first = !lapsed.has(it.a) && !passed.has(it.a);
+  sfx(ok); stopListening(); rv.classList.add('fbopen');
+  if (ok) { combo++; bestCombo = Math.max(bestCombo, combo); } else combo = 0;
+  grade(it, ok, first);
+  const cheer = ['Richtig!', 'Sehr gut!', 'Super!', 'Genau!', 'Prima!'][Math.floor(Math.random() * 5)];
+  ractions.innerHTML = `<div class="fbk ${ok ? 'ok' : 'bad'}">
+    <div class="fbk-h"><span>${ok ? '✓ ' + cheer : '✗ Not quite'}</span>${ok && combo >= 3 ? `<span class="combo">🔥 ${combo} in a row</span>` : ''}</div>
+    ${note ? `<div class="fbk-n">${note}</div>` : ''}
+    <div class="fbk-a"><div><b>${it.kind === 'numbers' ? esc(it.de) : tapWords(it.de)}</b><span class="say">${stress(it.say)}</span><span>${esc(it.en)}</span></div>${spk('fb-play')}</div>
+    <button class="wide" id="rv-next">Continue</button></div>`;
+  $('fb-play').onclick = () => playIt(it, $('fb-play'));
+  $('rv-next').onclick = () => { ri++; showEx(); }; $('rv-next').focus();
+  playIt(it, $('fb-play'));
+}
+function grade(it, ok, first){
+  const cur = srs[it.a];
+  if (!cur && !lapsed.has(it.a) && !passed.has(it.a)) store.set('newDay', {d: today(), n: newToday() + 1});
+  bump();
+  if (ok) {
+    if (first) firstOK++;
+    passed.add(it.a);
+    if (quiz && cur && cur.d > today() && !lapsed.has(it.a)) return;            // extra practice: don't push the next review further away
+    if (lapsed.has(it.a)) srs[it.a] = {b: 1, d: addDays(GAPS[1])};
+    else { const b = Math.min((cur ? cur.b : 0) + 1, GAPS.length - 1); srs[it.a] = {b, d: addDays(GAPS[b])}; }
+  } else {
+    srs[it.a] = {b: 0, d: addDays(1)}; lapsed.add(it.a);
+    rq.push({it, ex: pickEx(it, true)});                                        // comes back at the end, a bit easier
+  }
+  store.set('srs', srs);
+}
+
+// New phrase: meet it, hear it, say it
+function exIntro(it){
+  card.innerHTML = `<div class="rv-q"><span class="tag">New phrase</span></div>
+    <div class="rv-de big">${it.kind === 'numbers' ? `<span class="rv-num">${esc(it.en)}</span> ` + esc(it.de) : tapWords(it.de)}</div>
+    <div class="say">${stress(it.say)}</div>${it.fa ? `<div class="fa" dir="rtl" lang="fa">${esc(it.fa)}</div>` : ''}
+    ${it.kind === 'numbers' ? '' : `<div class="rv-mean">${esc(it.en)}</div>`}
+    ${(it.words || []).length ? `<div class="words">${it.words.map(([d, e]) => `<span class="w"><b>${esc(d)}</b> <span>= ${esc(e)}</span></span>`).join('')}</div>` : ''}
+    ${it.tip ? `<div class="tip">${esc(it.tip)}</div>` : ''}${pbar(it)}`;
+  ractions.innerHTML = `<div class="hint">Listen, then say it out loud two or three times.</div><button class="wide" id="rv-next">Continue</button>`;
+  $('rv-next').onclick = () => { bump(); ri++; showEx(); };
+  playIt(it, card.querySelector(best(it.a) === 'std' ? '[data-std]' : '[data-vs]'));
+}
+// Pick the German for the English (tap an option to hear it)
+function exChoose(it){
+  const others = shuffle(pool.filter(x => x.a !== it.a && x.de !== it.de && x.en !== it.en && (x.kind === 'numbers') === (it.kind === 'numbers'))).slice(0, 2);
+  const opts = shuffle([it, ...others]);
+  card.innerHTML = `<div class="rv-q">Choose the German</div>${big(it)}
+    <div class="chs">${opts.map((o, i) => `<button class="ch de" data-ch="${o.a}"><kbd>${i + 1}</kbd>${esc(o.de)}</button>`).join('')}</div>`;
+  let pick = null;
+  card.querySelectorAll('[data-ch]').forEach(b => b.onclick = () => { pick = b.dataset.ch; card.querySelectorAll('[data-ch]').forEach(x => x.classList.toggle('sel', x === b));
+    stopAll(); playKind('std', pick, null); $('rv-check').disabled = false; });
+  checkBar(false, () => { const ok = pick === it.a;
+    card.querySelectorAll('[data-ch]').forEach(x => { x.disabled = true; if (x.dataset.ch === it.a) x.classList.add('right'); else if (x.dataset.ch === pick) x.classList.add('wrong'); });
+    feedback(ok, it); });
+}
+// Hear the German, pick the meaning
+function exListen(it){
+  const others = shuffle(pool.filter(x => x.a !== it.a && x.en !== it.en && (x.kind === 'numbers') === (it.kind === 'numbers'))).slice(0, 3);
+  const opts = shuffle([it, ...others]);
+  card.innerHTML = `<div class="rv-q">What do you hear?</div>
+    <div class="playrow"><button class="rv-play big" id="ex-play">${I.std}</button><button class="rv-play slow" id="ex-slow" aria-label="Play slowly">🐢</button></div>
+    <div class="chs">${opts.map((o, i) => `<button class="ch" data-ch="${o.a}"><kbd>${i + 1}</kbd>${esc(o.en)}</button>`).join('')}</div>`;
+  const play = slow => { const sp = speed; speed = slow ? 's' : 'n'; playIt(it, $(slow ? 'ex-slow' : 'ex-play')); speed = sp; };
+  $('ex-play').onclick = () => play(false); $('ex-slow').onclick = () => play(true); play(false);
+  let pick = null;
+  card.querySelectorAll('[data-ch]').forEach(b => b.onclick = () => { pick = b.dataset.ch; card.querySelectorAll('[data-ch]').forEach(x => x.classList.toggle('sel', x === b)); $('rv-check').disabled = false; });
+  checkBar(false, () => { const ok = pick === it.a;
+    card.querySelectorAll('[data-ch]').forEach(x => { x.disabled = true; if (x.dataset.ch === it.a) x.classList.add('right'); else if (x.dataset.ch === pick) x.classList.add('wrong'); });
+    feedback(ok, it); });
+}
+// Build the sentence from word tiles: from the English (bank) or from what you hear (hearbank)
+function exBank(it, ex){
+  const target = toks(it.de), tl = new Set(target.map(w => w.toLowerCase()));
+  const extra = shuffle(VOCAB.map(v => v.d).filter(d => !/\s/.test(d) && !tl.has(d.toLowerCase()))).slice(0, Math.min(4, Math.max(2, Math.ceil(target.length / 2))));
+  const tiles = shuffle([...target, ...extra]).map((w, i) => ({w, i}));
+  const hear = ex === 'hearbank';
+  card.innerHTML = `<div class="rv-q">${hear ? 'Write what you hear' : 'Write this in German'}</div>
+    ${hear ? `<div class="playrow"><button class="rv-play big" id="ex-play">${I.std}</button><button class="rv-play slow" id="ex-slow" aria-label="Play slowly">🐢</button></div>` : big(it)}
+    <div class="ans" id="ans"></div><div class="bank" id="bank">${tiles.map(t => `<button class="tile" data-t="${t.i}">${esc(t.w)}</button>`).join('')}</div>`;
+  if (hear) { const play = slow => { const sp = speed; speed = slow ? 's' : 'n'; playIt(it, $(slow ? 'ex-slow' : 'ex-play')); speed = sp; };
+    $('ex-play').onclick = () => play(false); $('ex-slow').onclick = () => play(true); play(false); }
+  const chosen = [];
+  const draw = () => {
+    $('ans').innerHTML = chosen.map(i => `<button class="tile" data-u="${i}">${esc(tiles[i].w)}</button>`).join('');
+    card.querySelectorAll('#bank .tile').forEach(b => b.classList.toggle('used', chosen.includes(+b.dataset.t)));
+    $('rv-check').disabled = !chosen.length;
+  };
+  card.querySelector('#bank').onclick = e => { const b = e.target.closest('[data-t]'); if (!b || b.classList.contains('used')) return; chosen.push(+b.dataset.t);
+    if (!hear && WA[tiles[+b.dataset.t].w.toLowerCase()]) { stopAll(); playKind('std', WA[tiles[+b.dataset.t].w.toLowerCase()], null); } draw(); };
+  $('ans').onclick = e => { const b = e.target.closest('[data-u]'); if (!b) return; chosen.splice(chosen.indexOf(+b.dataset.u), 1); draw(); };
+  checkBar(false, () => {
+    const got = chosen.map(i => tiles[i].w).join(' '), ok = norm(got) === norm(it.de);
+    card.querySelectorAll('.tile').forEach(b => b.disabled = true);
+    feedback(ok, it, ok ? '' : `You wrote: “${esc(got)}”`);
+  });
+  draw();
+}
+// Type the German
+function exType(it){
+  card.innerHTML = `<div class="rv-q">Type this in German</div>${big(it)}
+    <input class="tin" id="ex-in" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" lang="de" placeholder="Auf Deutsch…" aria-label="Your answer in German">
+    <div class="ukeys">${['ä', 'ö', 'ü', 'ß'].map(c => `<button data-uk="${c}" aria-label="Type ${c}">${c}</button>`).join('')}</div>`;
+  const inp = $('ex-in');
+  card.querySelectorAll('[data-uk]').forEach(b => b.onclick = () => { const s = inp.selectionStart ?? inp.value.length, e = inp.selectionEnd ?? s;
+    inp.value = inp.value.slice(0, s) + b.dataset.uk + inp.value.slice(e); inp.focus(); inp.setSelectionRange(s + 1, s + 1); $('rv-check').disabled = false; });
+  inp.oninput = () => $('rv-check').disabled = !inp.value.trim();
+  const cased = x => { x = String(x).replace(/[.,!?¿¡;:"“”„…()]/g, ' ').replace(/[’]/g, "'").replace(/\s+/g, ' ').trim(); return x.charAt(0).toLowerCase() + x.slice(1); };
+  const check = () => { const got = inp.value.trim(); if (!got) return;
+    const exact = cased(got) === cased(it.de), close = norm(got) === norm(it.de);
+    inp.disabled = true; const k = card.querySelector('.ukeys'); if (k) k.remove();
+    feedback(exact || close, it, exact ? '' : close ? 'Almost perfect: check the capitals and ä ö ü ß.' : `You wrote: “${esc(got)}”`); };
+  checkBar(false, check);
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); check(); } });
+  setTimeout(() => inp.focus(), 60);
+}
+// Say it: read it aloud (new phrases), or say it from the English (phrases you know). The phone listens and checks.
+function exSpeak(it){
+  const known = srs[it.a] && srs[it.a].b >= 2;
+  card.innerHTML = `<div class="rv-q">${known ? 'Say this in German' : 'Listen, then read it aloud'}</div>
+    ${known ? big(it) : `<div class="playrow"><button class="rv-play big" id="ex-play">${I.std}</button><div class="rv-de">${it.kind === 'numbers' ? esc(it.de) : tapWords(it.de)}</div></div><div class="say">${stress(it.say)}</div>`}
+    <button class="mic-big" id="ex-mic" aria-label="Tap and speak">${I.mic}</button><div class="hint" id="ex-hint">Tap the microphone and speak.</div><div id="ex-res"></div>`;
+  if (!known) { $('ex-play').onclick = () => playIt(it, $('ex-play')); }
+  ractions.innerHTML = `<button class="rv-again quiet2" id="ex-cant">Can’t speak now</button><button class="rv-good quiet2" id="ex-skip">Skip</button>`;
+  $('ex-cant').onclick = () => { store.set('noSpeak', Date.now() + 15 * 60e3); toast('No speaking for 15 minutes.'); rq.push({it, ex: pickEx(it, true)}); ri++; showEx(); };
+  $('ex-skip').onclick = () => { rq.push({it, ex: pickEx(it, true)}); ri++; showEx(); };
+  let tries = 0;
+  const go = () => listenFor(it, $('ex-mic'), $('ex-hint'), r => {
+    if (!r.ok) return;
+    tries++;
+    if (r.pc >= .8) return feedback(true, it, `I heard: “${esc(r.said)}”`);
+    $('ex-res').innerHTML = `<div class="heard">I heard: “${esc(r.said)}”</div><div class="marked">${r.marked}</div>`;
+    if (tries >= 2) feedback(r.pc >= .5, it, r.pc >= .5 ? 'Close! Listen once more and copy the sounds.' : `I heard: “${esc(r.said)}”`);
+    else { $('ex-hint').textContent = 'Almost. Listen, then try again.'; playIt(it, null, () => setTimeout(go, 200)); }
+  });
+  $('ex-mic').onclick = () => { if (rec) return stopListening(); go(); };
+  if (!known) playIt(it, $('ex-play'), () => setTimeout(go, 250)); else go();
 }
 function showDone(){
-  rprogress(); $('rv-fill').style.width = '100%';
+  stopListening(); $('rv-fill').style.width = '100%';
   card.className = 'rv-card rv-done';
   const st = streak(), nk = pool.filter(it => srs[it.a] && srs[it.a].b >= 2).length;
-  card.innerHTML = `<div class="rv-big" aria-hidden="true">${lapsed.size ? '👏' : '🎉'}</div><div class="rv-en">Gut gemacht!</div><p>Well done. You ${quiz ? 'practised' : 'reviewed'} ${total} phrase${total === 1 ? '' : 's'}.</p>
-    <p>${!lapsed.size ? 'You knew every one.' : lapsed.size === 1 ? '1 phrase needed another try. It will come back tomorrow.' : `${lapsed.size} phrases needed another try. They will come back tomorrow.`}</p>
+  const acc = Math.round(100 * firstOK / Math.max(total, 1)), mins = Math.max(1, Math.round((Date.now() - tStart) / 60000));
+  card.innerHTML = `<div class="rv-big" aria-hidden="true">${acc >= 80 ? '🎉' : '👏'}</div><div class="rv-en">${acc >= 90 ? 'Perfekt!' : 'Gut gemacht!'}</div>
+    <p>You ${quiz ? 'practised' : 'reviewed'} ${total} phrase${total === 1 ? '' : 's'}.${lapsed.size ? ` ${lapsed.size === 1 ? 'One needs' : lapsed.size + ' need'} more practice and will come back tomorrow.` : ''}</p>
+    <div class="rv-sum"><span><b>${acc}%</b>right first time</span><span><b>${mins}</b>min${mins === 1 ? '' : 's'}</span><span><b>${bestCombo}</b>best streak</span></div>
     <div class="rv-sum"><span><b>${st}</b>day${st === 1 ? '' : 's'} in a row</span><span><b>${nk}</b>phrases known</span></div>`;
   ractions.innerHTML = `<button class="wide" id="rv-end">Finish</button>`;
-  $('rv-end').onclick = closeReview;
+  $('rv-end').onclick = closeReview; $('rv-end').focus();
 }
+
 // ---------- practice: listen, type, speak, conversations ----------
 // Practice never changes the daily review schedule. It only counts as activity for the day.
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1137,11 +1347,11 @@ function pOpen(m){
   if (m === 'talk') return talkMenu();
   pNext();
 }
-function pClose(){ if (rec) { try { rec.abort(); } catch (e) {} rec = null; } px.hidden = true; document.body.style.overflow = ''; stopAll(); hidePop(); renderProgress(); if (view === 'home') renderHome(); }
-const PNAME = {listen: 'Listen', type: 'Type it', speak: 'Speak it', talk: 'Conversation'};
+function pClose(){ stopListening(); px.hidden = true; document.body.style.overflow = ''; stopAll(); hidePop(); renderProgress(); if (view === 'home') renderHome(); }
+const PNAME = {listen: 'Listen', type: 'Type it', speak: 'Repeat after me', talk: 'Conversation'};
 function pTop(){ $('px-prog').textContent = `${PNAME[pmode]} · ${Math.min(pi + 1, pq.length)} of ${pq.length}`; $('px-fill').style.width = `${Math.round(100 * pi / Math.max(pq.length, 1))}%`; }
 function pNext(){
-  stopAll();
+  stopAll(); if (pmode === 'talk') return;
   if (pi >= pq.length) return pDone();
   pTop(); pcard.className = 'rv-card';
   ({listen: listenQ, type: typeQ, speak: speakQ})[pmode](pq[pi]);
@@ -1209,82 +1419,133 @@ function typeQ(it){
   setTimeout(() => inp.focus(), 50);
 }
 
-// Speak it: see the English, say the German; the phone's speech recognition checks it
+// ---------- listening to you: the phone's speech recognition checks what you said ----------
 function heardScore(alts, it){
   const target = norm(it.de).split(' ').filter(Boolean);
-  let best = {n: -1, said: alts[0] || ''};
+  let best = {n: -1, said: alts[0] || '', have: new Set()};
   alts.forEach(a => { const have = new Set(norm(a).split(' ')); if (it.kind === 'numbers') have.add(norm(it.en));
-    const hit = it.kind === 'numbers' && have.has(norm(it.en)) ? target.length : target.filter(w => have.has(w)).length;
+    const hit = it.kind === 'numbers' && (have.has(norm(it.en)) || have.has(norm(it.de))) ? target.length : target.filter(w => have.has(w)).length;
     if (hit > best.n) best = {n: hit, said: a, have}; });
-  return {...best, total: target.length};
+  return {...best, n: Math.max(0, best.n), total: target.length};
 }
-function speakQ(it){
-  pcard.innerHTML = `<div class="rv-q">Say it in German</div><div class="${it.kind === 'numbers' ? 'rv-num' : 'rv-en'}">${esc(it.en)}</div>
-    <button class="mic-big" id="px-mic" aria-label="Tap and speak">${I.mic}</button><div class="hint" id="px-hint">Tap the microphone, then speak.</div><div id="px-res"></div>`;
-  pact.innerHTML = `<button class="rv-again" id="px-skip">Show answer</button><button class="rv-good" id="px-nx" disabled>Next</button>`;
-  let tries = 0, best = 0;
-  const reveal = () => { if (!pcard.querySelector('.rv-ans')) pcard.insertAdjacentHTML('beforeend', answerBlock(it));
-    stopAll(); playBest(it.a, pcard.querySelector(hasPartner(it.a) ? '[data-vs]' : '[data-std]')); $('px-nx').disabled = false; };
-  $('px-skip').onclick = reveal;
-  $('px-nx').onclick = () => { if (best >= 0.8) pscore++; pAdvance(); };
-  $('px-mic').onclick = () => {
-    if (rec) { try { rec.stop(); } catch (e) {} return; }
-    stopAll(); rec = new SR(); rec.lang = 'de-DE'; rec.interimResults = false; rec.maxAlternatives = 5; rec.continuous = false;
-    const mic = $('px-mic'); mic.classList.add('on'); $('px-hint').textContent = 'Listening… speak now.';
-    let got = false;
-    rec.onresult = e => { got = true; const alts = [...e.results[0]].map(r => r.transcript); const r = heardScore(alts, it); tries++;
-      const pc = r.n / Math.max(r.total, 1); best = Math.max(best, pc);
-      const marked = String(it.de).split(' ').map(w => `<span class="${r.have.has(norm(w)) || (it.kind === 'numbers' && r.n) ? 'w-ok' : 'w-bad'}">${esc(w)}</span>`).join(' ');
-      $('px-res').innerHTML = `<div class="fb ${pc >= .8 ? 'ok' : pc >= .5 ? 'warn2' : 'bad'}">${pc >= .8 ? 'Sehr gut! ✓' : pc >= .5 ? 'Almost. Listen, then try again.' : 'Try again. Listen to the answer first.'}</div>
-        <div class="heard">I heard: “${esc(r.said)}”</div><div class="marked">${marked}</div>`;
-      if (pc >= .8 || tries >= 2) reveal(); };
-    rec.onerror = e => { $('px-hint').textContent = e.error === 'not-allowed' || e.error === 'service-not-allowed'
-      ? 'Speech recognition is blocked. Allow the microphone (and on iPhone, turn on Siri) and try again.' : e.error === 'no-speech' ? 'I didn’t hear anything. Tap and try again.' : 'Couldn’t listen. Tap and try again.'; };
-    rec.onend = () => { mic.classList.remove('on'); rec = null; if (got) $('px-hint').textContent = 'Tap the microphone to try again.'; };
-    try { rec.start(); } catch (e) { mic.classList.remove('on'); rec = null; }
-  };
+function stopListening(){ if (rec) { const r = rec; rec = null; try { r.abort(); } catch (e) {} } document.querySelectorAll('.mic-big.on').forEach(m => m.classList.remove('on')); }
+function listenFor(it, mic, hint, cb){
+  const say = t => { if (hint) hint.textContent = t; };
+  if (!SR) { say('Checking your voice needs Safari or Chrome.'); return; }
+  stopAll(); stopListening();
+  const r0 = new SR(); rec = r0; let got = false;
+  r0.lang = 'de-DE'; r0.interimResults = false; r0.maxAlternatives = 5; r0.continuous = false;
+  if (mic) mic.classList.add('on'); say('Listening… speak now.');
+  r0.onresult = e => { if (rec !== r0) return; got = true;
+    const r = heardScore([...e.results[0]].map(x => x.transcript), it), pc = r.n / Math.max(r.total, 1);
+    const marked = String(it.de).split(' ').map(w => `<span class="${r.have.has(norm(w)) || (it.kind === 'numbers' && r.n) ? 'w-ok' : 'w-bad'}">${esc(w)}</span>`).join(' ');
+    cb({ok: true, pc, said: r.said, marked}); };
+  r0.onerror = e => { if (rec !== r0 && e.error === 'aborted') return;
+    say(e.error === 'not-allowed' || e.error === 'service-not-allowed' ? 'Voice checking is blocked. Allow the microphone (on iPhone also turn on Siri), then tap the microphone.'
+      : e.error === 'no-speech' ? 'I didn’t hear anything. Tap the microphone and try again.' : 'Tap the microphone and speak.'); };
+  r0.onend = () => { if (mic) mic.classList.remove('on'); if (rec === r0) rec = null; if (!got && hint && /Listening/.test(hint.textContent)) say('Tap the microphone and speak.'); };
+  try { r0.start(); } catch (e) { if (mic) mic.classList.remove('on'); rec = null; say('Tap the microphone and speak.'); }
 }
 
-// Conversations: act out the dialogues. You play one person, the app plays the other.
+// Repeat after me: the app says it, you say it back, the app checks. Hands-free.
+function speakQ(it){
+  const hide = store.get('repHide', false);
+  pcard.innerHTML = `<div class="rv-q">Repeat after me</div>
+    <div class="seg mini" role="group" aria-label="Text"><button data-rh="0" aria-pressed="${!hide}">Show the German</button><button data-rh="1" aria-pressed="${hide}">Listen only</button></div>
+    <div class="playrow"><button class="rv-play big" id="px-play" aria-label="Play again">${I.std}</button>
+      <div class="${hide ? 'hidetxt' : ''}" id="px-txt"><div class="rv-de">${it.kind === 'numbers' ? esc(it.de) : tapWords(it.de)}</div><div class="say">${stress(it.say)}</div></div></div>
+    <div class="rv-mean">${esc(it.en)}</div>
+    <button class="mic-big" id="px-mic" aria-label="Tap and speak">${I.mic}</button><div class="hint" id="px-hint"></div><div id="px-res"></div>${SR ? '' : pbar(it)}`;
+  pcard.querySelectorAll('[data-rh]').forEach(b => b.onclick = () => { store.set('repHide', b.dataset.rh === '1'); stopListening(); speakQ(it); });
+  pact.innerHTML = `<button class="rv-again quiet2" id="px-skip">Skip</button><button class="rv-good" id="px-nx">Next</button>`;
+  $('px-skip').onclick = pAdvance; $('px-nx').onclick = pAdvance;
+  if (!SR) { $('px-mic').remove(); $('px-hint').textContent = 'This browser can’t check your voice. Tap Record, then Me, to compare yourself with the voice.'; }
+  let tries = 0;
+  const round = slow => { const sp = speed; speed = slow ? 's' : 'n'; stopListening();
+    playIt(it, $('px-play'), () => { speed = sp; if (SR) setTimeout(listen, 200); }); speed = sp; };
+  const listen = () => listenFor(it, $('px-mic'), $('px-hint'), r => {
+    tries++;
+    if (r.pc >= .8) { sfx(true); pscore++; $('px-txt').classList.remove('hidetxt');
+      $('px-res').innerHTML = `<div class="fb ok">${['Sehr gut!', 'Super!', 'Perfekt!'][tries % 3]} ✓</div><div class="heard">I heard: “${esc(r.said)}”</div>`;
+      $('px-hint').textContent = ''; setTimeout(() => { if (!px.hidden && pmode === 'speak' && pq[pi] === it) pAdvance(); }, 1600); return; }
+    sfx(false);
+    $('px-res').innerHTML = `<div class="heard">I heard: “${esc(r.said)}”</div><div class="marked">${r.marked}</div>`;
+    if (tries >= 3) { $('px-txt').classList.remove('hidetxt'); $('px-hint').textContent = 'Keep practising this one. Tap Next when you’re ready.'; return; }
+    $('px-hint').textContent = 'Almost. Listen again and copy the sounds.'; setTimeout(() => { if (!px.hidden && pmode === 'speak' && pq[pi] === it) round(true); }, 900);
+  });
+  $('px-play').onclick = () => round(false);
+  if (SR) $('px-mic').onclick = () => { if (rec) return stopListening(); listen(); };
+  round(false);
+}
+
+// Conversations: act out the dialogues. The app plays the other person and listens to you.
 const TALKS = []; DATA.sections.forEach(s => s.groups.forEach(g => { if (g.kind === 'rows' && /^dialog/i.test(g.title || '')) TALKS.push({title: g.title, note: g.note || '', lesson: s.title, items: g.items}); }));
 let talk = null, tme = 0, tline = 0;
 function talkMenu(){
   $('px-prog').textContent = 'Conversations'; $('px-fill').style.width = '0';
+  const help = store.get('talkHelp', true);
   pcard.className = 'rv-card talkmenu';
-  pcard.innerHTML = `<div class="rv-q">Choose a conversation</div>${TALKS.map((t, i) => `<div class="tk"><b>${esc(t.title)}</b><span>${esc(t.lesson)}${t.note ? ' · ' + esc(t.note) : ''}</span>
+  pcard.innerHTML = `<div class="rv-q">Your lines</div>
+    <div class="seg mini" role="group" aria-label="Your lines"><button data-th="1" aria-pressed="${help}">Hear them first</button><button data-th="0" aria-pressed="${!help}">English only</button></div>
+    <p class="hint left">${help ? 'Easier: you hear your line, then say it.' : 'Harder: you see only the English and say it in German.'}${SR ? ' The app listens and checks.' : ''}</p>
+    <div class="rv-q">Choose a conversation</div>${TALKS.map((t, i) => `<div class="tk"><b>${esc(t.title)}</b><span>${esc(t.lesson)}${t.note ? ' · ' + esc(t.note) : ''}</span>
     <div class="tk-b"><button class="btn" data-tk="${i}" data-me="0">I start</button><button class="btn" data-tk="${i}" data-me="1">I answer</button></div></div>`).join('')}`;
   pact.innerHTML = '';
+  pcard.querySelectorAll('[data-th]').forEach(b => b.onclick = () => { store.set('talkHelp', b.dataset.th === '1'); talkMenu(); });
   pcard.querySelectorAll('[data-tk]').forEach(b => b.onclick = () => { talk = TALKS[+b.dataset.tk]; tme = +b.dataset.me; tline = 0; pcard.className = 'rv-card chatcard'; pcard.innerHTML = '<div class="chat" id="chat"></div>'; talkStep(); });
 }
 function talkStep(){
-  const chat = $('chat'), its = talk.items;
+  const chat = $('chat'), its = talk.items, help = store.get('talkHelp', true);
+  stopListening();
   $('px-prog').textContent = `${talk.title} · ${Math.min(tline + 1, its.length)} of ${its.length}`; $('px-fill').style.width = `${Math.round(100 * tline / its.length)}%`;
-  if (tline >= its.length) { bump(); pact.innerHTML = `<button class="rv-again" id="px-swap">Swap roles</button><button class="rv-good" id="px-end">Finish</button>`;
+  if (tline >= its.length) { bump(); sfx(true); pact.innerHTML = `<button class="rv-again" id="px-swap">Swap roles</button><button class="rv-good" id="px-end">Finish</button>`;
     chat.insertAdjacentHTML('beforeend', `<div class="chat-end">Gut gemacht! 🎉</div>`); chat.lastElementChild.scrollIntoView({block: 'end'});
     $('px-swap').onclick = () => { tme = 1 - tme; tline = 0; chat.innerHTML = ''; talkStep(); }; $('px-end').onclick = pClose; return; }
   const it = its[tline], mine = tline % 2 === tme;
+  const next = () => { stopAll(); stopListening(); tline++; talkStep(); };
   if (!mine) {
     chat.insertAdjacentHTML('beforeend', `<div class="bub them"><b>${tapWords(it.de)}</b><small>${esc(it.en)}</small></div>`);
     chat.lastElementChild.scrollIntoView({block: 'end', behavior: 'smooth'});
     pact.innerHTML = `<button class="wide" id="px-skipline">Next</button>`;
-    let moved = false; const go = () => { if (moved) return; moved = true; tline++; talkStep(); };
-    $('px-skipline').onclick = () => { stopAll(); go(); };
-    stopAll(); playBest(it.a, null, () => setTimeout(go, 700));
-  } else {
-    chat.insertAdjacentHTML('beforeend', `<div class="bub me ask"><small>Your turn. Say:</small><b>${esc(it.en)}</b></div>`);
-    const bub = chat.lastElementChild; bub.scrollIntoView({block: 'end', behavior: 'smooth'});
-    pact.innerHTML = `<button class="wide" id="px-said">I said it · show me</button>`;
-    $('px-said').onclick = () => { bub.classList.remove('ask'); bub.innerHTML = `<b>${tapWords(it.de)}</b><small>${esc(it.en)}</small>`;
-      stopAll(); playBest(it.a, null); pact.innerHTML = `<button class="rv-again" id="px-again">Hear again</button><button class="rv-good" id="px-cont">Continue</button>`;
-      $('px-again').onclick = () => { stopAll(); playBest(it.a, null); }; $('px-cont').onclick = () => { stopAll(); tline++; talkStep(); }; };
+    let moved = false; const go = () => { if (moved) return; moved = true; next(); };
+    $('px-skipline').onclick = go;
+    playIt(it, null, () => setTimeout(go, 600));
+    return;
   }
+  chat.insertAdjacentHTML('beforeend', `<div class="bub me ask"><small>Your turn${help ? '. Listen, then say:' : '. Say in German:'}</small><b>${help ? tapWords(it.de) : esc(it.en)}</b>${help ? `<small>${esc(it.en)}</small>` : ''}<div class="bub-r"></div></div>`);
+  const bub = chat.lastElementChild; bub.scrollIntoView({block: 'end', behavior: 'smooth'});
+  const done = ok => { bub.classList.remove('ask'); bub.querySelector('.bub-r').innerHTML = '';
+    bub.querySelector('b').innerHTML = tapWords(it.de); bub.querySelector('small').textContent = ok ? '✓ ' + it.en : it.en;
+    if (!help) bub.insertAdjacentHTML('beforeend', '');
+    pact.innerHTML = `<button class="rv-again" id="px-again">Hear again</button><button class="rv-good" id="px-cont">Continue</button>`;
+    $('px-again').onclick = () => playIt(it, null); $('px-cont').onclick = next; };
+  if (!SR) {
+    pact.innerHTML = `<button class="wide" id="px-said">I said it · show me</button>`;
+    $('px-said').onclick = () => { done(false); playIt(it, null); };
+    if (help) playIt(it, null);
+    return;
+  }
+  pact.innerHTML = `<button class="rv-again" id="px-show">Show me</button><button class="rv-good mic-sm" id="px-mic">${I.mic}<span>Speak</span></button>`;
+  const hint = {set textContent(t){ bub.querySelector('.bub-r').textContent = t; }, get textContent(){ return bub.querySelector('.bub-r').textContent; }};
+  let tries = 0;
+  const listen = () => listenFor(it, $('px-mic'), hint, r => {
+    tries++;
+    if (r.pc >= .7) { sfx(true); done(true); setTimeout(() => { if (!px.hidden && talk && talk.items[tline] === it) next(); }, 900); return; }
+    sfx(false);
+    if (tries >= 2) { bub.querySelector('.bub-r').innerHTML = `<span class="marked sm">${r.marked}</span>`; done(false); playIt(it, null); return; }
+    bub.querySelector('.bub-r').innerHTML = `I heard “${esc(r.said)}”. Listen and try again.`;
+    playIt(it, null, () => setTimeout(listen, 200));
+  });
+  $('px-show').onclick = () => { stopListening(); done(false); playIt(it, null); };
+  $('px-mic').onclick = () => { if (rec) return stopListening(); listen(); };
+  if (help) playIt(it, null, () => setTimeout(listen, 200)); else listen();
 }
 $('px-close').onclick = pClose;
 document.addEventListener('keydown', e => { if (!px.hidden && e.key === 'Escape') pClose(); });
 document.addEventListener('click', e => { const b = e.target.closest('[data-px]'); if (b && !b.disabled) pOpen(b.dataset.px); });
 $('ptiles').innerHTML = [['listen', '🎧', 'Listen', 'Hear it, pick the meaning'], ['type', '⌨️', 'Type it', 'Write it, check your spelling'],
-  ['speak', '🗣', 'Speak it', SR ? 'Say it, your phone checks it' : 'Needs Safari or Chrome'], ['talk', '💬', 'Conversations', `${TALKS.length} dialogues to act out`]]
-  .map(([m, ic, t, d]) => `<button class="ptile" data-px="${m}"${m === 'speak' && !SR || m === 'talk' && !TALKS.length ? ' disabled' : ''}><span class="ic" aria-hidden="true">${ic}</span><b>${t}</b><span>${d}</span></button>`).join('');
+  ['speak', '🗣', 'Repeat after me', 'Hear it, say it back, the app checks'], ['talk', '💬', 'Conversations', `${TALKS.length} dialogues to act out`]]
+  .map(([m, ic, t, d]) => `<button class="ptile" data-px="${m}"${m === 'talk' && !TALKS.length ? ' disabled' : ''}><span class="ic" aria-hidden="true">${ic}</span><b>${t}</b><span>${d}</span></button>`).join('');
 
 // ---------- daily reminder: a repeating event in the phone's calendar ----------
 $('rem').onclick = () => {
@@ -1351,10 +1612,10 @@ $('t-start').onclick = openReview;
 $('rv-close').onclick = closeReview;
 document.addEventListener('keydown', e => { if (rv.hidden || e.metaKey || e.ctrlKey || e.altKey) return;
   if (e.key === 'Escape') return closeReview();
-  const b = id => { const el = $(id); if (el) { e.preventDefault(); el.click(); } };
-  if (e.key === ' ' || e.key === 'Enter') { if ($('rv-show')) b('rv-show'); else if ($('rv-end')) b('rv-end'); }
-  else if (e.key === 'ArrowLeft' || e.key === '1') b('rv-again');
-  else if (e.key === 'ArrowRight' || e.key === '2') b('rv-good'); });
+  if (e.target.tagName === 'INPUT') return;
+  const b = el => { if (el && !el.disabled) { e.preventDefault(); el.click(); } };
+  if (e.key === 'Enter' || e.key === ' ') b($('rv-next') || $('rv-check') || $('rv-end'));
+  else if (/^[1-9]$/.test(e.key)) b(card.querySelectorAll('[data-ch]:not(:disabled)')[+e.key - 1]); });
 refreshToday();
 
 // ---------- offline ----------
