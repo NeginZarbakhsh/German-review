@@ -198,6 +198,7 @@ footer{padding-block:28px 48px;color:var(--muted);font-size:.85rem;text-align:ce
 .rv-actions .wide{grid-column:1/-1;background:var(--fg);color:var(--bg)}
 .rv-again{background:var(--surface);color:var(--bad);border:1px solid var(--line)!important}
 .rv-good{background:var(--accent);color:var(--accent-ink)}
+.rv-actions button:disabled{opacity:.35;cursor:default}
 .rv-done{text-align:center;align-items:center}
 .rv-done .rv-en{font-size:2rem}
 .rv-done p{color:var(--muted);margin:0}
@@ -317,6 +318,48 @@ main section{padding-top:22px}
 .vw svg{width:20px;height:20px;color:var(--accent)}
 .vw:disabled{cursor:default;color:var(--fg)}
 .vw.on{background:var(--accent-soft)}
+/* practice */
+.ptiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ptile{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;font:inherit;color:var(--fg);text-align:left;cursor:pointer;transition:border-color .15s}
+@media (hover:hover){.ptile:not(:disabled):hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}}
+.ptile .ic{font-size:1.5rem;line-height:1.2;margin-bottom:4px}
+.ptile b{font-family:var(--display);font-size:1.05rem}
+.ptile span:last-child{font-size:.8rem;color:var(--muted);line-height:1.35}
+.ptile:disabled{opacity:.45;cursor:default}
+.chs{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.ch{border:1.5px solid var(--line);background:var(--surface);color:var(--fg);border-radius:14px;padding:13px 14px;font:700 1rem var(--body);text-align:left;cursor:pointer}
+.ch:disabled{cursor:default;opacity:.55}
+.ch.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--surface));opacity:1}
+.ch.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,var(--surface));opacity:1}
+.fb{font-weight:700;font-size:1.02rem}
+.fb.ok{color:var(--ok)} .fb.bad{color:var(--bad)} .fb.warn2{color:var(--stress)}
+.tin{width:100%;font:700 1.25rem var(--display);padding:13px 14px;border:1.5px solid var(--line);border-radius:14px;background:var(--bg);color:var(--fg)}
+.tin:focus{outline:none;border-color:var(--accent)}
+.ukeys{display:flex;gap:8px}
+.ukeys button{width:46px;height:42px;border:1px solid var(--line);background:var(--tap);color:var(--fg);border-radius:10px;font:700 1.1rem var(--body);cursor:pointer}
+.marked{font-family:var(--display);font-weight:700;font-size:1.2rem}
+.w-ok{color:var(--ok)} .w-bad{color:var(--bad);text-decoration:underline wavy;text-underline-offset:4px}
+.mic-big{align-self:center;width:84px;height:84px;border-radius:50%;border:0;background:var(--rec);color:#fff;display:grid;place-items:center;cursor:pointer;margin-top:8px}
+.mic-big svg{width:36px;height:36px}
+.mic-big.on{animation:pulse 1s infinite}
+.hint{text-align:center;color:var(--muted);font-size:.9rem}
+.heard{color:var(--muted);font-style:italic;font-size:.92rem}
+.talkmenu{justify-content:flex-start}
+.tk{border:1px solid var(--line);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.tk b{font-family:var(--display);font-size:1.05rem}
+.tk span{color:var(--muted);font-size:.86rem}
+.tk-b{display:flex;gap:8px;margin-top:8px}
+.tk-b .btn{flex:1}
+.chatcard{justify-content:flex-start;padding:16px 14px;overflow:hidden}
+.chat{display:flex;flex-direction:column;gap:10px;overflow-y:auto;max-height:100%;padding-bottom:4px}
+.bub{max-width:86%;padding:10px 14px;border-radius:18px;display:flex;flex-direction:column;gap:2px}
+.bub b{font-family:var(--display);font-size:1.1rem;line-height:1.3}
+.bub small{font-size:.86rem;opacity:.75}
+.bub.them{align-self:flex-start;background:var(--tap);border-bottom-left-radius:6px}
+.bub.me{align-self:flex-end;background:var(--accent);color:var(--accent-ink);border-bottom-right-radius:6px}
+.bub.me .wd{text-decoration-color:color-mix(in srgb,var(--accent-ink) 45%,transparent)}
+.bub.ask{background:transparent;color:var(--fg);border:1.5px dashed var(--accent)}
+.chat-end{align-self:center;font-weight:700;color:var(--ok);padding:8px}
 .ver{text-align:center;font-size:.78rem;color:var(--muted);margin:0 0 24px;opacity:.8}
 button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--stress);outline-offset:2px}
 @media (max-width:480px){h1{font-size:1.8rem}.de{font-size:1.22rem}}
@@ -337,6 +380,8 @@ html{scroll-behavior:smooth}
   </div>
   <div class="stats" id="stats"></div>
   <button class="fakesearch" data-nav="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></svg><span>Search all phrases, German or English</span></button>
+  <div class="home-h"><h2>Practice</h2><span>A few minutes, any time</span></div>
+  <div class="ptiles" id="ptiles"></div>
   <div class="home-h"><h2>Lessons</h2><span id="home-n"></span></div>
   <div class="lessons" id="lessons"></div>
   <div class="home-h"><h2>More</h2></div>
@@ -404,6 +449,14 @@ html{scroll-behavior:smooth}
     <div class="rv-bar"><i id="rv-fill"></i></div>
     <div class="rv-card" id="rv-card"></div>
     <div class="rv-actions" id="rv-actions"></div>
+  </div>
+</div>
+<div class="rv" id="px" hidden role="dialog" aria-modal="true" aria-label="Practice">
+  <div class="rv-in">
+    <div class="rv-top"><span id="px-prog"></span><button class="rv-x" id="px-close" aria-label="Close practice">×</button></div>
+    <div class="rv-bar"><i id="px-fill"></i></div>
+    <div class="rv-card" id="px-card"></div>
+    <div class="rv-actions" id="px-actions"></div>
   </div>
 </div>
 <div class="toast" id="toast" hidden role="status"></div>
@@ -548,6 +601,8 @@ DATA.sections.forEach(s => {
 });
 main.appendChild($('share')); $('share').classList.remove('wrap');
 main.insertAdjacentHTML('beforeend', `<section id="progress"><div class="sec-head"><h2>My progress</h2></div><p class="lead">What you've practised and what you know.</p>
+  <div class="panel"><h3>Daily reminder</h3><p>Put a daily German reminder in your phone's calendar. Pick a time you're usually free.</p>
+    <div class="btns"><input type="time" id="rem-t" value="19:00" aria-label="Reminder time" style="width:auto"><button class="btn primary" id="rem">Add to calendar</button></div><span class="msg" id="rem-msg"></span></div>
   <div class="panel"><h3>Last 5 weeks</h3><div class="heat" id="heat"></div><p id="heat-line"></p></div>
   <div class="panel"><h3>By lesson</h3><div class="keyline"><span><i style="background:var(--ok)"></i>Known</span><span><i style="background:color-mix(in srgb,var(--ok) 35%,var(--line))"></i>Learning</span></div><div class="secbars" id="secbars"></div>
     <p>A phrase is <b>known</b> after you get it right in the daily review on two different days.</p></div></section>`);
@@ -1059,6 +1114,191 @@ function showDone(){
   ractions.innerHTML = `<button class="wide" id="rv-end">Finish</button>`;
   $('rv-end').onclick = closeReview;
 }
+// ---------- practice: listen, type, speak, conversations ----------
+// Practice never changes the daily review schedule. It only counts as activity for the day.
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const px = $('px'), pcard = $('px-card'), pact = $('px-actions');
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const plain = s => String(s).toLowerCase().replace(/[.,!?¿¡;:"“”„…()]/g, ' ').replace(/[’]/g, "'").replace(/\s+/g, ' ').trim();
+const simpleItem = it => !/[\/…()]/.test(it.de) && String(it.de).split(' ').length <= 7;
+// what you've started first (shuffled), topped up from the earliest lessons
+function pickItems(n, ok){
+  const c = pool.filter(ok), started = shuffle(c.filter(it => srs[it.a])), rest = c.filter(it => !srs[it.a]);
+  return shuffle(started.concat(rest).slice(0, n));
+}
+const playBest = (a, btn, end) => playKind(hasPartner(a) ? PARTNER : 'std', a, btn, end);
+let pmode = '', pq = [], pi = 0, pscore = 0, rec = null;
+function pOpen(m){
+  pmode = m; pi = 0; pscore = 0;
+  if (m === 'listen') pq = pickItems(10, () => true);
+  if (m === 'type') pq = pickItems(10, simpleItem);
+  if (m === 'speak') pq = pickItems(10, simpleItem);
+  px.hidden = false; document.body.style.overflow = 'hidden'; stopAll();
+  if (m === 'talk') return talkMenu();
+  pNext();
+}
+function pClose(){ if (rec) { try { rec.abort(); } catch (e) {} rec = null; } px.hidden = true; document.body.style.overflow = ''; stopAll(); hidePop(); renderProgress(); if (view === 'home') renderHome(); }
+const PNAME = {listen: 'Listen', type: 'Type it', speak: 'Speak it', talk: 'Conversation'};
+function pTop(){ $('px-prog').textContent = `${PNAME[pmode]} · ${Math.min(pi + 1, pq.length)} of ${pq.length}`; $('px-fill').style.width = `${Math.round(100 * pi / Math.max(pq.length, 1))}%`; }
+function pNext(){
+  stopAll();
+  if (pi >= pq.length) return pDone();
+  pTop(); pcard.className = 'rv-card';
+  ({listen: listenQ, type: typeQ, speak: speakQ})[pmode](pq[pi]);
+}
+function pAdvance(){ pi++; bump(); pNext(); }
+function nextBtn(label = 'Next'){ pact.innerHTML = `<button class="wide" id="px-next">${label}</button>`; $('px-next').onclick = pAdvance; $('px-next').focus(); }
+function answerBlock(it){
+  return `<div class="rv-ans"><div class="rv-de">${it.kind === 'numbers' ? esc(it.de) : tapWords(it.de)}</div><div class="say">${stress(it.say)}</div>
+    ${it.fa ? `<div class="fa" dir="rtl" lang="fa">${esc(it.fa)}</div>` : ''}</div>${pbar(it)}`;
+}
+function pDone(){
+  $('px-fill').style.width = '100%'; pcard.className = 'rv-card rv-done';
+  const pc = Math.round(100 * pscore / Math.max(pq.length, 1));
+  pcard.innerHTML = `<div class="rv-big" aria-hidden="true">${pc >= 80 ? '🎉' : '👏'}</div><div class="rv-en">${pc >= 80 ? 'Sehr gut!' : 'Gut gemacht!'}</div>
+    <p>${pscore} of ${pq.length} right.</p><p>${pc >= 80 ? 'Excellent. Try another round or a different kind of practice.' : 'Every round makes it easier. Try another one.'}</p>`;
+  pact.innerHTML = `<button class="rv-again" id="px-more">Another round</button><button class="rv-good" id="px-end">Finish</button>`;
+  $('px-more').onclick = () => pOpen(pmode); $('px-end').onclick = pClose;
+}
+
+// Listen: hear the German, pick the meaning
+function listenQ(it){
+  const others = shuffle(pool.filter(x => x.a !== it.a && x.en !== it.en && (x.kind === 'numbers') === (it.kind === 'numbers'))).slice(0, 3);
+  const opts = shuffle([it, ...others]);
+  pcard.innerHTML = `<div class="rv-q">Listen · What does it mean?</div><button class="rv-play" id="px-play">${I.play}Play again</button>
+    <div class="chs">${opts.map(o => `<button class="ch" data-ch="${o.a}">${esc(o.en)}</button>`).join('')}</div>`;
+  const play = () => { stopAll(); playBest(it.a, null); };
+  $('px-play').onclick = play; play();
+  pact.innerHTML = '';
+  pcard.querySelectorAll('[data-ch]').forEach(b => b.onclick = () => {
+    const right = b.dataset.ch === it.a; if (right) pscore++;
+    pcard.querySelectorAll('[data-ch]').forEach(x => { x.disabled = true; if (x.dataset.ch === it.a) x.classList.add('right'); });
+    if (!right) b.classList.add('wrong');
+    $('px-play').remove();
+    pcard.insertAdjacentHTML('beforeend', `<div class="fb ${right ? 'ok' : 'bad'}">${right ? 'Richtig! ✓' : 'Not quite.'}</div>${answerBlock(it)}`);
+    stopAll(); playBest(it.a, pcard.querySelector(hasPartner(it.a) ? '[data-vs]' : '[data-std]'));
+    nextBtn();
+  });
+}
+
+// Type it: see the English, type the German
+function typeQ(it){
+  pcard.innerHTML = `<div class="rv-q">Type it in German</div><div class="${it.kind === 'numbers' ? 'rv-num' : 'rv-en'}">${esc(it.en)}</div>
+    <input class="tin" id="px-in" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" lang="de" placeholder="Auf Deutsch…" aria-label="Your answer in German">
+    <div class="ukeys">${['ä', 'ö', 'ü', 'ß'].map(c => `<button data-uk="${c}" aria-label="Type ${c}">${c}</button>`).join('')}</div>`;
+  const inp = $('px-in');
+  pcard.querySelectorAll('[data-uk]').forEach(b => b.onclick = () => { const s = inp.selectionStart ?? inp.value.length, e = inp.selectionEnd ?? s;
+    inp.value = inp.value.slice(0, s) + b.dataset.uk + inp.value.slice(e); inp.focus(); inp.setSelectionRange(s + 1, s + 1); });
+  pact.innerHTML = `<button class="rv-again" id="px-skip">I don't know</button><button class="rv-good" id="px-check">Check</button>`;
+  const check = () => {
+    const got = inp.value.trim(); if (!got && !$('px-skip').dataset.sure) { inp.focus(); return; }
+    const cased = x => { x = String(x).replace(/[.,!?¿¡;:"“”„…()]/g, ' ').replace(/[’]/g, "'").replace(/\s+/g, ' ').trim(); return x.charAt(0).toLowerCase() + x.slice(1); };
+    const exact = cased(got) === cased(it.de), close = norm(got) === norm(it.de);
+    const have = new Set(norm(got).split(' '));
+    const marked = String(it.de).split(' ').map(w => `<span class="${have.has(norm(w)) ? 'w-ok' : 'w-bad'}">${esc(w)}</span>`).join(' ');
+    if (exact || close) pscore++;
+    inp.disabled = true; pcard.querySelector('.ukeys').remove();
+    pcard.insertAdjacentHTML('beforeend', `<div class="fb ${exact ? 'ok' : close ? 'warn2' : 'bad'}">${exact ? 'Perfect! ✓' : close ? 'Right, but check the spelling (ä ö ü ß or capitals).' : got ? 'Not quite. Here is the answer:' : 'Here is the answer:'}</div>
+      ${exact ? '' : `<div class="marked">${marked}</div>`}${answerBlock(it)}`);
+    stopAll(); playBest(it.a, pcard.querySelector(hasPartner(it.a) ? '[data-vs]' : '[data-std]'));
+    nextBtn();
+  };
+  $('px-check').onclick = check;
+  $('px-skip').onclick = () => { inp.value = ''; $('px-skip').dataset.sure = '1'; check(); };
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); check(); } });
+  setTimeout(() => inp.focus(), 50);
+}
+
+// Speak it: see the English, say the German; the phone's speech recognition checks it
+function heardScore(alts, it){
+  const target = norm(it.de).split(' ').filter(Boolean);
+  let best = {n: -1, said: alts[0] || ''};
+  alts.forEach(a => { const have = new Set(norm(a).split(' ')); if (it.kind === 'numbers') have.add(norm(it.en));
+    const hit = it.kind === 'numbers' && have.has(norm(it.en)) ? target.length : target.filter(w => have.has(w)).length;
+    if (hit > best.n) best = {n: hit, said: a, have}; });
+  return {...best, total: target.length};
+}
+function speakQ(it){
+  pcard.innerHTML = `<div class="rv-q">Say it in German</div><div class="${it.kind === 'numbers' ? 'rv-num' : 'rv-en'}">${esc(it.en)}</div>
+    <button class="mic-big" id="px-mic" aria-label="Tap and speak">${I.mic}</button><div class="hint" id="px-hint">Tap the microphone, then speak.</div><div id="px-res"></div>`;
+  pact.innerHTML = `<button class="rv-again" id="px-skip">Show answer</button><button class="rv-good" id="px-nx" disabled>Next</button>`;
+  let tries = 0, best = 0;
+  const reveal = () => { if (!pcard.querySelector('.rv-ans')) pcard.insertAdjacentHTML('beforeend', answerBlock(it));
+    stopAll(); playBest(it.a, pcard.querySelector(hasPartner(it.a) ? '[data-vs]' : '[data-std]')); $('px-nx').disabled = false; };
+  $('px-skip').onclick = reveal;
+  $('px-nx').onclick = () => { if (best >= 0.8) pscore++; pAdvance(); };
+  $('px-mic').onclick = () => {
+    if (rec) { try { rec.stop(); } catch (e) {} return; }
+    stopAll(); rec = new SR(); rec.lang = 'de-DE'; rec.interimResults = false; rec.maxAlternatives = 5; rec.continuous = false;
+    const mic = $('px-mic'); mic.classList.add('on'); $('px-hint').textContent = 'Listening… speak now.';
+    let got = false;
+    rec.onresult = e => { got = true; const alts = [...e.results[0]].map(r => r.transcript); const r = heardScore(alts, it); tries++;
+      const pc = r.n / Math.max(r.total, 1); best = Math.max(best, pc);
+      const marked = String(it.de).split(' ').map(w => `<span class="${r.have.has(norm(w)) || (it.kind === 'numbers' && r.n) ? 'w-ok' : 'w-bad'}">${esc(w)}</span>`).join(' ');
+      $('px-res').innerHTML = `<div class="fb ${pc >= .8 ? 'ok' : pc >= .5 ? 'warn2' : 'bad'}">${pc >= .8 ? 'Sehr gut! ✓' : pc >= .5 ? 'Almost. Listen, then try again.' : 'Try again. Listen to the answer first.'}</div>
+        <div class="heard">I heard: “${esc(r.said)}”</div><div class="marked">${marked}</div>`;
+      if (pc >= .8 || tries >= 2) reveal(); };
+    rec.onerror = e => { $('px-hint').textContent = e.error === 'not-allowed' || e.error === 'service-not-allowed'
+      ? 'Speech recognition is blocked. Allow the microphone (and on iPhone, turn on Siri) and try again.' : e.error === 'no-speech' ? 'I didn’t hear anything. Tap and try again.' : 'Couldn’t listen. Tap and try again.'; };
+    rec.onend = () => { mic.classList.remove('on'); rec = null; if (got) $('px-hint').textContent = 'Tap the microphone to try again.'; };
+    try { rec.start(); } catch (e) { mic.classList.remove('on'); rec = null; }
+  };
+}
+
+// Conversations: act out the dialogues. You play one person, the app plays the other.
+const TALKS = []; DATA.sections.forEach(s => s.groups.forEach(g => { if (g.kind === 'rows' && /^dialog/i.test(g.title || '')) TALKS.push({title: g.title, note: g.note || '', lesson: s.title, items: g.items}); }));
+let talk = null, tme = 0, tline = 0;
+function talkMenu(){
+  $('px-prog').textContent = 'Conversations'; $('px-fill').style.width = '0';
+  pcard.className = 'rv-card talkmenu';
+  pcard.innerHTML = `<div class="rv-q">Choose a conversation</div>${TALKS.map((t, i) => `<div class="tk"><b>${esc(t.title)}</b><span>${esc(t.lesson)}${t.note ? ' · ' + esc(t.note) : ''}</span>
+    <div class="tk-b"><button class="btn" data-tk="${i}" data-me="0">I start</button><button class="btn" data-tk="${i}" data-me="1">I answer</button></div></div>`).join('')}`;
+  pact.innerHTML = '';
+  pcard.querySelectorAll('[data-tk]').forEach(b => b.onclick = () => { talk = TALKS[+b.dataset.tk]; tme = +b.dataset.me; tline = 0; pcard.className = 'rv-card chatcard'; pcard.innerHTML = '<div class="chat" id="chat"></div>'; talkStep(); });
+}
+function talkStep(){
+  const chat = $('chat'), its = talk.items;
+  $('px-prog').textContent = `${talk.title} · ${Math.min(tline + 1, its.length)} of ${its.length}`; $('px-fill').style.width = `${Math.round(100 * tline / its.length)}%`;
+  if (tline >= its.length) { bump(); pact.innerHTML = `<button class="rv-again" id="px-swap">Swap roles</button><button class="rv-good" id="px-end">Finish</button>`;
+    chat.insertAdjacentHTML('beforeend', `<div class="chat-end">Gut gemacht! 🎉</div>`); chat.lastElementChild.scrollIntoView({block: 'end'});
+    $('px-swap').onclick = () => { tme = 1 - tme; tline = 0; chat.innerHTML = ''; talkStep(); }; $('px-end').onclick = pClose; return; }
+  const it = its[tline], mine = tline % 2 === tme;
+  if (!mine) {
+    chat.insertAdjacentHTML('beforeend', `<div class="bub them"><b>${tapWords(it.de)}</b><small>${esc(it.en)}</small></div>`);
+    chat.lastElementChild.scrollIntoView({block: 'end', behavior: 'smooth'});
+    pact.innerHTML = `<button class="wide" id="px-skipline">Next</button>`;
+    let moved = false; const go = () => { if (moved) return; moved = true; tline++; talkStep(); };
+    $('px-skipline').onclick = () => { stopAll(); go(); };
+    stopAll(); playBest(it.a, null, () => setTimeout(go, 700));
+  } else {
+    chat.insertAdjacentHTML('beforeend', `<div class="bub me ask"><small>Your turn. Say:</small><b>${esc(it.en)}</b></div>`);
+    const bub = chat.lastElementChild; bub.scrollIntoView({block: 'end', behavior: 'smooth'});
+    pact.innerHTML = `<button class="wide" id="px-said">I said it · show me</button>`;
+    $('px-said').onclick = () => { bub.classList.remove('ask'); bub.innerHTML = `<b>${tapWords(it.de)}</b><small>${esc(it.en)}</small>`;
+      stopAll(); playBest(it.a, null); pact.innerHTML = `<button class="rv-again" id="px-again">Hear again</button><button class="rv-good" id="px-cont">Continue</button>`;
+      $('px-again').onclick = () => { stopAll(); playBest(it.a, null); }; $('px-cont').onclick = () => { stopAll(); tline++; talkStep(); }; };
+  }
+}
+$('px-close').onclick = pClose;
+document.addEventListener('keydown', e => { if (!px.hidden && e.key === 'Escape') pClose(); });
+document.addEventListener('click', e => { const b = e.target.closest('[data-px]'); if (b && !b.disabled) pOpen(b.dataset.px); });
+$('ptiles').innerHTML = [['listen', '🎧', 'Listen', 'Hear it, pick the meaning'], ['type', '⌨️', 'Type it', 'Write it, check your spelling'],
+  ['speak', '🗣', 'Speak it', SR ? 'Say it, your phone checks it' : 'Needs Safari or Chrome'], ['talk', '💬', 'Conversations', `${TALKS.length} dialogues to act out`]]
+  .map(([m, ic, t, d]) => `<button class="ptile" data-px="${m}"${m === 'speak' && !SR || m === 'talk' && !TALKS.length ? ' disabled' : ''}><span class="ic" aria-hidden="true">${ic}</span><b>${t}</b><span>${d}</span></button>`).join('');
+
+// ---------- daily reminder: a repeating event in the phone's calendar ----------
+$('rem').onclick = () => {
+  const [h, m] = ($('rem-t').value || '19:00').split(':'), d = new Date(), p2 = n => String(n).padStart(2, '0');
+  const day = `${d.getFullYear()}${p2(d.getMonth() + 1)}${p2(d.getDate())}`, url = BASE;
+  const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//German Daily Review//EN', 'BEGIN:VEVENT', `UID:german-daily-review-${Date.now()}@reminder`,
+    `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '')}`, `DTSTART:${day}T${p2(h)}${p2(m)}00`, 'DURATION:PT10M', 'RRULE:FREQ=DAILY',
+    'SUMMARY:German practice 🇩🇪', `DESCRIPTION:5 minutes of German: today's review. ${url}`, `URL:${url}`,
+    'BEGIN:VALARM', 'TRIGGER:PT0M', 'ACTION:DISPLAY', 'DESCRIPTION:German practice 🇩🇪', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+  const a = document.createElement('a'); a.href = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(ics); a.download = 'german-practice.ics';
+  document.body.appendChild(a); a.click(); a.remove();
+  $('rem-msg').textContent = 'Open the file and tap “Add” to put the reminder in your calendar.'; $('rem-msg').className = 'msg ok';
+};
+
 // ---------- my progress ----------
 function streak(){ let n = 0; const d = new Date(); if (!act[today()]) d.setDate(d.getDate() - 1);
   while (act[d.toLocaleDateString('en-CA')]) { n++; d.setDate(d.getDate() - 1); } return n; }
